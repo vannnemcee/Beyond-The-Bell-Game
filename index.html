@@ -1,0 +1,1817 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#090d16" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+  <title>Beyond The Bell</title>
+  <meta name="description" content="Beyond The Bell: Pameran RPL - Game petualangan 2D pixel art pameran karya siswa SMKN 1 Katapang Kabupaten Bandung." />
+  <meta property="og:title" content="Beyond The Bell" />
+  <meta property="og:description" content="Beyond The Bell: Pameran RPL - Game petualangan 2D pixel art pameran karya siswa SMKN 1 Katapang Kabupaten Bandung." />
+
+  <style>
+    @font-face {
+      font-family: 'PressStart2P';
+      src: url('assets/fonts/PressStart2P-Regular.ttf') format('truetype');
+    }
+    @font-face {
+      font-family: 'KenneyMini';
+      src: url('assets/fonts/Kenney Mini Square.ttf') format('truetype');
+    }
+    @font-face {
+      font-family: 'Silkscreen';
+      src: url('assets/fonts/Silkscreen-Regular.ttf') format('truetype');
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background-color: #050811;
+      color: #e2e8f0;
+      font-family: 'KenneyMini', monospace, sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .pixel-text {
+      font-family: 'PressStart2P', monospace;
+      letter-spacing: 0.5px;
+    }
+
+    .font-silk {
+      font-family: 'Silkscreen', monospace;
+    }
+
+    #gameCanvas {
+      image-rendering: -moz-crisp-edges;
+      image-rendering: -webkit-crisp-edges;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 1px 1px rgba(56, 189, 248, 0.2);
+    }
+
+    /* Modal Backdrop */
+    .modal-overlay {
+      background-color: rgba(5, 8, 17, 0.88);
+      backdrop-filter: blur(5px);
+    }
+
+    /* Gentle Title Float */
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+    .animate-float {
+      animation: floatSlow 3.2s ease-in-out infinite;
+    }
+  </style>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 select-none relative">
+
+  <!-- Top Navigation Bar (Active during gameplay) -->
+  <header id="mainNavBar" class="h-11 bg-slate-900/90 border-b border-slate-800/80 flex items-center justify-between px-4 z-30 shrink-0">
+    <!-- Sisi kiri dikosongkan sesuai permintaan pengguna -->
+    <div></div>
+
+    <!-- Controls & Quick Actions (Hanya Tombol Menu) -->
+    <div class="flex items-center gap-2">
+      <button id="btnNavMenu" class="px-3 py-1.5 text-xs font-mono rounded bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 transition flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95" title="Menu & Pengaturan (Esc)">
+        <span>⚙️</span>
+        <span class="font-bold">Menu</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Game Canvas Container (Full Edge-to-Edge Mentok Kiri Kanan) -->
+  <main id="gameContainer" class="flex-1 relative w-full h-full bg-slate-950 overflow-hidden flex items-stretch justify-stretch">
+    <canvas id="gameCanvas" class="w-full h-full block select-none cursor-pointer"></canvas>
+
+    <!-- Slide-up Mission Notification HUD (Bottom Center) -->
+    <div id="missionNotificationHUD" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-30 transition-all duration-700 ease-out transform translate-y-36 opacity-0 pointer-events-none">
+      <div class="flex items-center gap-3 bg-slate-900/95 border-2 border-amber-500/80 rounded-2xl px-5 py-2.5 shadow-[0_10px_35px_rgba(0,0,0,0.9),0_0_20px_rgba(245,158,11,0.25)] backdrop-blur-md">
+        <div class="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shrink-0">
+          <span class="text-base animate-bounce">🎯</span>
+        </div>
+        <div class="flex flex-col">
+          <div class="flex items-center gap-2">
+            <span class="text-[9px] font-mono tracking-widest text-amber-400 font-bold uppercase bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/30">MISI AKTIF</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+          </div>
+          <span id="missionHudText" class="font-mono text-xs sm:text-sm font-bold text-slate-100 drop-shadow">
+            Jam Istirahat: Pergi ke Kantin untuk istirahat & jajan!
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 60s Glitch Classroom Countdown Timer HUD (Top Center) -->
+    <div id="glitchTimerHUD" class="fixed top-14 left-1/2 -translate-x-1/2 z-40 hidden pointer-events-none transition-all duration-300">
+      <div class="flex items-center gap-3 bg-red-950/90 border-2 border-red-500/80 rounded-full px-5 py-2 shadow-[0_0_25px_rgba(239,68,68,0.5)] backdrop-blur-md animate-pulse">
+        <span class="text-xl">⏱️</span>
+        <div class="flex items-baseline gap-1.5 font-mono">
+          <span class="text-xs text-red-300 font-bold uppercase tracking-wider">SISA WAKTU:</span>
+          <span id="glitchTimerNumber" class="text-2xl font-black text-red-100 tracking-wider">60</span>
+          <span class="text-xs text-red-400 font-bold">DETIK</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Boss Battle HUD (Top Screen) -->
+    <div id="battleHUD" class="fixed top-12 left-1/2 -translate-x-1/2 z-40 w-[92%] max-w-lg hidden pointer-events-none transition-all duration-300">
+      <div class="bg-slate-950/95 border-2 border-purple-500/80 rounded-2xl p-3 shadow-[0_10px_35px_rgba(0,0,0,0.9),0_0_25px_rgba(168,85,247,0.3)] backdrop-blur-md flex flex-col gap-2">
+        <!-- Boss Bar -->
+        <div>
+          <div class="flex items-center justify-between text-xs font-mono mb-1">
+            <span class="text-purple-400 font-bold flex items-center gap-1.5">
+              <span class="animate-spin text-sm">👁️</span>
+              <span class="text-purple-300 tracking-widest uppercase">BOS: Satpam ?</span>
+            </span>
+            <span id="bossHpText" class="text-purple-200 font-bold">200 / 200 HP</span>
+          </div>
+          <div class="w-full h-3 bg-slate-900 rounded-full border border-purple-800/80 overflow-hidden p-0.5">
+            <div id="bossHpBar" class="h-full bg-gradient-to-r from-purple-600 via-fuchsia-500 to-red-500 rounded-full transition-all duration-150" style="width: 100%;"></div>
+          </div>
+        </div>
+
+        <!-- Player Bar & Instructions -->
+        <div class="flex items-center justify-between pt-1 border-t border-slate-800/80">
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] font-mono font-bold text-amber-400">MC HP:</span>
+            <div class="w-24 sm:w-36 h-2 bg-slate-900 rounded-full border border-amber-500/50 overflow-hidden">
+              <div id="playerHpBar" class="h-full bg-gradient-to-r from-emerald-500 to-amber-400 rounded-full transition-all duration-150" style="width: 100%;"></div>
+            </div>
+          </div>
+          <span class="text-[10px] font-mono text-amber-300 font-bold animate-pulse">[SPASI / KLIK] ⚔️ Tebas Pedang!</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Glitch / Blackout Overlay -->
+    <div id="glitchBlackoutOverlay" class="fixed inset-0 z-50 bg-black pointer-events-none opacity-0 transition-opacity duration-500"></div>
+
+    <!-- Mobile Virtual Controls -->
+    <div id="mobileControls" class="absolute inset-0 pointer-events-none flex justify-between items-end p-6 z-20 md:hidden">
+      <!-- Touch Virtual Joystick -->
+      <div id="touchJoystickZone" class="w-32 h-32 rounded-full relative pointer-events-auto flex items-center justify-center touch-none">
+        <img src="assets/buttons/Flat light joystick border.png" class="w-full h-full opacity-60 absolute" alt="Joystick Border" />
+        <div id="touchJoystickKnob" class="w-14 h-14 relative z-10 flex items-center justify-center">
+          <img src="assets/buttons/Flat light joystick thumb.png" class="w-full h-full opacity-80" alt="Joystick Knob" />
+        </div>
+      </div>
+
+      <!-- Touch Action Buttons -->
+      <div class="pointer-events-auto flex items-center gap-3">
+        <!-- Touch Attack Button (Saat Punya Pedang / Battle) -->
+        <div id="touchAttackWrapper" class="hidden flex flex-col gap-2 items-center">
+          <button id="btnTouchAttack" class="w-16 h-16 rounded-full active:scale-95 transition-transform flex items-center justify-center shadow-lg bg-red-600/90 hover:bg-red-500 border-2 border-red-400 text-white cursor-pointer" title="Serang dengan Pedang [Spasi]">
+            <span class="text-2xl animate-pulse">⚔️</span>
+          </button>
+          <span class="text-[10px] font-mono text-amber-300 font-bold">[SPASI] Serang</span>
+        </div>
+
+        <!-- Touch Interact Button -->
+        <div class="flex flex-col gap-2 items-center">
+          <button id="btnTouchAction" class="w-16 h-16 rounded-full active:scale-95 transition-transform flex items-center justify-center shadow-lg" title="Aksi / Interaksi">
+            <img src="assets/buttons/A button.png" class="w-full h-full" alt="Action Button" />
+          </button>
+          <span class="text-[10px] font-mono text-slate-400">[A] Interaksi</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- CINEMATIC INTRO & DYNAMIC PRELOADER SCREEN -->
+  <!-- ======================================================== -->
+  <div id="introContainer" class="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center select-none overflow-hidden transition-opacity duration-700 cursor-pointer">
+    
+    <!-- Stage 1: Logo BEYOND THE BELL (Black Screen -> Logo Appears -> Black Screen) -->
+    <div id="introLogoStage" class="absolute inset-0 flex flex-col items-center justify-center transition-all duration-700 opacity-0 pointer-events-none transform scale-95 px-6">
+      <div class="w-[85%] sm:w-[70%] max-w-[500px] drop-shadow-[0_0_40px_rgba(251,191,36,0.35)]">
+        <img src="assets/backgrounds/title_logo.png" alt="Beyond The Bell" class="w-full h-auto object-contain animate-pulse" />
+      </div>
+      <div class="mt-6 flex items-center gap-3">
+        <span class="h-[1px] w-8 bg-amber-400/50"></span>
+        <p class="font-mono text-[11px] sm:text-xs tracking-[0.3em] text-amber-300 font-bold uppercase drop-shadow">SMKN 1 KATAPANG</p>
+        <span class="h-[1px] w-8 bg-amber-400/50"></span>
+      </div>
+    </div>
+
+    <!-- Stage 2: Animasi Loading (Black Screen -> Running Chibi & Dynamic Progress Bar) -->
+    <div id="introLoadingStage" class="absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-500 opacity-0 pointer-events-none px-6">
+      <!-- Animated character running/walking -->
+      <div class="w-16 h-16 sm:w-20 sm:h-20 mb-3 relative flex items-center justify-center">
+        <img id="introCharWalk" src="assets/characters/boy1.png" alt="Loading Character" class="w-full h-full object-contain filter drop-shadow-[0_6px_12px_rgba(0,0,0,0.9)]" />
+      </div>
+
+      <!-- Beyond The Bell subtitle -->
+      <h3 class="pixel-text text-amber-400 text-xs sm:text-sm tracking-wider mb-2 drop-shadow-md">BEYOND THE BELL</h3>
+
+      <!-- Dynamic status text -->
+      <p id="introStatusText" class="font-mono text-[11px] sm:text-xs text-slate-300 mb-3 tracking-wide">Menyiapkan Sekolah...</p>
+
+      <!-- Progress bar container -->
+      <div class="w-64 sm:w-80 h-3 bg-slate-900 rounded-full overflow-hidden border border-slate-700/80 p-0.5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.8)]">
+        <div id="introProgressFill" class="h-full bg-gradient-to-r from-amber-500 via-amber-400 to-emerald-400 rounded-full transition-all duration-150 ease-out w-0 shadow-[0_0_12px_rgba(245,158,11,0.7)]"></div>
+      </div>
+
+      <!-- Percentage & School tag -->
+      <div class="w-64 sm:w-80 flex justify-between items-center mt-2.5 font-mono text-[11px] text-slate-400">
+        <span id="introPercentText" class="text-amber-300 font-bold">0%</span>
+        <span class="text-slate-500 text-[10px] tracking-wider">SMKN 1 KATAPANG · RPL</span>
+      </div>
+    </div>
+
+    <!-- Hint to tap/skip -->
+    <div class="absolute bottom-4 text-center font-mono text-[10px] text-slate-600 tracking-wider">
+      Ketuk untuk mempercepat
+    </div>
+
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- AUTHENTIC TITLE SCREEN (Matches Screenshot Exactly) -->
+  <!-- ======================================================== -->
+  <div id="titleScreen" class="fixed inset-0 z-40 bg-black flex items-center justify-center overflow-hidden select-none">
+    <div class="relative w-full h-full overflow-hidden flex flex-col items-center justify-center">
+      <!-- Grand Gate Background Image: title_bg.png (Stretched edge-to-edge) -->
+      <img id="imgTitleBackground" src="assets/backgrounds/title_bg.png" alt="SMKN 1 Katapang Gate" class="absolute inset-0 w-full h-full object-fill select-none pointer-events-none" />
+
+      <!-- Top Right Quick Controls -->
+      <div class="absolute top-4 right-4 z-50 flex items-center gap-2">
+        <button id="btnTitleAudioToggle" class="bg-black/60 hover:bg-black/80 text-amber-300 border border-amber-500/40 rounded-lg px-3 py-1.5 font-mono text-xs backdrop-blur-sm transition flex items-center gap-1.5 cursor-pointer shadow-lg" title="Pengaturan Suara">
+          <span id="titleAudioIcon">🔊</span>
+          <span id="titleAudioText" class="hidden sm:inline">Theme 1</span>
+        </button>
+      </div>
+
+      <!-- Center Content: Title & Play Button -->
+      <div id="titleContent" class="relative z-30 flex flex-col items-center justify-center w-full max-w-5xl px-4 transition-all duration-700 ease-in-out">
+        <!-- BEYOND THE BELL Title Logo Graphic -->
+        <div id="titleLogoWrapper" class="w-[85%] sm:w-[70%] max-w-[500px] transition-all duration-700 ease-out mb-1 sm:mb-3 drop-shadow-[0_12px_24px_rgba(0,0,0,0.85)]">
+          <img src="assets/backgrounds/title_logo.png" alt="Beyond The Bell" class="w-full h-auto object-contain select-none animate-float" />
+        </div>
+
+        <!-- Green PLAY ▶ Button & Green ABOUT Button with Golden Borders -->
+        <div id="titlePlayWrapper" class="w-[66%] sm:w-[48%] max-w-[360px] transition-all duration-700 ease-out flex flex-col items-center gap-2.5 sm:gap-3.5">
+          <button id="btnTitlePlay" class="w-full relative group cursor-pointer focus:outline-none transition-transform active:scale-95">
+            <img id="imgPlayBtn" src="assets/buttons/btn_play_idle.png" alt="PLAY" class="w-full h-auto object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.95)]" />
+          </button>
+
+          <button id="btnTitleAbout" class="w-[84%] sm:w-[80%] max-w-[300px] relative group cursor-pointer focus:outline-none transition-all duration-150 hover:scale-105 hover:brightness-110 active:scale-95 active:brightness-90">
+            <img id="imgAboutBtn" src="assets/buttons/btn_about_idle.png" alt="ABOUT" class="w-full h-auto object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.9)]" />
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- LOBBY SCREEN (Matches Screenshot: Hallway, P/L, Play/Setting) -->
+  <!-- ======================================================== -->
+  <div id="lobbyScreen" class="hidden fixed inset-0 z-40 bg-black flex items-center justify-center overflow-hidden select-none transition-opacity duration-500 opacity-0">
+    <!-- Full Width & Height Stage: Stretches cleanly edge-to-edge on laptop, mobile, or fullscreen -->
+    <div id="lobbyStage" class="relative w-full h-full overflow-hidden select-none">
+      <!-- Hallway Background: hallway_bg.jpg (Stretched edge-to-edge to full screen width) -->
+      <img src="assets/backgrounds/hallway_bg.jpg" alt="School Hallway" class="absolute inset-0 w-full h-full object-fill pointer-events-none select-none" />
+
+      <!-- Top-Left Title Logo & Back Button -->
+      <div class="absolute left-[3%] top-[3%] z-30 flex flex-col items-start gap-1.5 sm:gap-2 max-w-[30%]">
+        <!-- BEYOND THE BELL Logo -->
+        <div class="w-full drop-shadow-[0_8px_16px_rgba(0,0,0,0.85)]">
+          <img src="assets/backgrounds/title_logo.png" alt="Beyond The Bell" class="w-full h-auto object-contain animate-float" />
+        </div>
+        <!-- Back to Gate Button -->
+        <button id="btnLobbyBack" class="px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg bg-black/70 hover:bg-black/90 text-amber-300 border border-amber-500/40 font-mono text-[10px] sm:text-xs backdrop-blur-sm transition flex items-center gap-1.5 cursor-pointer shadow-lg active:scale-95" title="Kembali ke Gerbang">
+          <span>◀</span>
+          <span>Kembali ke Gerbang</span>
+        </button>
+      </div>
+
+      <!-- Top-Right Audio Mute Toggle -->
+      <button id="btnLobbyMute" class="absolute right-[3%] top-[3%] z-30 bg-black/70 hover:bg-black/90 text-amber-300 border border-amber-500/40 rounded-lg px-2.5 py-1 font-mono text-xs backdrop-blur-sm transition flex items-center gap-1.5 cursor-pointer shadow-lg active:scale-95" title="Suara">
+        <span id="lobbyMuteIcon">🔊</span>
+      </button>
+
+      <!-- Center-Left: Character Standing Firmly on the Red Floor Square Tile (Kotak Merah Dibawah Lantai) -->
+      <!-- In stretched background, the red tile square is always at left 38.5% -->
+      <div id="lobbyCharWrapper" class="absolute left-[38.5%] bottom-[19%] -translate-x-1/2 z-20 flex flex-col items-center pointer-events-none">
+        <div class="relative flex items-center justify-center h-[38vh] min-h-[140px] max-h-[360px]">
+          <img id="lobbyCharImg" src="assets/characters/alisha_00.png" alt="Character Preview" class="h-full w-auto object-contain drop-shadow-[0_12px_20px_rgba(0,0,0,0.95)] transition-transform duration-200" />
+        </div>
+      </div>
+
+      <!-- Bottom: [ P ] and [ L ] Square Buttons directly in front of the red floor square -->
+      <div class="absolute left-[38.5%] bottom-[7.5%] -translate-x-1/2 z-30 flex items-center gap-3 sm:gap-4">
+        <!-- [ P ] Perempuan / Alisha -->
+        <button id="btnSwitchP" class="relative w-12 h-12 sm:w-16 sm:h-16 md:w-18 md:h-18 rounded-lg overflow-hidden border-2 border-amber-400 ring-4 ring-amber-400/50 shadow-2xl transition-all cursor-pointer group active:scale-95" title="Karakter Perempuan: Alisha">
+          <img id="imgSwitchP" src="assets/buttons/Red Button With Stone Frame_Idle.png" class="absolute inset-0 w-full h-full object-cover" alt="Button Stone Frame" />
+          <span class="relative z-10 pixel-text text-lg sm:text-xl md:text-2xl text-white font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">P</span>
+        </button>
+
+        <!-- [ L ] Laki-Laki / Andika -->
+        <button id="btnSwitchL" class="relative w-12 h-12 sm:w-16 sm:h-16 md:w-18 md:h-18 rounded-lg overflow-hidden border-2 border-slate-700 shadow-xl opacity-80 hover:opacity-100 transition-all cursor-pointer group active:scale-95" title="Karakter Laki-Laki: Andika">
+          <img id="imgSwitchL" src="assets/buttons/Red Button With Stone Frame_Idle.png" class="absolute inset-0 w-full h-full object-cover" alt="Button Stone Frame" />
+          <span class="relative z-10 pixel-text text-lg sm:text-xl md:text-2xl text-white font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,1)]">L</span>
+        </button>
+      </div>
+
+      <!-- Character Name Badge -->
+      <div class="absolute left-[38.5%] bottom-[2%] -translate-x-1/2 z-30 bg-black/75 backdrop-blur-sm border border-slate-700/60 rounded-full px-3 py-0.5 sm:px-4 sm:py-1 text-center whitespace-nowrap">
+        <span id="lobbyCharName" class="pixel-text text-[10px] sm:text-xs text-amber-300">ALISHA</span>
+        <span id="lobbyCharRole" class="font-mono text-[9px] sm:text-[11px] text-pink-300 ml-1.5">(Siswi RPL · UI/UX)</span>
+      </div>
+
+      <!-- Right Side: Red Gold Frame Buttons (PLAY & SETTING) -->
+      <div class="absolute right-[4.5%] top-[53%] -translate-y-1/2 z-30 flex flex-col gap-2.5 sm:gap-4 w-[24%] max-w-[280px]">
+        <!-- ▶ PLAY Button (Uses Desain tanpa judul (30).png, 794x237) -->
+        <button id="btnLobbyPlay" class="w-full relative group cursor-pointer focus:outline-none transition-transform active:scale-95">
+          <img id="imgLobbyPlay" src="assets/buttons/Desain tanpa judul (30).png" alt="PLAY" class="w-full h-auto object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.85)]" />
+        </button>
+
+        <!-- ⚙ SETTING Button (Uses Red Button With Gold Frame_Idle.png2.png, 794x237) -->
+        <button id="btnLobbySetting" class="w-full relative group cursor-pointer focus:outline-none transition-transform active:scale-95">
+          <img id="imgLobbySetting" src="assets/buttons/Red Button With Gold Frame_Idle.png2.png" alt="SETTING" class="w-full h-auto object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.85)]" />
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fullscreen Black Transition Curtain for Seamless Scene Transitions -->
+  <div id="fadeCurtain" class="fixed inset-0 bg-black z-50 pointer-events-none transition-opacity duration-300 opacity-0"></div>
+
+  <!-- Dedicated Retro Pixel Game Loading Screen -->
+  <div id="gameLoadingScreen" class="hidden fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-center p-6 select-none transition-opacity duration-300 opacity-0">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black pointer-events-none"></div>
+
+    <!-- School Header -->
+    <div class="relative z-10 flex items-center gap-2 mb-6">
+      <span class="text-xl">🏫</span>
+      <span class="pixel-text text-amber-400 text-xs sm:text-sm tracking-wider">SMKN 1 KATAPANG</span>
+    </div>
+
+    <!-- Character Sprite Walking/Idle Animation Preview -->
+    <div class="relative z-10 w-24 h-24 sm:w-28 sm:h-28 mb-4 flex items-center justify-center">
+      <img id="gameLoaderCharImg" src="assets/characters/alisha_00.png" alt="Loading Character" class="h-full w-auto object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.85)] animate-bounce" />
+    </div>
+
+    <!-- Status Text & Subtitle -->
+    <div class="relative z-10 text-center mb-5">
+      <h2 class="pixel-text text-white text-xs sm:text-sm tracking-widest mb-1.5 drop-shadow">MEMASUKI AREA SEKOLAH</h2>
+      <p id="gameLoaderStatus" class="font-mono text-[11px] sm:text-xs text-amber-300">Menyiapkan koridor dan ruang kelas...</p>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="relative z-10 w-72 sm:w-88 max-w-[88vw] h-4 bg-slate-900 rounded-lg p-0.5 border-2 border-amber-500/70 shadow-[0_0_15px_rgba(245,158,11,0.3)] mb-2">
+      <div id="gameLoaderBar" class="h-full bg-gradient-to-r from-amber-500 via-yellow-400 to-emerald-400 rounded transition-all duration-100 ease-out w-0 shadow-inner"></div>
+    </div>
+    <div class="relative z-10 font-mono text-[11px] text-slate-400 mb-6">
+      <span id="gameLoaderPercent" class="text-emerald-400 font-bold">0%</span>
+    </div>
+
+    <!-- Tips Box -->
+    <div class="relative z-10 bg-slate-900/80 border border-slate-800 rounded-xl px-4 py-2.5 max-w-md text-center backdrop-blur-sm shadow-lg">
+      <p class="font-mono text-[10px] sm:text-[11px] text-slate-300">
+        <span class="text-amber-400 font-bold">💡 Tips:</span> <span id="gameLoaderTip">Gunakan tombol W, A, S, D atau tombol panah untuk menjelajahi area sekolah.</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- RETRO CUTSCENE: LAYAR HITAM "JAM ISTIRAHAT" + BEL SEKOLAH -->
+  <!-- ======================================================== -->
+  <div id="recessIntroOverlay" class="hidden fixed inset-0 z-50 bg-black flex flex-col items-center justify-center p-6 text-center select-none transition-opacity duration-1000 opacity-0 pointer-events-none">
+    <!-- Ambient school golden aura -->
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(245,158,11,0.12),_transparent_70%)] pointer-events-none"></div>
+
+    <div class="relative z-10 flex flex-col items-center max-w-xl mx-auto">
+      <!-- Animated Bell Icon -->
+      <div id="recessBellIcon" class="text-6xl sm:text-7xl mb-5 drop-shadow-[0_0_30px_rgba(245,158,11,0.85)] inline-block transform-gpu transition-transform duration-200">
+        🔔
+      </div>
+
+      <!-- Main Retro Title -->
+      <h1 class="pixel-text text-amber-300 text-2xl sm:text-4xl md:text-5xl tracking-widest mb-3 drop-shadow-[0_4px_20px_rgba(245,158,11,0.8)]">
+        JAM ISTIRAHAT
+      </h1>
+
+      <!-- Chime Subtitle -->
+      <div class="font-mono text-base sm:text-xl text-amber-400 font-semibold tracking-widest mb-4 italic">
+        "Teng... Teng... Teng..."
+      </div>
+
+      <!-- Narrative Text -->
+      <p class="font-mono text-xs sm:text-sm md:text-base text-slate-300 max-w-md mx-auto leading-relaxed border-t border-amber-500/30 pt-4 px-2 mb-6">
+        Bel istirahat berdentang nyaring di seluruh lorong SMKN 1 Katapang.<br>
+        Suasana kelas mulai riuh, saatnya beranjak keluar menuju Koridor Pameran RPL!
+      </p>
+
+      <div class="flex items-center gap-2 text-amber-400/90 font-mono text-xs animate-pulse">
+        <span>🏫</span>
+        <span>Memulai Petualangan di Ruang Kelas RPL...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- CINEMATIC VIGNETTE (Layar pinggir menggelap saat cutscene kelas) -->
+  <!-- ======================================================== -->
+  <div id="cutsceneVignette" class="hidden fixed inset-0 z-40 pointer-events-none transition-opacity duration-1000 opacity-0" style="background: radial-gradient(ellipse at center, rgba(0,0,0,0) 35%, rgba(0,0,0,0.88) 100%);"></div>
+
+  <!-- Top Left FPS Counter (Toggleable in Settings) -->
+  <div id="fpsBadge" class="fixed top-3 left-3 z-50 flex items-center gap-1.5 bg-black/75 backdrop-blur-md border border-emerald-500/50 rounded-lg px-2.5 py-1 shadow-lg pointer-events-none select-none transition-opacity duration-200">
+    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+    <span id="fpsValue" class="font-mono text-xs font-bold text-emerald-400">FPS: 60</span>
+  </div>
+
+  <!-- About Game & Credits Modal -->
+  <div id="aboutModal" class="hidden fixed inset-0 modal-overlay flex items-center justify-center z-50 p-4">
+    <div class="max-w-md w-full bg-slate-900 border-2 border-amber-500 rounded-2xl p-5 sm:p-6 shadow-[0_0_35px_rgba(245,158,11,0.25)] flex flex-col max-h-[90vh] overflow-y-auto">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">📜</span>
+          <h2 class="pixel-text text-xs text-amber-400">TENTANG GAME & KREDIT</h2>
+        </div>
+        <button id="btnCloseAbout" class="text-slate-400 hover:text-white font-mono text-sm px-2 cursor-pointer transition">✕</button>
+      </div>
+
+      <!-- Game Branding & Version -->
+      <div class="flex flex-col items-center text-center mb-4 pb-4 border-b border-slate-800/80">
+        <div class="w-40 sm:w-48 mb-2 drop-shadow-md">
+          <img src="assets/backgrounds/title_logo.png" alt="Beyond The Bell" class="w-full h-auto object-contain" />
+        </div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/40 text-amber-300 font-mono text-[11px] mb-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Versi Game: <strong>1.0.0</strong></span>
+        </div>
+        <p class="font-mono text-[11px] text-slate-400">SMKN 1 Katapang · Rekayasa Perangkat Lunak (RPL)</p>
+      </div>
+
+      <!-- Credits Content -->
+      <div class="flex flex-col gap-3 mb-5 font-mono text-xs">
+        
+        <!-- Programming -->
+        <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800/80 shadow-sm">
+          <div class="flex items-center gap-2 text-emerald-400 font-bold mb-1.5 text-xs">
+            <span>💻</span>
+            <span>Programing:</span>
+          </div>
+          <ul class="text-slate-200 text-xs space-y-1 pl-6 list-disc marker:text-emerald-500">
+            <li>Afsel Juniar Fadilah</li>
+            <li>Evan Angga Subagja</li>
+          </ul>
+        </div>
+
+        <!-- Desainer -->
+        <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800/80 shadow-sm">
+          <div class="flex items-center gap-2 text-amber-400 font-bold mb-1.5 text-xs">
+            <span>🎨</span>
+            <span>Desainer:</span>
+          </div>
+          <ul class="text-slate-200 text-xs space-y-1 pl-6 list-disc marker:text-amber-500">
+            <li>Hanisa Siti Nurjannah</li>
+            <li>Meisya Arestya Putri</li>
+          </ul>
+        </div>
+
+        <!-- Analisis -->
+        <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800/80 shadow-sm">
+          <div class="flex items-center gap-2 text-sky-400 font-bold mb-1.5 text-xs">
+            <span>📊</span>
+            <span>Analisis:</span>
+          </div>
+          <ul class="text-slate-200 text-xs space-y-1 pl-6 list-disc marker:text-sky-500">
+            <li>Mahardika Mandala Pratama</li>
+            <li>Siti Anjani Salimaryamah</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Close Button -->
+      <button id="btnCloseAboutBtn" class="w-full py-2.5 rounded-lg bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 pixel-text text-xs cursor-pointer shadow-lg active:scale-95 transition">
+        TUTUP
+      </button>
+
+    </div>
+  </div>
+
+  <!-- Retro Settings Modal (from SETTING button) -->
+  <div id="settingsModal" class="hidden fixed inset-0 modal-overlay flex items-center justify-center z-50 p-4">
+    <div class="max-w-md w-full bg-slate-900 border-2 border-amber-500 rounded-2xl p-6 shadow-2xl flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">⚙</span>
+          <h2 class="pixel-text text-xs text-amber-400">PENGATURAN GAME</h2>
+        </div>
+        <button id="btnCloseSettings" class="text-slate-400 hover:text-white font-mono text-sm px-2 cursor-pointer">✕</button>
+      </div>
+
+      <div class="flex flex-col gap-4 mb-5 font-mono text-xs text-slate-300">
+        <!-- FPS Toggle Row -->
+        <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 flex items-center justify-between">
+          <span>Tampilkan FPS (Pojok Kiri Atas):</span>
+          <button id="btnSettingFpsToggle" class="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 cursor-pointer font-mono text-xs flex items-center gap-1.5 shadow-sm transition">
+            <span id="fpsToggleDot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span id="fpsToggleText" class="text-emerald-300 font-bold">ON</span>
+          </button>
+        </div>
+
+        <!-- Audio BGM Volume Slider (0 - 100) -->
+        <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span id="iconLobbyMusic">🔊</span>
+              <span>Volume Musik:</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="valLobbyMusic" class="text-amber-400 font-bold">50%</span>
+              <button id="btnSettingBgmToggle" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 cursor-pointer text-[10px]">
+                🔊 Hidup
+              </button>
+            </div>
+          </div>
+          <input type="range" id="sliderLobbyMusic" min="0" max="100" value="50" class="w-full accent-amber-400 cursor-pointer h-1.5 bg-slate-800 rounded-lg" />
+        </div>
+
+        <!-- Volume Suara Efek SFX Slider (0 - 100) -->
+        <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span>🔔</span>
+              <span>Volume Efek Suara:</span>
+            </div>
+            <span id="valLobbySfx" class="text-amber-400 font-bold">70%</span>
+          </div>
+          <input type="range" id="sliderLobbySfx" min="0" max="100" value="70" class="w-full accent-amber-400 cursor-pointer h-1.5 bg-slate-800 rounded-lg" />
+        </div>
+
+        <!-- BGM Track Selector -->
+        <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 flex items-center justify-between">
+          <span>Pilihan Lagu:</span>
+          <button id="btnSettingTrackNext" class="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-slate-700 cursor-pointer">
+            🎵 Theme 1 ▶
+          </button>
+        </div>
+
+        <!-- Controls Help -->
+        <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+          <div class="text-amber-400 font-bold mb-1.5">Kontrol Karakter:</div>
+          <div class="text-[11px] text-slate-400 leading-relaxed">
+            • Bergerak: Tombol W, A, S, D atau Tombol Panah<br>
+            • Interaksi / Aksi: Tombol Spasi, Enter, atau tombol [A]<br>
+            • Tas / Inventori: Tombol [ I ]<br>
+            • Peta Pameran: Tombol [ M ]
+          </div>
+        </div>
+      </div>
+
+      <button id="btnSaveSettings" class="w-full py-2.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 pixel-text text-xs cursor-pointer shadow-lg">
+        SIMPAN & TUTUP
+      </button>
+    </div>
+  </div>
+
+  <!-- In-Game Settings / Menu Popup Modal (Sesuai Permintaan Foto 3) -->
+  <div id="inGameSettingsModal" class="hidden fixed inset-0 z-50 modal-overlay flex items-center justify-center p-4">
+    <div class="bg-slate-900 border-2 border-amber-500/80 rounded-2xl w-full max-w-sm p-6 shadow-[0_10px_40px_rgba(0,0,0,0.9),0_0_25px_rgba(251,191,36,0.2)] flex flex-col gap-4">
+      
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">⚙️</span>
+          <h3 class="text-sm font-bold text-amber-300 pixel-text">PENGATURAN</h3>
+        </div>
+        <button id="btnSettingsCloseX" class="text-slate-400 hover:text-white text-lg font-mono px-2 py-0.5 rounded hover:bg-slate-800 transition cursor-pointer">✕</button>
+      </div>
+
+      <!-- Settings List -->
+      <div class="flex flex-col gap-3 font-mono text-xs">
+        
+        <!-- 1. Volume Musik BGM Slider (0 - 100) -->
+        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-base" id="iconMusicStatus">🔊</span>
+              <span class="text-slate-200">Volume Musik:</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="valMusicVolume" class="text-amber-400 font-bold">50%</span>
+              <button id="btnToggleMusicInGame" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 cursor-pointer text-[10px] font-bold">
+                <span id="textMusicInGame" class="text-emerald-300">ON</span>
+              </button>
+            </div>
+          </div>
+          <input type="range" id="sliderMusicVolume" min="0" max="100" value="50" class="w-full accent-amber-400 cursor-pointer h-1.5 bg-slate-800 rounded-lg" />
+        </div>
+
+        <!-- 2. Volume Efek Suara SFX Slider (0 - 100) -->
+        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-base">🔔</span>
+              <span class="text-slate-200">Volume Suara Efek:</span>
+            </div>
+            <span id="valSfxVolume" class="text-amber-400 font-bold">70%</span>
+          </div>
+          <input type="range" id="sliderSfxVolume" min="0" max="100" value="70" class="w-full accent-amber-400 cursor-pointer h-1.5 bg-slate-800 rounded-lg" />
+        </div>
+
+        <!-- 3. Ganti Music -->
+        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-base">🎵</span>
+            <span class="text-slate-200">Ganti Musik:</span>
+          </div>
+          <button id="btnChangeTrackInGame" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 cursor-pointer flex items-center gap-1.5 transition text-amber-300 font-bold">
+            <span id="textTrackInGame">Theme 1</span>
+            <span>▶</span>
+          </button>
+        </div>
+
+        <!-- 4. On / Off FPS -->
+        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/80 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-base">⚡</span>
+            <span class="text-slate-200">Tampilkan FPS:</span>
+          </div>
+          <button id="btnToggleFpsInGame" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 cursor-pointer flex items-center gap-1.5 transition font-bold">
+            <span id="dotFpsInGame" class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span id="textFpsInGame" class="text-emerald-300">ON</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col gap-2.5 pt-2 border-t border-slate-800 font-mono text-xs">
+        <!-- 4. Resume -->
+        <button id="btnSettingsResume" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold tracking-wider shadow-lg hover:shadow-emerald-500/20 active:scale-95 transition cursor-pointer flex items-center justify-center gap-2">
+          <span>▶</span>
+          <span>RESUME</span>
+        </button>
+
+        <!-- 5. Back to Menu -->
+        <button id="btnSettingsBackToMenu" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-red-950/60 border border-slate-700 hover:border-red-500/50 text-slate-300 hover:text-red-300 font-bold tracking-wider active:scale-95 transition cursor-pointer flex items-center justify-center gap-2">
+          <span>🏠</span>
+          <span>BACK TO MENU</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal Tantangan Segel Buku Anomali (5 Soal Wajib Benar Semua) -->
+  <div id="bookQuizModal" class="hidden fixed inset-0 z-50 modal-overlay flex items-center justify-center p-4">
+    <div class="bg-slate-900 border-2 border-purple-500/90 rounded-2xl w-full max-w-lg p-5 sm:p-6 shadow-[0_10px_50px_rgba(0,0,0,0.95),0_0_30px_rgba(168,85,247,0.35)] flex flex-col gap-4">
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b border-purple-800/80 pb-3">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl animate-pulse">📖</span>
+          <div>
+            <h3 id="bookQuizTitle" class="text-xs sm:text-sm font-bold text-purple-300 pixel-text">SEGEL BUKU ANOMALI #1</h3>
+            <p class="text-[10px] font-mono text-purple-400 font-bold uppercase tracking-wider">SYARAT: JAWAB 5 SOAL DENGAN BENAR SEMUA (5/5)</p>
+          </div>
+        </div>
+        <div class="bg-purple-950/80 border border-purple-500/50 rounded-xl px-3 py-1 text-xs font-mono font-bold text-purple-200">
+          Soal <span id="bookQuizStep" class="text-amber-400 font-bold">1</span>/5
+        </div>
+      </div>
+
+      <!-- Question Box -->
+      <div class="bg-slate-950/90 p-3.5 sm:p-4 rounded-xl border border-purple-900/80">
+        <p id="bookQuizQuestion" class="font-mono text-xs sm:text-sm text-slate-100 font-bold leading-relaxed">
+          Pertanyaan sedang dimuat...
+        </p>
+      </div>
+
+      <!-- Options A, B, C, D -->
+      <div id="bookQuizOptions" class="flex flex-col gap-2 font-mono text-xs">
+        <!-- Buttons injected dynamically -->
+      </div>
+
+      <!-- Result / Feedback message -->
+      <div id="bookQuizFeedback" class="hidden font-mono text-xs p-2.5 rounded-xl text-center font-bold"></div>
+
+      <!-- Cancel / Close button -->
+      <div class="flex justify-end pt-1">
+        <button id="btnCancelBookQuiz" class="text-slate-400 hover:text-white text-xs font-mono px-3 py-1.5 rounded-lg hover:bg-slate-800 transition cursor-pointer">
+          ✕ Batal & Coba Nanti
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Game Over / Tertangkap Anomali (Mengulangi atau Menyerah) -->
+  <div id="gameOverModal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 select-none">
+    <div class="max-w-md w-full bg-slate-950 border-2 border-red-700/80 rounded-2xl p-6 shadow-[0_0_50px_rgba(220,38,38,0.5)] flex flex-col items-center text-center relative overflow-hidden animate-fade-in">
+      <!-- Ambient red glow background -->
+      <div class="absolute -top-24 -left-24 w-48 h-48 bg-red-600/20 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-purple-600/20 rounded-full blur-3xl pointer-events-none"></div>
+      
+      <!-- Icon / Entity Portrait -->
+      <div class="w-20 h-20 rounded-2xl bg-black border-2 border-red-600/70 flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(239,68,68,0.4)] overflow-hidden relative">
+        <img src="assets/characters/shadow_glitch_portrait.png" alt="???" class="w-full h-full object-cover filter contrast-125 brightness-90 animate-pulse" />
+      </div>
+
+      <span class="text-xs font-mono font-bold text-red-500 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+        MISI GAGAL
+      </span>
+      <h2 class="pixel-text text-base sm:text-lg text-red-400 mb-2 drop-shadow-[0_2px_10px_rgba(239,68,68,0.5)]">
+        TERTANGKAP OLEH ???
+      </h2>
+      <p class="text-xs sm:text-sm font-mono text-slate-300 leading-relaxed mb-6 max-w-xs">
+        Waktu 60 detik habis! Sosok glitch misterius berhasil mengejar dan menangkapmu di dalam kelas.
+      </p>
+
+      <!-- Action Buttons: Mengulangi / Menyerah -->
+      <div class="flex flex-col sm:flex-row gap-3 w-full">
+        <button id="btnRetryGlitchClassroom" class="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 active:scale-95 text-white font-mono text-xs sm:text-sm font-bold shadow-lg shadow-red-950/60 border border-red-400/40 flex items-center justify-center gap-2 transition cursor-pointer">
+          <span>🔄</span>
+          <span>Mengulangi</span>
+        </button>
+
+        <button id="btnGiveUpGlitchClassroom" class="flex-1 py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-95 text-slate-300 hover:text-white font-mono text-xs sm:text-sm font-bold border border-slate-700/80 flex items-center justify-center gap-2 transition cursor-pointer">
+          <span>🏳️</span>
+          <span>Menyerah</span>
+        </button>
+      </div>
+
+      <p class="text-[10px] font-mono text-slate-500 mt-4">
+        *Menyerah akan mengulang permainan ke awal saat jam istirahat berbunyi.
+      </p>
+    </div>
+  </div>
+
+  <!-- Inventory Modal -->
+  <div id="inventoryModal" class="hidden fixed inset-0 modal-overlay flex items-center justify-center z-50 p-4">
+    <div class="max-w-md w-full bg-slate-900 border border-slate-700 rounded-xl p-5 shadow-2xl flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">🎒</span>
+          <h2 class="pixel-text text-xs text-amber-400">TAS & INVENTORI</h2>
+        </div>
+        <button id="btnCloseInventory" class="text-slate-400 hover:text-white font-mono text-sm px-2 cursor-pointer">✕</button>
+      </div>
+
+      <!-- Items List -->
+      <div id="inventoryList" class="flex flex-col gap-2 min-h-48 max-h-72 overflow-y-auto mb-4">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div class="border-t border-slate-800 pt-3 flex justify-between items-center text-xs font-mono text-slate-400">
+        <span id="inventoryCount">Total Barang: 0</span>
+        <button id="btnCloseInventoryBtn" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 cursor-pointer">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- School Map Modal -->
+  <div id="mapModal" class="hidden fixed inset-0 modal-overlay flex items-center justify-center z-50 p-4">
+    <div class="max-w-2xl w-full bg-slate-900 border border-slate-700 rounded-xl p-5 shadow-2xl flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">🗺️</span>
+          <h2 class="pixel-text text-xs text-amber-400">DENAH PAMERAN SEKOLAH</h2>
+        </div>
+        <button id="btnCloseMap" class="text-slate-400 hover:text-white font-mono text-sm px-2 cursor-pointer">✕</button>
+      </div>
+
+      <div class="relative rounded-lg overflow-hidden border border-slate-800 mb-4 bg-slate-950 flex items-center justify-center max-h-96">
+        <img src="assets/backgrounds/ChatGPT Image 31 Agu 2026, 17.05.29.png" alt="School Map" class="w-full h-auto object-contain" />
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] font-mono mb-2">
+        <div class="bg-slate-800/80 p-2 rounded border border-slate-700">
+          <span class="text-emerald-400 font-bold">1. Gerbang:</span> Pos Satpam & Akses Luar
+        </div>
+        <div class="bg-slate-800/80 p-2 rounded border border-slate-700">
+          <span class="text-sky-400 font-bold">2. Koridor:</span> 4 Stand Pameran RPL
+        </div>
+        <div class="bg-slate-800/80 p-2 rounded border border-slate-700">
+          <span class="text-amber-400 font-bold">3. Kelas:</span> Bu Rina & Kuis Kejuruan
+        </div>
+        <div class="bg-slate-800/80 p-2 rounded border border-slate-700">
+          <span class="text-purple-400 font-bold">4. Lab:</span> Server Utama & Piagam
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ERD Diagram Viewer Modal -->
+  <div id="erdModal" class="hidden fixed inset-0 modal-overlay flex items-center justify-center z-50 p-4">
+    <div class="max-w-3xl w-full bg-slate-900 border border-slate-700 rounded-xl p-5 shadow-2xl flex flex-col max-h-[90vh]">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">📑</span>
+          <h2 class="pixel-text text-xs text-sky-400">BOOTH 3: DIAGRAM DATABASE (ERD BUSUSAN)</h2>
+        </div>
+        <button id="btnCloseErd" class="text-slate-400 hover:text-white font-mono text-sm px-2 cursor-pointer">✕</button>
+      </div>
+
+      <p class="text-xs font-mono text-slate-300 mb-3">
+        Arsitektur relasi database karya siswa tingkat 12 untuk sistem absensi dan pameran RPL:
+      </p>
+
+      <div class="flex-1 overflow-auto rounded-lg border border-slate-800 bg-white p-2 flex items-center justify-center mb-3">
+        <img src="assets/backgrounds/ERD BUSUSAN.drawio.png" alt="ERD Bususan Diagram" class="max-w-full h-auto" />
+      </div>
+
+      <div class="flex justify-end">
+        <button id="btnCloseErdBtn" class="px-4 py-2 rounded bg-sky-600 hover:bg-sky-500 text-white font-mono text-xs cursor-pointer">Selesai Memeriksa</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quiz Modal -->
+  <div id="quizModal" class="hidden fixed inset-0 modal-overlay flex items-center justify-center z-50 p-4">
+    <div class="max-w-lg w-full bg-slate-900 border border-slate-700 rounded-xl p-6 shadow-2xl flex flex-col">
+      <!-- Quiz Header -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+        <div>
+          <h2 class="pixel-text text-xs text-amber-400 mb-1">KUIS UJI KOMPETENSI RPL</h2>
+          <span id="quizProgress" class="text-[11px] font-mono text-slate-400">Soal 1 dari 5</span>
+        </div>
+        <span id="quizScoreBadge" class="pixel-text text-xs text-emerald-400 bg-emerald-950 px-2.5 py-1 rounded border border-emerald-800">Skor: 0</span>
+      </div>
+
+      <!-- Question Text -->
+      <p id="quizQuestionText" class="text-sm font-mono text-slate-100 font-semibold mb-5 leading-relaxed">
+        Memuat soal kuis...
+      </p>
+
+      <!-- Options -->
+      <div id="quizOptionsContainer" class="flex flex-col gap-2.5 mb-4">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Feedback -->
+      <div id="quizFeedback" class="hidden p-3 rounded bg-slate-800 border border-slate-700 text-xs font-mono mb-4 leading-relaxed">
+      </div>
+
+      <!-- Next Button -->
+      <div class="flex justify-end">
+        <button id="quizNextBtn" class="hidden px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-mono text-xs cursor-pointer">
+          Lanjut Soal Berikutnya ▶
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Victory / Grand Celebration Modal -->
+  <div id="victoryModal" class="hidden fixed inset-0 modal-overlay flex items-center justify-center z-50 p-4">
+    <div class="max-w-md w-full bg-slate-900 border-2 border-amber-500 rounded-2xl p-6 shadow-2xl flex flex-col items-center text-center">
+      <div class="text-5xl mb-3 animate-pulse">🏆</div>
+      <h2 class="pixel-text text-sm md:text-base text-amber-400 mb-2 leading-relaxed">PAMERAN RPL BERHASIL SUKSES!</h2>
+      <p class="text-xs font-mono text-slate-300 mb-4 leading-relaxed">
+        Selamat! Kamu telah membantu Pak Satpam, mengembalikan Flashdisk proyek Rian, mempelajari arsitektur ERD, lulus Kuis Kejuruan, dan meraih Piagam Penghargaan Bintang RPL!
+      </p>
+
+      <div class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 mb-5 font-mono text-xs text-left">
+        <div class="flex justify-between py-1 text-slate-400">
+          <span>Karakter:</span>
+          <span id="vicPlayerName" class="text-white font-bold">Andika</span>
+        </div>
+        <div class="flex justify-between py-1 text-slate-400">
+          <span>Gelar Diraih:</span>
+          <span class="text-emerald-400 font-bold">Bintang Juara RPL 2026</span>
+        </div>
+        <div class="flex justify-between py-1 text-slate-400">
+          <span>Status Pameran:</span>
+          <span class="text-amber-400 font-bold">100% Selesai & Ramai</span>
+        </div>
+      </div>
+
+      <button id="btnPlayAgain" class="w-full py-3 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 pixel-text text-xs cursor-pointer shadow-lg">
+        LANJUTKAN JELAJAH SEKOLAH
+      </button>
+    </div>
+  </div>
+
+  <!-- Game Scripts (ES Modules) -->
+  <script type="module">
+    import { game } from './game/main.js';
+    import { sound } from './game/audio.js';
+    import { sprites } from './game/sprites.js';
+
+    // ========================================================
+    // CINEMATIC INTRO & DYNAMIC ASSET LOADING CONTROLLER
+    // ========================================================
+    const introContainer = document.getElementById('introContainer');
+    const introLogoStage = document.getElementById('introLogoStage');
+    const introLoadingStage = document.getElementById('introLoadingStage');
+    const introCharWalk = document.getElementById('introCharWalk');
+    const introStatusText = document.getElementById('introStatusText');
+    const introProgressFill = document.getElementById('introProgressFill');
+    const introPercentText = document.getElementById('introPercentText');
+
+    let isIntroDone = false;
+    let isAssetsFinished = false;
+    let realProgress = 0; // 0 to 100
+    let visualProgress = 0; // 0 to 100
+    let currentIntroPhase = 'INITIAL_BLACK'; // INITIAL_BLACK -> LOGO_SHOW -> BLACK_PAUSE -> LOADING -> COMPLETED
+
+    // Walking animation frames for loading chibi
+    const walkFrames = [
+      'assets/characters/boy1.png',
+      'assets/characters/boy2.png',
+      'assets/characters/boy3.png',
+      'assets/characters/boy4.png'
+    ];
+    let walkFrameIdx = 0;
+    const walkInterval = setInterval(() => {
+      if (isIntroDone) {
+        clearInterval(walkInterval);
+        return;
+      }
+      walkFrameIdx = (walkFrameIdx + 1) % walkFrames.length;
+      if (introCharWalk) introCharWalk.src = walkFrames[walkFrameIdx];
+    }, 130);
+
+    // Track real asset preloading in background
+    sprites.preloadAll(
+      (loaded, total) => {
+        realProgress = Math.min(100, Math.floor((loaded / total) * 100));
+      },
+      () => {
+        realProgress = 100;
+        isAssetsFinished = true;
+      }
+    );
+
+    // Fast-forward / Tap to speed up feature
+    if (introContainer) {
+      introContainer.addEventListener('click', () => {
+        if (currentIntroPhase === 'LOGO_SHOW' || currentIntroPhase === 'INITIAL_BLACK') {
+          // Fast forward to loading stage
+          currentIntroPhase = 'LOADING';
+          introLogoStage.style.opacity = '0';
+          setTimeout(() => {
+            introLoadingStage.style.opacity = '1';
+          }, 150);
+        } else if (currentIntroPhase === 'LOADING') {
+          // Boost visual progress
+          visualProgress = Math.max(visualProgress, 92);
+        }
+      });
+    }
+
+    // Run the Cinematic Timeline
+    // 1. Initial Black Screen (600ms)
+    setTimeout(() => {
+      if (currentIntroPhase !== 'INITIAL_BLACK') return;
+      currentIntroPhase = 'LOGO_SHOW';
+      // Fade in BEYOND THE BELL Logo
+      if (introLogoStage) {
+        introLogoStage.style.opacity = '1';
+        introLogoStage.style.transform = 'scale(1)';
+      }
+
+      // 2. Logo stays visible (1800ms)
+      setTimeout(() => {
+        if (currentIntroPhase !== 'LOGO_SHOW') return;
+        currentIntroPhase = 'BLACK_PAUSE';
+        // Fade out Logo back to pure black
+        if (introLogoStage) {
+          introLogoStage.style.opacity = '0';
+          introLogoStage.style.transform = 'scale(1.04)';
+        }
+
+        // 3. Black screen pause (700ms)
+        setTimeout(() => {
+          if (currentIntroPhase !== 'BLACK_PAUSE') return;
+          currentIntroPhase = 'LOADING';
+          // Fade in Animasi Loading
+          if (introLoadingStage) {
+            introLoadingStage.style.opacity = '1';
+          }
+        }, 700);
+
+      }, 1900);
+
+    }, 600);
+
+    // Dynamic Loading Progress Updater
+    const progressTimer = setInterval(() => {
+      if (isIntroDone) {
+        clearInterval(progressTimer);
+        return;
+      }
+
+      if (currentIntroPhase === 'LOADING') {
+        if (!isAssetsFinished) {
+          // Belum selesai download: progress bergerak halus mengikuti download riil (maks 80%)
+          const target = Math.max(realProgress, 25);
+          if (visualProgress < target) {
+            visualProgress += 1.4;
+          }
+          if (introStatusText) introStatusText.textContent = `Memuat Aset Sekolah... (${Math.floor(visualProgress)}%)`;
+        } else {
+          // SUDAH SELESAI DOWNLOAD: CEPETIN LOADING-NYA!
+          // ("kalo semisal assets nya belum ke download kalo udah loading nya cepetin dan itu masuk ke menu yang play")
+          visualProgress += 7.5; // Fast acceleration straight to 100%!
+          if (visualProgress >= 100) {
+            visualProgress = 100;
+            if (introStatusText) introStatusText.textContent = 'Aset Siap! Membuka Gerbang... 100%';
+            if (introProgressFill) introProgressFill.style.width = '100%';
+            if (introPercentText) introPercentText.textContent = '100%';
+            isIntroDone = true;
+            clearInterval(progressTimer);
+
+            // Jeda singkat yang mulus (~350ms) lalu fade out ke Menu PLAY
+            setTimeout(() => {
+              if (introContainer) {
+                introContainer.style.opacity = '0';
+                setTimeout(() => {
+                  introContainer.classList.add('hidden');
+                  // Title Screen is now fully revealed with green PLAY button!
+                }, 700);
+              }
+            }, 350);
+            return;
+          } else {
+            if (introStatusText) introStatusText.textContent = `Menyiapkan Sekolah... (${Math.floor(visualProgress)}%)`;
+          }
+        }
+
+        // Clamp & update UI
+        visualProgress = Math.min(100, visualProgress);
+        if (introProgressFill) introProgressFill.style.width = `${Math.floor(visualProgress)}%`;
+        if (introPercentText) introPercentText.textContent = `${Math.floor(visualProgress)}%`;
+      }
+    }, 40);
+
+    let selectedGender = 'girl'; // Default matches screenshot (Female Chibi)
+    let selectedName = 'Alisha';
+
+    // PLAY Button on Authentic Title Screen
+    const btnPlay = document.getElementById('btnTitlePlay');
+    const imgPlay = document.getElementById('imgPlayBtn');
+    const titleLogo = document.getElementById('titleLogoWrapper');
+    const titlePlayWrap = document.getElementById('titlePlayWrapper');
+    const titleScreen = document.getElementById('titleScreen');
+    const lobbyScreen = document.getElementById('lobbyScreen');
+
+    const PLAY_IDLE = 'assets/buttons/btn_play_idle.png';
+    const PLAY_HOVER = 'assets/buttons/btn_play_hover.png';
+    const PLAY_PRESSED = 'assets/buttons/btn_play_pressed.png';
+
+    // Hover & Active texture swapping for green PLAY button
+    btnPlay.addEventListener('mouseenter', () => {
+      imgPlay.src = PLAY_HOVER;
+    });
+    btnPlay.addEventListener('mouseleave', () => {
+      imgPlay.src = PLAY_IDLE;
+    });
+    btnPlay.addEventListener('mousedown', () => {
+      imgPlay.src = PLAY_PRESSED;
+    });
+    btnPlay.addEventListener('mouseup', () => {
+      imgPlay.src = PLAY_HOVER;
+    });
+    btnPlay.addEventListener('touchstart', () => {
+      imgPlay.src = PLAY_PRESSED;
+    }, { passive: true });
+    btnPlay.addEventListener('touchend', () => {
+      imgPlay.src = PLAY_IDLE;
+    }, { passive: true });
+
+    // ABOUT Button on Authentic Title Screen
+    const btnAbout = document.getElementById('btnTitleAbout');
+    const imgAbout = document.getElementById('imgAboutBtn');
+    const aboutModal = document.getElementById('aboutModal');
+    const btnCloseAbout = document.getElementById('btnCloseAbout');
+    const btnCloseAboutBtn = document.getElementById('btnCloseAboutBtn');
+
+    const ABOUT_IDLE = 'assets/buttons/btn_about_idle.png';
+    const ABOUT_HOVER = 'assets/buttons/btn_about_idle.png';
+    const ABOUT_PRESSED = 'assets/buttons/btn_about_idle.png';
+
+    if (btnAbout && imgAbout) {
+      btnAbout.addEventListener('mouseenter', () => {
+        imgAbout.src = ABOUT_HOVER;
+      });
+      btnAbout.addEventListener('mouseleave', () => {
+        imgAbout.src = ABOUT_IDLE;
+      });
+      btnAbout.addEventListener('mousedown', () => {
+        imgAbout.src = ABOUT_PRESSED;
+      });
+      btnAbout.addEventListener('mouseup', () => {
+        imgAbout.src = ABOUT_HOVER;
+      });
+      btnAbout.addEventListener('touchstart', () => {
+        imgAbout.src = ABOUT_PRESSED;
+      }, { passive: true });
+      btnAbout.addEventListener('touchend', () => {
+        imgAbout.src = ABOUT_IDLE;
+      }, { passive: true });
+
+      btnAbout.onclick = () => {
+        sound.playClick();
+        if (aboutModal) aboutModal.classList.remove('hidden');
+      };
+    }
+
+    if (btnCloseAbout) {
+      btnCloseAbout.onclick = () => {
+        sound.playClick();
+        if (aboutModal) aboutModal.classList.add('hidden');
+      };
+    }
+    if (btnCloseAboutBtn) {
+      btnCloseAboutBtn.onclick = () => {
+        sound.playClick();
+        if (aboutModal) aboutModal.classList.add('hidden');
+      };
+    }
+    if (aboutModal) {
+      aboutModal.addEventListener('click', (e) => {
+        if (e.target === aboutModal) {
+          aboutModal.classList.add('hidden');
+          sound.playClick();
+        }
+      });
+    }
+
+    // Seamless Black Screen Transition Helper
+    const fadeCurtain = document.getElementById('fadeCurtain');
+
+    function fadeTransition(swapCallback, doneCallback) {
+      fadeCurtain.classList.remove('pointer-events-none');
+      fadeCurtain.style.opacity = '1';
+      setTimeout(() => {
+        if (swapCallback) swapCallback();
+        setTimeout(() => {
+          fadeCurtain.style.opacity = '0';
+          setTimeout(() => {
+            fadeCurtain.classList.add('pointer-events-none');
+            if (doneCallback) doneCallback();
+          }, 300);
+        }, 80);
+      }, 300);
+    }
+
+    // Click PLAY action on Gate screen -> Fade to Black -> Reveal Lobby (Foto 2)
+    btnPlay.onclick = () => {
+      sound.playClick();
+      sound.playBGM();
+      imgPlay.src = PLAY_PRESSED;
+
+      fadeTransition(() => {
+        titleScreen.classList.add('hidden');
+        lobbyScreen.classList.remove('hidden');
+        lobbyScreen.style.opacity = '1';
+      });
+    };
+
+    // Return from Lobby Screen to Gate Screen -> Fade to Black -> Reveal Gate
+    document.getElementById('btnLobbyBack').onclick = () => {
+      sound.playClick();
+      fadeTransition(() => {
+        lobbyScreen.classList.add('hidden');
+        titleScreen.classList.remove('hidden');
+        titleLogo.style.transform = 'translateY(0px)';
+        titleLogo.style.opacity = '1';
+        titlePlayWrap.style.transform = 'translateY(0px)';
+        titlePlayWrap.style.opacity = '1';
+        imgPlay.src = PLAY_IDLE;
+      });
+    };
+
+    // Character Switching [ P ] and [ L ] on Lobby Screen
+    const btnSwitchP = document.getElementById('btnSwitchP');
+    const btnSwitchL = document.getElementById('btnSwitchL');
+    const lobbyCharImg = document.getElementById('lobbyCharImg');
+    const lobbyCharName = document.getElementById('lobbyCharName');
+    const lobbyCharRole = document.getElementById('lobbyCharRole');
+
+    // Idle sprite frames - Complete 19-frame sequence for Alisha (alisha_00.png to alisha_18.png)
+    let femaleFrame = 0;
+    const femaleFrames = [
+      'assets/characters/alisha_00.png', 'assets/characters/alisha_01.png', 'assets/characters/alisha_02.png', 'assets/characters/alisha_03.png',
+      'assets/characters/alisha_04.png', 'assets/characters/alisha_05.png', 'assets/characters/alisha_06.png', 'assets/characters/alisha_07.png',
+      'assets/characters/alisha_08.png', 'assets/characters/alisha_09.png', 'assets/characters/alisha_10.png', 'assets/characters/alisha_11.png',
+      'assets/characters/alisha_12.png', 'assets/characters/alisha_13.png', 'assets/characters/alisha_14.png', 'assets/characters/alisha_15.png',
+      'assets/characters/alisha_16.png', 'assets/characters/alisha_17.png', 'assets/characters/alisha_18.png'
+    ];
+    let maleFrame = 0;
+    const maleFrames = [
+      'assets/characters/sprite_00.png', 'assets/characters/sprite_01.png', 'assets/characters/sprite_02.png', 'assets/characters/sprite_03.png',
+      'assets/characters/sprite_04.png', 'assets/characters/sprite_05.png', 'assets/characters/sprite_06.png', 'assets/characters/sprite_07.png',
+      'assets/characters/sprite_08.png', 'assets/characters/sprite_09.png', 'assets/characters/sprite_10.png', 'assets/characters/sprite_11.png',
+      'assets/characters/sprite_12.png'
+    ];
+
+    // Authentic idle breathing & animation loop
+    setInterval(() => {
+      if (!lobbyScreen || lobbyScreen.classList.contains('hidden')) return;
+      if (selectedGender === 'girl') {
+        femaleFrame = (femaleFrame + 1) % femaleFrames.length;
+        lobbyCharImg.src = femaleFrames[femaleFrame];
+      } else {
+        maleFrame = (maleFrame + 1) % maleFrames.length;
+        lobbyCharImg.src = maleFrames[maleFrame];
+      }
+    }, 95);
+
+    function updateCharacterView() {
+      if (selectedGender === 'girl') {
+        lobbyCharImg.src = femaleFrames[0];
+        lobbyCharName.textContent = 'ALISHA';
+        lobbyCharRole.textContent = '(Siswi RPL · UI/UX)';
+        lobbyCharRole.className = 'font-mono text-[11px] text-pink-300 ml-1.5';
+        btnSwitchP.className = 'relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 border-amber-400 ring-4 ring-amber-400/50 shadow-2xl transition-all cursor-pointer group active:scale-95';
+        btnSwitchL.className = 'relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 border-slate-700 shadow-xl opacity-75 hover:opacity-100 transition-all cursor-pointer group active:scale-95';
+      } else {
+        lobbyCharImg.src = maleFrames[0];
+        lobbyCharName.textContent = 'ANDIKA';
+        lobbyCharRole.textContent = '(Siswa RPL · Programmer)';
+        lobbyCharRole.className = 'font-mono text-[11px] text-emerald-300 ml-1.5';
+        btnSwitchL.className = 'relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 border-amber-400 ring-4 ring-amber-400/50 shadow-2xl transition-all cursor-pointer group active:scale-95';
+        btnSwitchP.className = 'relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 border-slate-700 shadow-xl opacity-75 hover:opacity-100 transition-all cursor-pointer group active:scale-95';
+      }
+    }
+
+    btnSwitchP.onclick = () => {
+      selectedGender = 'girl';
+      selectedName = 'Alisha';
+      sound.playClick();
+      updateCharacterView();
+    };
+
+    btnSwitchL.onclick = () => {
+      selectedGender = 'boy';
+      selectedName = 'Andika';
+      sound.playClick();
+      updateCharacterView();
+    };
+
+    // Right Side Buttons on Lobby Screen (Using authentic Red Button assets)
+    const btnLobbyPlay = document.getElementById('btnLobbyPlay');
+    const imgLobbyPlay = document.getElementById('imgLobbyPlay');
+    const btnLobbySetting = document.getElementById('btnLobbySetting');
+    const imgLobbySetting = document.getElementById('imgLobbySetting');
+
+    // PLAY Button states (Desain tanpa judul (30).png, Hovered.png, Pressed.png)
+    const LOBBY_PLAY_IDLE = 'assets/buttons/Desain tanpa judul (30).png';
+    const LOBBY_PLAY_HOVER = 'assets/buttons/Hovered.png';
+    const LOBBY_PLAY_PRESSED = 'assets/buttons/Pressed.png';
+
+    btnLobbyPlay.addEventListener('mouseenter', () => { imgLobbyPlay.src = LOBBY_PLAY_HOVER; });
+    btnLobbyPlay.addEventListener('mouseleave', () => { imgLobbyPlay.src = LOBBY_PLAY_IDLE; });
+    btnLobbyPlay.addEventListener('mousedown', () => { imgLobbyPlay.src = LOBBY_PLAY_PRESSED; });
+    btnLobbyPlay.addEventListener('mouseup', () => { imgLobbyPlay.src = LOBBY_PLAY_HOVER; });
+    btnLobbyPlay.addEventListener('touchstart', () => { imgLobbyPlay.src = LOBBY_PLAY_PRESSED; }, { passive: true });
+    btnLobbyPlay.addEventListener('touchend', () => { imgLobbyPlay.src = LOBBY_PLAY_IDLE; }, { passive: true });
+
+    // SETTING Button states (Red Button With Gold Frame_Idle.png2.png, Hovered, Pressed)
+    const SETTING_BTN_IDLE = 'assets/buttons/Red Button With Gold Frame_Idle.png2.png';
+    const SETTING_BTN_HOVER = 'assets/buttons/Red Button With Gold Frame_Hovered.png2.png';
+    const SETTING_BTN_PRESSED = 'assets/buttons/Red Button With Gold Frame_Pressed.png2.png';
+
+    btnLobbySetting.addEventListener('mouseenter', () => { imgLobbySetting.src = SETTING_BTN_HOVER; });
+    btnLobbySetting.addEventListener('mouseleave', () => { imgLobbySetting.src = SETTING_BTN_IDLE; });
+    btnLobbySetting.addEventListener('mousedown', () => { imgLobbySetting.src = SETTING_BTN_PRESSED; });
+    btnLobbySetting.addEventListener('mouseup', () => { imgLobbySetting.src = SETTING_BTN_HOVER; });
+    btnLobbySetting.addEventListener('touchstart', () => { imgLobbySetting.src = SETTING_BTN_PRESSED; }, { passive: true });
+    btnLobbySetting.addEventListener('touchend', () => { imgLobbySetting.src = SETTING_BTN_IDLE; }, { passive: true });
+
+    // ▶ PLAY Button on Lobby Screen -> Black transition -> Loading Screen -> Game!
+    const gameLoadingScreen = document.getElementById('gameLoadingScreen');
+    const gameLoaderCharImg = document.getElementById('gameLoaderCharImg');
+    const gameLoaderStatus = document.getElementById('gameLoaderStatus');
+    const gameLoaderBar = document.getElementById('gameLoaderBar');
+    const gameLoaderPercent = document.getElementById('gameLoaderPercent');
+    const gameLoaderTip = document.getElementById('gameLoaderTip');
+
+    const loaderTips = [
+      'Gunakan tombol W, A, S, D atau tombol panah untuk menjelajahi area sekolah.',
+      'Dekati teman atau guru dan tekan Spasi atau tombol [A] untuk berinteraksi.',
+      'Tekan tombol [ M ] kapan saja untuk membuka denah pameran sekolah.',
+      'Buka tas / inventori dengan tombol [ I ] untuk memeriksa barang bawaan Anda.',
+      'Jelajahi setiap sudut koridor untuk menemukan kejutan karya siswa RPL SMKN 1 Katapang!'
+    ];
+
+    window.triggerBellRecessIntro = () => {
+      // 1. Tutup semua modal overlay / HUD yang tidak relevan
+      const gameOverModal = document.getElementById('gameOverModal');
+      if (gameOverModal) gameOverModal.classList.add('hidden');
+      const timerHUD = document.getElementById('glitchTimerHUD');
+      if (timerHUD) timerHUD.classList.add('hidden');
+      const courtyardHUD = document.getElementById('glitchCourtyardHUD');
+      if (courtyardHUD) courtyardHUD.classList.add('hidden');
+      const bossHUD = document.getElementById('bossBattleHUD');
+      if (bossHUD) bossHUD.classList.add('hidden');
+      const blackoutEl = document.getElementById('glitchBlackoutOverlay');
+      if (blackoutEl) {
+        blackoutEl.classList.remove('opacity-100');
+        blackoutEl.classList.add('opacity-0');
+      }
+
+      lobbyScreen.classList.add('hidden');
+      titleScreen.classList.add('hidden');
+
+      const recessOverlay = document.getElementById('recessIntroOverlay');
+      const recessBell = document.getElementById('recessBellIcon');
+      const recessContent = recessOverlay ? recessOverlay.querySelector('.relative.z-10') : null;
+
+      // Tampilkan layar hitam murni
+      if (recessOverlay) {
+        recessOverlay.classList.remove('hidden');
+        recessOverlay.style.opacity = '1';
+        if (recessContent) recessContent.style.opacity = '0';
+      }
+
+      // 2. Layar hitam sejenak, lalu muncul "JAM ISTIRAHAT" & Bell berbunyi!
+      setTimeout(() => {
+        if (recessContent) {
+          recessContent.style.transition = 'opacity 0.6s ease-in';
+          recessContent.style.opacity = '1';
+        }
+
+        // Bunyikan bel sekolah nyaring
+        sound.playSchoolBell();
+
+        // Reset semua state game kembali ke ruang kelas awal saat bel bunyi
+        game.resetToClassroomRecess(selectedName, selectedGender);
+
+        // Animasi getar lonceng saat berbunyi
+        let bellAngle = -16;
+        const bellAnim = setInterval(() => {
+          bellAngle = -bellAngle;
+          if (recessBell) {
+            recessBell.style.transform = `rotate(${bellAngle}deg) scale(1.2)`;
+          }
+        }, 180);
+
+        // 3. Setelah bel jam istirahat berbunyi (~3.2 detik), buka layar ke Ruang Kelas
+        setTimeout(() => {
+          clearInterval(bellAnim);
+          if (recessBell) recessBell.style.transform = 'rotate(0deg) scale(1)';
+
+          if (recessOverlay) {
+            recessOverlay.style.opacity = '0';
+            setTimeout(() => {
+              recessOverlay.classList.add('hidden');
+              window.focus();
+
+              // DIAM DULU SEJENAK (1.5 detik setelah layar hitam beres), baru muncul dialog!
+              setTimeout(() => {
+                game.triggerClassroomRecessIntro();
+              }, 1500);
+
+            }, 800);
+          }
+        }, 3200);
+
+      }, 500);
+    };
+
+    btnLobbyPlay.onclick = () => {
+      sound.playClick();
+      imgLobbyPlay.src = LOBBY_PLAY_PRESSED;
+      window.triggerBellRecessIntro();
+    };
+
+    // Game Over Action Buttons: Mengulangi / Menyerah
+    const btnRetryGlitchClassroom = document.getElementById('btnRetryGlitchClassroom');
+    const btnGiveUpGlitchClassroom = document.getElementById('btnGiveUpGlitchClassroom');
+    if (btnRetryGlitchClassroom) {
+      btnRetryGlitchClassroom.onclick = () => {
+        sound.playClick();
+        game.retryClassroomGlitch();
+      };
+    }
+    if (btnGiveUpGlitchClassroom) {
+      btnGiveUpGlitchClassroom.onclick = () => {
+        sound.playClick();
+        window.triggerBellRecessIntro();
+      };
+    }
+
+    // Click canvas or container to focus game window for immediate WASD/Arrow input
+    const cvsEl = document.getElementById('gameCanvas');
+    if (cvsEl) {
+      cvsEl.addEventListener('click', () => { window.focus(); });
+      cvsEl.addEventListener('mousedown', () => { window.focus(); });
+    }
+    const containerEl = document.getElementById('gameContainer');
+    if (containerEl) {
+      containerEl.addEventListener('click', () => { window.focus(); });
+    }
+
+    // ⚙ SETTING Button on Lobby Screen
+    const settingsModal = document.getElementById('settingsModal');
+    const sliderLobbyMusic = document.getElementById('sliderLobbyMusic');
+    const valLobbyMusic = document.getElementById('valLobbyMusic');
+    const sliderLobbySfx = document.getElementById('sliderLobbySfx');
+    const valLobbySfx = document.getElementById('valLobbySfx');
+    const iconLobbyMusic = document.getElementById('iconLobbyMusic');
+
+    function syncLobbySettingsUI() {
+      const isMuted = sound.muted;
+      if (sliderLobbyMusic) sliderLobbyMusic.value = isMuted ? 0 : Math.round(sound.musicVolume * 100);
+      if (valLobbyMusic) valLobbyMusic.textContent = isMuted ? '0%' : `${Math.round(sound.musicVolume * 100)}%`;
+      if (sliderLobbySfx) sliderLobbySfx.value = Math.round(sound.sfxVolume * 100);
+      if (valLobbySfx) valLobbySfx.textContent = `${Math.round(sound.sfxVolume * 100)}%`;
+      if (iconLobbyMusic) iconLobbyMusic.textContent = isMuted ? '🔇' : '🔊';
+      const btnToggle = document.getElementById('btnSettingBgmToggle');
+      if (btnToggle) btnToggle.textContent = isMuted ? '🔇 Mati' : '🔊 Hidup';
+    }
+
+    if (sliderLobbyMusic) {
+      sliderLobbyMusic.oninput = (e) => {
+        const val = parseInt(e.target.value);
+        if (valLobbyMusic) valLobbyMusic.textContent = `${val}%`;
+        sound.setMusicVolume(val / 100);
+        if (val === 0 && !sound.muted) {
+          sound.muted = true;
+        } else if (val > 0 && sound.muted) {
+          sound.muted = false;
+        }
+        syncLobbySettingsUI();
+        if (typeof syncInGameSettingsUI === 'function') syncInGameSettingsUI();
+      };
+    }
+
+    if (sliderLobbySfx) {
+      sliderLobbySfx.oninput = (e) => {
+        const val = parseInt(e.target.value);
+        if (valLobbySfx) valLobbySfx.textContent = `${val}%`;
+        sound.setSfxVolume(val / 100);
+        if (typeof syncInGameSettingsUI === 'function') syncInGameSettingsUI();
+      };
+      sliderLobbySfx.onchange = () => {
+        sound.playClick();
+      };
+    }
+
+    btnLobbySetting.onclick = () => {
+      sound.playClick();
+      syncLobbySettingsUI();
+      settingsModal.classList.remove('hidden');
+    };
+    document.getElementById('btnCloseSettings').onclick = () => {
+      sound.playClick();
+      settingsModal.classList.add('hidden');
+    };
+    document.getElementById('btnSaveSettings').onclick = () => {
+      sound.playClick();
+      settingsModal.classList.add('hidden');
+    };
+    document.getElementById('btnSettingBgmToggle').onclick = () => {
+      const isMuted = sound.toggleMute();
+      syncLobbySettingsUI();
+      if (typeof syncInGameSettingsUI === 'function') syncInGameSettingsUI();
+      document.getElementById('lobbyMuteIcon').textContent = isMuted ? '🔇' : '🔊';
+    };
+    document.getElementById('btnSettingTrackNext').onclick = () => {
+      const track = sound.nextTrack();
+      document.getElementById('btnSettingTrackNext').textContent = `🎵 ${track.split(' ')[0]} ▶`;
+    };
+    document.getElementById('btnLobbyMute').onclick = () => {
+      const isMuted = sound.toggleMute();
+      syncLobbySettingsUI();
+      if (typeof syncInGameSettingsUI === 'function') syncInGameSettingsUI();
+      document.getElementById('lobbyMuteIcon').textContent = isMuted ? '🔇' : '🔊';
+      document.getElementById('titleAudioIcon').textContent = isMuted ? '🔇' : '🔊';
+    };
+
+    // Realtime FPS Counter & Settings Toggle (Top Left)
+    let fpsShow = localStorage.getItem('btb_show_fps') !== 'false'; // default ON
+    const fpsBadge = document.getElementById('fpsBadge');
+    const fpsValue = document.getElementById('fpsValue');
+    const btnSettingFpsToggle = document.getElementById('btnSettingFpsToggle');
+    const fpsToggleDot = document.getElementById('fpsToggleDot');
+    const fpsToggleText = document.getElementById('fpsToggleText');
+
+    function syncFpsUI() {
+      if (fpsShow) {
+        fpsBadge.classList.remove('hidden');
+        if (fpsToggleText) fpsToggleText.textContent = 'ON';
+        if (fpsToggleText) fpsToggleText.className = 'text-emerald-300 font-bold';
+        if (fpsToggleDot) fpsToggleDot.className = 'w-2 h-2 rounded-full bg-emerald-400';
+      } else {
+        fpsBadge.classList.add('hidden');
+        if (fpsToggleText) fpsToggleText.textContent = 'OFF';
+        if (fpsToggleText) fpsToggleText.className = 'text-slate-400 font-bold';
+        if (fpsToggleDot) fpsToggleDot.className = 'w-2 h-2 rounded-full bg-slate-500';
+      }
+    }
+    syncFpsUI();
+
+    if (btnSettingFpsToggle) {
+      btnSettingFpsToggle.onclick = () => {
+        sound.playClick();
+        fpsShow = !fpsShow;
+        localStorage.setItem('btb_show_fps', fpsShow ? 'true' : 'false');
+        syncFpsUI();
+      };
+    }
+
+    // FPS Loop via requestAnimationFrame
+    let fpsFrames = 0;
+    let lastFpsStamp = performance.now();
+    function runFpsCounter(timestamp) {
+      fpsFrames++;
+      const elapsed = timestamp - lastFpsStamp;
+      if (elapsed >= 500) {
+        const currentFps = Math.round((fpsFrames * 1000) / elapsed);
+        fpsFrames = 0;
+        lastFpsStamp = timestamp;
+        if (fpsValue && fpsShow) {
+          fpsValue.textContent = `FPS: ${currentFps}`;
+          if (currentFps >= 50) {
+            fpsValue.className = 'font-mono text-xs font-bold text-emerald-400';
+            fpsBadge.className = 'fixed top-3 left-3 z-50 flex items-center gap-1.5 bg-black/75 backdrop-blur-md border border-emerald-500/50 rounded-lg px-2.5 py-1 shadow-lg pointer-events-none select-none transition-opacity duration-200';
+          } else if (currentFps >= 30) {
+            fpsValue.className = 'font-mono text-xs font-bold text-amber-400';
+            fpsBadge.className = 'fixed top-3 left-3 z-50 flex items-center gap-1.5 bg-black/75 backdrop-blur-md border border-amber-500/50 rounded-lg px-2.5 py-1 shadow-lg pointer-events-none select-none transition-opacity duration-200';
+          } else {
+            fpsValue.className = 'font-mono text-xs font-bold text-red-400';
+            fpsBadge.className = 'fixed top-3 left-3 z-50 flex items-center gap-1.5 bg-black/75 backdrop-blur-md border border-red-500/50 rounded-lg px-2.5 py-1 shadow-lg pointer-events-none select-none transition-opacity duration-200';
+          }
+        }
+      }
+      requestAnimationFrame(runFpsCounter);
+    }
+    requestAnimationFrame(runFpsCounter);
+
+    // Title Screen Audio Toggle
+    document.getElementById('btnTitleAudioToggle').onclick = () => {
+      const isMuted = sound.toggleMute();
+      document.getElementById('titleAudioIcon').textContent = isMuted ? '🔇' : '🔊';
+      if (!isMuted && sound.audioElement && sound.audioElement.paused) {
+        sound.playBGM();
+      }
+    };
+
+    // ========================================================
+    // IN-GAME SETTINGS POPUP MODAL (SESUAI PERMINTAAN FOTO 3)
+    // ========================================================
+    const inGameSettingsModal = document.getElementById('inGameSettingsModal');
+    const btnNavMenu = document.getElementById('btnNavMenu');
+    const btnSettingsCloseX = document.getElementById('btnSettingsCloseX');
+    const btnSettingsResume = document.getElementById('btnSettingsResume');
+    const btnSettingsBackToMenu = document.getElementById('btnSettingsBackToMenu');
+
+    const btnToggleMusicInGame = document.getElementById('btnToggleMusicInGame');
+    const textMusicInGame = document.getElementById('textMusicInGame');
+    const dotMusicInGame = document.getElementById('dotMusicInGame');
+    const iconMusicStatus = document.getElementById('iconMusicStatus');
+
+    const btnChangeTrackInGame = document.getElementById('btnChangeTrackInGame');
+    const textTrackInGame = document.getElementById('textTrackInGame');
+
+    const btnToggleFpsInGame = document.getElementById('btnToggleFpsInGame');
+    const textFpsInGame = document.getElementById('textFpsInGame');
+    const dotFpsInGame = document.getElementById('dotFpsInGame');
+
+    const sliderMusicVolume = document.getElementById('sliderMusicVolume');
+    const valMusicVolume = document.getElementById('valMusicVolume');
+    const sliderSfxVolume = document.getElementById('sliderSfxVolume');
+    const valSfxVolume = document.getElementById('valSfxVolume');
+
+    function syncInGameSettingsUI() {
+      const isMuted = sound.muted;
+      if (textMusicInGame) textMusicInGame.textContent = isMuted ? 'OFF' : 'ON';
+      if (textMusicInGame) textMusicInGame.className = isMuted ? 'text-red-400 font-bold' : 'text-emerald-300 font-bold';
+      if (dotMusicInGame) dotMusicInGame.className = isMuted ? 'w-2 h-2 rounded-full bg-red-500' : 'w-2 h-2 rounded-full bg-emerald-400';
+      if (iconMusicStatus) iconMusicStatus.textContent = isMuted ? '🔇' : '🔊';
+
+      if (sliderMusicVolume) sliderMusicVolume.value = isMuted ? 0 : Math.round(sound.musicVolume * 100);
+      if (valMusicVolume) valMusicVolume.textContent = isMuted ? '0%' : `${Math.round(sound.musicVolume * 100)}%`;
+      if (sliderSfxVolume) sliderSfxVolume.value = Math.round(sound.sfxVolume * 100);
+      if (valSfxVolume) valSfxVolume.textContent = `${Math.round(sound.sfxVolume * 100)}%`;
+
+      if (textTrackInGame) {
+        let curTrack = 'Theme 1';
+        try {
+          const list = sound.tracks || sound.playlist;
+          if (list && list[sound.currentTrackIndex]) {
+            curTrack = list[sound.currentTrackIndex].name;
+          }
+        } catch (e) {}
+        textTrackInGame.textContent = curTrack.split(' ')[0];
+      }
+
+      if (textFpsInGame) textFpsInGame.textContent = fpsShow ? 'ON' : 'OFF';
+      if (textFpsInGame) textFpsInGame.className = fpsShow ? 'text-emerald-300 font-bold' : 'text-slate-400 font-bold';
+      if (dotFpsInGame) dotFpsInGame.className = fpsShow ? 'w-2 h-2 rounded-full bg-emerald-400' : 'w-2 h-2 rounded-full bg-slate-500';
+    }
+
+    if (sliderMusicVolume) {
+      sliderMusicVolume.oninput = (e) => {
+        const val = parseInt(e.target.value);
+        if (valMusicVolume) valMusicVolume.textContent = `${val}%`;
+        sound.setMusicVolume(val / 100);
+        if (val === 0 && !sound.muted) {
+          sound.muted = true;
+          syncInGameSettingsUI();
+        } else if (val > 0 && sound.muted) {
+          sound.muted = false;
+          syncInGameSettingsUI();
+        }
+      };
+    }
+
+    if (sliderSfxVolume) {
+      sliderSfxVolume.oninput = (e) => {
+        const val = parseInt(e.target.value);
+        if (valSfxVolume) valSfxVolume.textContent = `${val}%`;
+        sound.setSfxVolume(val / 100);
+      };
+      sliderSfxVolume.onchange = () => {
+        sound.playClick();
+      };
+    }
+
+    function openInGameSettings() {
+      try {
+        sound.playClick();
+      } catch (e) {}
+      try {
+        syncInGameSettingsUI();
+      } catch (e) {}
+      if (inGameSettingsModal) inGameSettingsModal.classList.remove('hidden');
+    }
+
+    function closeInGameSettings() {
+      try {
+        sound.playClick();
+      } catch (e) {}
+      if (inGameSettingsModal) inGameSettingsModal.classList.add('hidden');
+      window.focus();
+    }
+
+    if (btnNavMenu) btnNavMenu.onclick = () => openInGameSettings();
+    if (btnSettingsCloseX) btnSettingsCloseX.onclick = () => closeInGameSettings();
+    if (btnSettingsResume) btnSettingsResume.onclick = () => closeInGameSettings();
+
+    if (btnSettingsBackToMenu) {
+      btnSettingsBackToMenu.onclick = () => {
+        sound.playClick();
+        inGameSettingsModal.classList.add('hidden');
+        game.returnToTitle();
+      };
+    }
+
+    // Toggle Music In Game
+    if (btnToggleMusicInGame) {
+      btnToggleMusicInGame.onclick = () => {
+        sound.playClick();
+        sound.toggleMute();
+        syncInGameSettingsUI();
+      };
+    }
+
+    // Change Track In Game
+    if (btnChangeTrackInGame) {
+      btnChangeTrackInGame.onclick = () => {
+        sound.playClick();
+        const next = sound.nextTrack();
+        syncInGameSettingsUI();
+        game.showToast(`Memutar: ${next}`);
+      };
+    }
+
+    // Toggle FPS In Game
+    if (btnToggleFpsInGame) {
+      btnToggleFpsInGame.onclick = () => {
+        sound.playClick();
+        fpsShow = !fpsShow;
+        localStorage.setItem('btb_show_fps', fpsShow ? 'true' : 'false');
+        syncFpsUI();
+        syncInGameSettingsUI();
+      };
+    }
+
+    // Helper for Slide-up Mission Notification HUD (Bottom Center)
+    window.updateMissionHUD = function(questText, forceShow = true) {
+      const hud = document.getElementById('missionNotificationHUD');
+      const txt = document.getElementById('missionHudText');
+      if (txt && questText) txt.textContent = questText;
+      if (hud && forceShow) {
+        hud.classList.remove('translate-y-36', 'opacity-0', 'pointer-events-none');
+        hud.classList.add('translate-y-0', 'opacity-100');
+      }
+    };
+
+    // Inventory Modal UI
+    function openInventoryUI() {
+      const modal = document.getElementById('inventoryModal');
+      const list = document.getElementById('inventoryList');
+      const count = document.getElementById('inventoryCount');
+
+      list.innerHTML = '';
+      if (game.inventory.length === 0) {
+        list.innerHTML = `
+          <div class="text-center text-slate-500 font-mono text-xs py-8">
+            Tas masih kosong.<br>Jelajahi sekolah untuk menemukan barang penting!
+          </div>
+        `;
+      } else {
+        game.inventory.forEach(item => {
+          const row = document.createElement('div');
+          row.className = 'flex items-center gap-3 bg-slate-800/60 p-3 rounded-lg border border-slate-700/60';
+          row.innerHTML = `
+            <span class="text-2xl">${item.icon}</span>
+            <div class="flex-1">
+              <div class="text-xs font-mono font-semibold text-amber-300">${item.name}</div>
+              <div class="text-[11px] font-mono text-slate-400">${item.desc}</div>
+            </div>
+          `;
+          list.appendChild(row);
+        });
+      }
+      count.textContent = `Total Barang: ${game.inventory.length}`;
+      modal.classList.remove('hidden');
+      sound.playClick();
+    }
+
+    document.getElementById('btnCloseInventory').onclick = () => {
+      document.getElementById('inventoryModal').classList.add('hidden');
+      sound.playClick();
+    };
+    document.getElementById('btnCloseInventoryBtn').onclick = () => {
+      document.getElementById('inventoryModal').classList.add('hidden');
+      sound.playClick();
+    };
+
+    // Map Modal UI
+    function openMapUI() {
+      document.getElementById('mapModal').classList.remove('hidden');
+      sound.playClick();
+    }
+    document.getElementById('btnCloseMap').onclick = () => {
+      document.getElementById('mapModal').classList.add('hidden');
+      sound.playClick();
+    };
+
+    // ERD Modal UI
+    document.getElementById('btnCloseErd').onclick = () => {
+      document.getElementById('erdModal').classList.add('hidden');
+      sound.playClick();
+    };
+    document.getElementById('btnCloseErdBtn').onclick = () => {
+      document.getElementById('erdModal').classList.add('hidden');
+      sound.playClick();
+    };
+
+    // Victory Modal UI
+    document.getElementById('btnPlayAgain').onclick = () => {
+      document.getElementById('victoryModal').classList.add('hidden');
+      game.state = 'PLAYING';
+      sound.playClick();
+    };
+
+    // Close modals on Escape key / Toggle Settings
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const inGameSettings = document.getElementById('inGameSettingsModal');
+        if (inGameSettings) {
+          if (!inGameSettings.classList.contains('hidden')) {
+            closeInGameSettings();
+            return;
+          } else if (game.state === 'PLAYING') {
+            openInGameSettings();
+            return;
+          }
+        }
+        const about = document.getElementById('aboutModal');
+        if (about && !about.classList.contains('hidden')) {
+          about.classList.add('hidden');
+          sound.playClick();
+        }
+      }
+    });
+
+    // Initialize Game Engine immediately on load
+    if (document.readyState === 'loading') {
+      window.addEventListener('DOMContentLoaded', () => game.start());
+    } else {
+      game.start();
+    }
+  </script>
+</body>
+</html>

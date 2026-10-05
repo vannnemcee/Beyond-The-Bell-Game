@@ -1,0 +1,8 @@
+{
+  "name": "Beyond The Bell",
+  "description": "Beyond The Bell: Pameran RPL - Game petualangan 2D pixel art pameran karya siswa Rekayasa Perangkat Lunak.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

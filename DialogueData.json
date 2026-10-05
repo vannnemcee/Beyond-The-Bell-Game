@@ -1,0 +1,12 @@
+[
+	{
+		"title": "Mulai",
+		"tags": "",
+		"body": "<<Player>> Halo pak, apa kabar?\n\n<<Satpam>> \n<<if $karakter == 0>> Hai Alisha, baik baik saja.\n<<else>> Hai Andika, baik baik saja.\n<<endif>>\n\n<<Player>> Btw pak ko sepi banget ya disini!\nAda acara apa emang pak?\n<<Satpam>> Oh ini, .\n<<Player>> Wow pameran, kayak nya seru tuh!\n<<Satpam>> Iya dong seru banyak produk produk dari ER PE EPL.\nBtw nak kamu bisa tolong bapak ga?\n<<Player>> Tolong apa ya pak?\n<<Satpam>> Tolong diam\n<<Player>> Baiklah pak akan saya kerjakan",
+		"position": {
+			"x": 89,
+			"y": 216
+		},
+		"colorID": 0
+	}
+]
