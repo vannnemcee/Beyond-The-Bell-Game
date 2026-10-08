@@ -21,8 +21,8 @@ class GameEngine {
 
     // Player Data (100x100 natural aspect ratio, not squished/gepeng)
     this.player = {
-      name: 'Andika',
-      gender: 'boy', // 'boy' or 'girl'
+      name: 'Wintel',
+      gender: 'girl', // 'boy' or 'girl'
       x: 470,
       y: 460,
       w: 100,
@@ -506,6 +506,7 @@ class GameEngine {
     for (const npc of map.npcs) {
       const dist = Math.hypot((this.player.x + this.player.w / 2) - (npc.x + npc.w / 2), (this.player.y + this.player.h / 2) - (npc.y + npc.h / 2));
       if (dist <= Math.max(npc.interactionRadius + 45, 95)) {
+        if (!this.hasLineOfSight(this.player, npc)) continue;
         this.triggerNpcDialogue(npc);
         return;
       }
@@ -671,8 +672,12 @@ class GameEngine {
       }
     } else if (npc.id === 'ibu_kantin') {
       lines = DIALOGUES.ibu_kantin_intro(this.player);
-    } else if (npc.id === 'teman_rian' || npc.id === 'teman_siti') {
-      lines = DIALOGUES.teman_kelas(this.player);
+    } else if (npc.id === 'budi') {
+      lines = DIALOGUES.budi_intro(this.player);
+    } else if (npc.id === 'teman_siti') {
+      lines = DIALOGUES.teman_siti(this.player);
+    } else if (npc.id === 'teman_rian') {
+      lines = DIALOGUES.teman_rian(this.player);
     }
 
     if (lines && lines.length > 0) {
@@ -1195,6 +1200,51 @@ class GameEngine {
       }
     }
     return false;
+  }
+
+  // Line of Sight Helper (Blocks interaction through solid walls)
+  hasLineOfSight(player, npc) {
+    const map = MAPS[this.currentMapId];
+    if (!map || !map.colliders || map.colliders.length === 0) return true;
+
+    const pX = player.x + player.w / 2;
+    const pY = player.y + player.h / 2;
+    const nX = npc.x + npc.w / 2;
+    const nY = npc.y + npc.h / 2;
+
+    for (const c of map.colliders) {
+      // Wall barriers block line of sight (not small furniture like desks w: 30, h: 32)
+      const isWall = (c.w >= 30 && c.h >= 70) || (c.w >= 70 && c.h >= 30);
+      if (isWall) {
+        if (this.lineIntersectsRect(pX, pY, nX, nY, c.x, c.y, c.w, c.h)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  lineIntersectsRect(x1, y1, x2, y2, rx, ry, rw, rh) {
+    if (x1 >= rx && x1 <= rx + rw && y1 >= ry && y1 <= ry + rh) return true;
+    if (x2 >= rx && x2 <= rx + rw && y2 >= ry && y2 <= ry + rh) return true;
+
+    const rLeft = rx;
+    const rRight = rx + rw;
+    const rTop = ry;
+    const rBottom = ry + rh;
+
+    return this.lineIntersectsSegment(x1, y1, x2, y2, rLeft, rTop, rRight, rTop) ||
+           this.lineIntersectsSegment(x1, y1, x2, y2, rRight, rTop, rRight, rBottom) ||
+           this.lineIntersectsSegment(x1, y1, x2, y2, rRight, rBottom, rLeft, rBottom) ||
+           this.lineIntersectsSegment(x1, y1, x2, y2, rLeft, rBottom, rLeft, rTop);
+  }
+
+  lineIntersectsSegment(x1, y1, x2, y2, x3, y3, x4, y4) {
+    const denom = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
+    if (denom === 0) return false;
+    const ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denom;
+    const ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denom;
+    return ua >= 0 && ua <= 1 && ub >= 0 && ub <= 1;
   }
 
   update(dt) {
@@ -2237,7 +2287,7 @@ class GameEngine {
       this.ctx.fillRect(2050, 1210, 120, 85);
       this.ctx.fillStyle = '#e2e8f0';
       this.ctx.font = 'bold 11px monospace';
-      this.ctx.fillText(isGlitch ? '🏚️ GUDANG TERTINGGAL' : '📦 GUDANG ARSIP SMKN 1 KATAPANG', 1980, 1190);
+      this.ctx.fillText(isGlitch ? '🏚️ GUDANG TERTINGGAL' : '📦 GUDANG ARSIP', 1980, 1190);
 
       // Wooden Crates stacked near warehouse
       this.ctx.fillStyle = '#854d0e';
@@ -2510,12 +2560,21 @@ class GameEngine {
 
   renderNpcs(map) {
     for (const npc of map.npcs) {
-      // Shadow snugly aligned with feet for 100x100 NPCs
-      const npcShadowY = npc.y + npc.h * 0.82;
+      // Re-created natural contact shadow specifically for NPCs:
+      // Snugly positioned at the actual sole of feet (y + h * 0.94)
+      const npcCenterX = npc.x + npc.w / 2;
+      const npcFootY = npc.y + npc.h * 0.94;
 
-      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+      // Soft ambient ground shadow
+      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.28)';
       this.ctx.beginPath();
-      this.ctx.ellipse(npc.x + npc.w / 2, npcShadowY, 22, 7, 0, 0, Math.PI * 2);
+      this.ctx.ellipse(npcCenterX, npcFootY, 21, 6.5, 0, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      // Deep contact core shadow right under the shoes
+      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
+      this.ctx.beginPath();
+      this.ctx.ellipse(npcCenterX, npcFootY, 14, 3.5, 0, 0, Math.PI * 2);
       this.ctx.fill();
 
       // Sprite
@@ -2569,7 +2628,7 @@ class GameEngine {
       // Check distance for interaction prompt (hidden during cutscene/dialogue)
       if (!this.isCutsceneActive && this.state !== 'DIALOGUE') {
         const dist = Math.hypot((this.player.x + this.player.w / 2) - (npc.x + npc.w / 2), (this.player.y + this.player.h / 2) - (npc.y + npc.h / 2));
-        if (dist <= Math.max(npc.interactionRadius + 50, 110)) {
+        if (dist <= Math.max(npc.interactionRadius + 50, 110) && this.hasLineOfSight(this.player, npc)) {
           this.ctx.fillStyle = '#fbbf24';
           this.ctx.font = '10px monospace';
           this.ctx.textAlign = 'center';
@@ -2603,12 +2662,12 @@ class GameEngine {
       } else if (p.facing === 'up') {
         spriteKey = `boy_up_${p.isMoving ? (p.animFrame % 5) : 0}`;
       } else if (p.facing === 'right') {
-        spriteKey = `boy_right_${p.isMoving ? (p.animFrame % 7) : 0}`;
+        spriteKey = 'boy_down_0';
       } else if (p.facing === 'left') {
-        spriteKey = `boy_left_${p.isMoving ? (p.animFrame % 7) : 0}`;
+        spriteKey = 'boy_down_0';
       }
     } else {
-      // Alisha (Girl) - Sequence animation from 00 to 18 (19 frames)
+      // Wintel (Girl) - Sequence animation from 00 to 18 (19 frames)
       if (p.isSitting) {
         spriteKey = 'girl_idle_0';
       } else {

@@ -44,7 +44,7 @@ export const MAPS = {
         y: 410,
         w: 100,
         h: 100,
-        spriteName: 'teacher_0',
+        spriteName: 'teacher',
         facing: 'down',
         interactionRadius: 90,
         dialogueId: 'ibu_kantin_intro'
@@ -179,7 +179,7 @@ export const MAPS = {
         targetMap: 'courtyard',
         targetX: 600,
         targetY: 670,
-        label: 'Keluar ke Halaman & Kantin'
+        label: 'Keluar Ruang Sekolah'
       },
       {
         x: 180,
@@ -189,7 +189,7 @@ export const MAPS = {
         targetMap: 'classroom',
         targetX: 695,
         targetY: 960,
-        label: 'Masuk Ruang Kelas RPL'
+        label: 'Masuk Ruang Sekolah'
       },
       {
         x: 850,
@@ -323,13 +323,13 @@ export const MAPS = {
         id: 'bu_rina',
         name: 'Bu Rina (Guru)',
         role: 'Guru Kejuruan RPL',
-        x: 475,
-        y: 73,
+        x: 350,
+        y: 75,
         w: 100,
         h: 100,
         spriteName: 'teacher',
         facing: 'down',
-        interactionRadius: 85,
+        interactionRadius: 65,
         dialogueId: 'bu_rina_intro'
       },
       {
@@ -434,8 +434,8 @@ export const MAPS = {
       {
         id: 'kunci_ruangan_kelas',
         name: 'Kunci Ruangan Kelas',
-        x: 485,
-        y: 115,
+        x: 125,
+        y: 990,
         w: 24,
         h: 24,
         icon: '🗝️',

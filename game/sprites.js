@@ -62,7 +62,7 @@ class SpriteManager {
     this.completeCallbacks = onComplete ? [onComplete] : [];
 
     const assetList = [
-      // Andika (Boy) sprites
+      // Ryzen (Boy) sprites
       { name: 'boy_down_0', src: 'assets/characters/boy1.png' },
       { name: 'boy_down_1', src: 'assets/characters/boy2.png' },
       { name: 'boy_down_2', src: 'assets/characters/boy3.png' },
@@ -74,23 +74,7 @@ class SpriteManager {
       { name: 'boy_up_3', src: 'assets/characters/backwalkboy4.png' },
       { name: 'boy_up_4', src: 'assets/characters/backwalkboy5.png' },
 
-      { name: 'boy_right_0', src: 'assets/characters/jalan kanan_0.png' },
-      { name: 'boy_right_1', src: 'assets/characters/jalan kanan_1.png' },
-      { name: 'boy_right_2', src: 'assets/characters/jalan kanan_2.png' },
-      { name: 'boy_right_3', src: 'assets/characters/jalan kanan_3.png' },
-      { name: 'boy_right_4', src: 'assets/characters/jalan kanan_4.png' },
-      { name: 'boy_right_5', src: 'assets/characters/jalan kanan_5.png' },
-      { name: 'boy_right_6', src: 'assets/characters/jalan kanan_6.png' },
-
-      { name: 'boy_left_0', src: 'assets/characters/jalan kiri_0.png' },
-      { name: 'boy_left_1', src: 'assets/characters/jalan kiri_1.png' },
-      { name: 'boy_left_2', src: 'assets/characters/jalan kiri_2.png' },
-      { name: 'boy_left_3', src: 'assets/characters/jalan kiri_3.png' },
-      { name: 'boy_left_4', src: 'assets/characters/jalan kiri_4.png' },
-      { name: 'boy_left_5', src: 'assets/characters/jalan kiri_5.png' },
-      { name: 'boy_left_6', src: 'assets/characters/jalan kiri_6.png' },
-
-      // Alisha (Girl) Authentic Character Idle & Movement sprites (alisha_00.png to alisha_18.png)
+      // Wintel (Girl) Authentic Character Idle & Movement sprites (alisha_00.png to alisha_18.png)
       { name: 'girl_idle_0', src: 'assets/characters/alisha_00.png' },
       { name: 'girl_idle_1', src: 'assets/characters/alisha_01.png' },
       { name: 'girl_idle_2', src: 'assets/characters/alisha_02.png' },

@@ -22,8 +22,6 @@ export function generateCharacterSprites(spriteManager) {
   tCtx.imageSmoothingEnabled = false;
   drawTeacherPortrait(tCtx);
   spriteManager.images.set('teacher_portrait', teacherPortCvs);
-  // Also keep backward compatibility
-  spriteManager.images.set('teacher_0', spriteManager.images.get('teacher_0') || cvsFromTeacher(0));
 
   // --- 2. RIAN (MURID RPL) ---
   for (let f = 0; f < 4; f++) {
@@ -53,6 +51,13 @@ export function generateCharacterSprites(spriteManager) {
     drawSitiFrame(ctx, f);
     spriteManager.images.set(`siti_${f}`, cvs);
   }
+  const sitiPortCvs = document.createElement('canvas');
+  sitiPortCvs.width = 128;
+  sitiPortCvs.height = 128;
+  const sCtx = sitiPortCvs.getContext('2d');
+  sCtx.imageSmoothingEnabled = false;
+  drawSitiPortrait(sCtx);
+  spriteManager.images.set('siti_portrait', sitiPortCvs);
   // --- 4. SOSOK GLITCH HITAM (???) ---
   for (let f = 0; f < 4; f++) {
     const cvs = document.createElement('canvas');
@@ -80,12 +85,6 @@ function drawTeacherFrame(ctx, frame) {
   const bobY = isWalk ? -1 : 0;
   const legOffset = frame === 1 ? -2 : (frame === 3 ? 2 : 0);
   const cx = 32;
-
-  // Shadow
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
-  ctx.beginPath();
-  ctx.ellipse(cx, 59, 13, 4, 0, 0, Math.PI * 2);
-  ctx.fill();
 
   // Shoes (Black teacher flat heels)
   ctx.fillStyle = '#0f172a';
@@ -321,12 +320,6 @@ function drawRianFrame(ctx, frame) {
   const legOffset = frame === 1 ? -2 : (frame === 3 ? 2 : 0);
   const cx = 32;
 
-  // Shadow
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
-  ctx.beginPath();
-  ctx.ellipse(cx, 59, 13, 4, 0, 0, Math.PI * 2);
-  ctx.fill();
-
   // Shoes (Black & White Sneakers)
   ctx.fillStyle = '#0f172a';
   ctx.fillRect(cx - 7 - legOffset, 56 + bobY, 6, 4);
@@ -518,12 +511,6 @@ function drawSitiFrame(ctx, frame) {
   const legOffset = frame === 1 ? -2 : (frame === 3 ? 2 : 0);
   const cx = 32;
 
-  // Shadow
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
-  ctx.beginPath();
-  ctx.ellipse(cx, 59, 13, 4, 0, 0, Math.PI * 2);
-  ctx.fill();
-
   // Shoes (Black school shoes)
   ctx.fillStyle = '#0f172a';
   ctx.fillRect(cx - 7 - legOffset, 57 + bobY, 6, 3);
@@ -706,12 +693,6 @@ function drawShadowGlitchFrame(ctx, frame) {
   const isJitter = (frame % 2) !== 0;
   const jitterX = isJitter ? (Math.random() > 0.5 ? 1 : -1) : 0;
   const jitterY = (frame === 1 || frame === 3) ? -1 : 0;
-
-  // Shadow pool underneath with dark purple aura
-  ctx.fillStyle = 'rgba(147, 51, 234, 0.45)';
-  ctx.beginPath();
-  ctx.ellipse(cx, 59, 14, 5, 0, 0, Math.PI * 2);
-  ctx.fill();
 
   // Chromatic glitch aberration shadow (offset red / cyan)
   ctx.fillStyle = 'rgba(239, 68, 68, 0.35)';

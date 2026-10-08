@@ -264,7 +264,7 @@ export const DIALOGUES = {
   ibu_kantin_intro: (player) => [
     {
       speaker: 'Ibu Kantin',
-      portrait: 'teacher_0',
+      portrait: 'teacher_portrait',
       text: `Halo ${player.name}! Mau jajan apa nih saat jam istirahat?`
     },
     {
@@ -274,16 +274,32 @@ export const DIALOGUES = {
     },
     {
       speaker: 'Ibu Kantin',
-      portrait: 'teacher_0',
+      portrait: 'teacher_portrait',
       text: 'Ada Es Teh Manis dingin dan Roti Bakar hangat di meja kantin, ambil saja yang kamu suka ya!',
       action: 'canteen_buy_food_quest'
     }
   ],
 
+  teman_siti: (player) => [
+    {
+      speaker: 'Siti',
+      portrait: 'siti_portrait',
+      text: `Hai ${player.name}! Akhirnya bel istirahat berbunyi juga ya. Yuk kita jajan ke kantin di halaman!`
+    }
+  ],
+
+  teman_rian: (player) => [
+    {
+      speaker: 'Rian',
+      portrait: 'rian_portrait',
+      text: `Asik sudah jam istirahat! Yuk ${player.name}, kita jajan bareng ke kantin di halaman luar!`
+    }
+  ],
+
   teman_kelas: (player) => [
     {
-      speaker: 'Teman Sekelas',
-      portrait: 'rian_portrait',
+      speaker: 'Siti',
+      portrait: 'siti_portrait',
       text: 'Asik sudah jam istirahat! Yuk kita jajan ke kantin di halaman luar!'
     }
   ],

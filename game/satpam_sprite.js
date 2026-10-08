@@ -85,12 +85,6 @@ function drawSatpamCharacterFrame(ctx, frame) {
   const cx = 32;
   const baseY = 32 + bobY;
 
-  // --- 1. Soft Ground Shadow ---
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-  ctx.beginPath();
-  ctx.ellipse(cx, 59, 14, 4, 0, 0, Math.PI * 2);
-  ctx.fill();
-
   // --- 2. Legs & Shoes (Dark Navy Pants & Shiny Black Shoes) ---
   // Left Leg
   ctx.fillStyle = '#0f172a'; // Deep navy blue
