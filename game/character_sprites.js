@@ -75,93 +75,263 @@ export function generateCharacterSprites(spriteManager) {
   shCtx.imageSmoothingEnabled = false;
   drawShadowGlitchPortrait(shCtx);
   spriteManager.images.set('shadow_glitch_portrait', shadowPortCvs);
+
+  // --- 5. IBU KANTIN (PENGELOLA KANTIN SEHAT) ---
+  for (let f = 0; f < 4; f++) {
+    const cvs = document.createElement('canvas');
+    cvs.width = 64;
+    cvs.height = 64;
+    const ctx = cvs.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+    drawIbuKantinFrame(ctx, f);
+    spriteManager.images.set(`ibu_kantin_${f}`, cvs);
+  }
+  const kantinPortCvs = document.createElement('canvas');
+  kantinPortCvs.width = 128;
+  kantinPortCvs.height = 128;
+  const kCtx = kantinPortCvs.getContext('2d');
+  kCtx.imageSmoothingEnabled = false;
+  drawIbuKantinPortrait(kCtx);
+  spriteManager.images.set('ibu_kantin_portrait', kantinPortCvs);
+
+  // --- 6. PEDAGANG KAKI LIMA (MANG UJANG - CILOK & BATAGOR LUAR GERBANG) ---
+  for (let f = 0; f < 4; f++) {
+    const cvs = document.createElement('canvas');
+    cvs.width = 64;
+    cvs.height = 64;
+    const ctx = cvs.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+    drawPedagangKakiLimaFrame(ctx, f);
+    spriteManager.images.set(`pedagang_kaki_lima_${f}`, cvs);
+  }
+  const cilokPortCvs = document.createElement('canvas');
+  cilokPortCvs.width = 128;
+  cilokPortCvs.height = 128;
+  const cCtx = cilokPortCvs.getContext('2d');
+  cCtx.imageSmoothingEnabled = false;
+  drawPedagangKakiLimaPortrait(cCtx);
+  spriteManager.images.set('pedagang_kaki_lima_portrait', cilokPortCvs);
+
+  // --- 7. DRIVER OJOL (BANG DEDI - OJEK ONLINE LUAR GERBANG) ---
+  for (let f = 0; f < 4; f++) {
+    const cvs = document.createElement('canvas');
+    cvs.width = 64;
+    cvs.height = 64;
+    const ctx = cvs.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+    drawOjolFrame(ctx, f);
+    spriteManager.images.set(`ojol_${f}`, cvs);
+  }
+  const ojolPortCvs = document.createElement('canvas');
+  ojolPortCvs.width = 128;
+  ojolPortCvs.height = 128;
+  const oCtx = ojolPortCvs.getContext('2d');
+  oCtx.imageSmoothingEnabled = false;
+  drawOjolPortrait(oCtx);
+  spriteManager.images.set('ojol_portrait', ojolPortCvs);
+
+  // --- 8. WARGA SEKITAR (PAK YANTO - TOKOH MASYARAKAT LUAR GERBANG) ---
+  for (let f = 0; f < 4; f++) {
+    const cvs = document.createElement('canvas');
+    cvs.width = 64;
+    cvs.height = 64;
+    const ctx = cvs.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+    drawWargaFrame(ctx, f);
+    spriteManager.images.set(`warga_${f}`, cvs);
+  }
+  const wargaPortCvs = document.createElement('canvas');
+  wargaPortCvs.width = 128;
+  wargaPortCvs.height = 128;
+  const wCtx = wargaPortCvs.getContext('2d');
+  wCtx.imageSmoothingEnabled = false;
+  drawWargaPortrait(wCtx);
+  spriteManager.images.set('warga_portrait', wargaPortCvs);
+
+  // --- 9. SISWA BASKET (DONI - LAPANGAN OLAHRAGA) ---
+  for (let f = 0; f < 4; f++) {
+    const cvs = document.createElement('canvas');
+    cvs.width = 64;
+    cvs.height = 64;
+    const ctx = cvs.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+    drawSiswaBasketFrame(ctx, f);
+    spriteManager.images.set(`siswa_basket_${f}`, cvs);
+  }
+  const basketPortCvs = document.createElement('canvas');
+  basketPortCvs.width = 128;
+  basketPortCvs.height = 128;
+  const bCtx = basketPortCvs.getContext('2d');
+  bCtx.imageSmoothingEnabled = false;
+  drawSiswaBasketPortrait(bCtx);
+  spriteManager.images.set('siswa_basket_portrait', basketPortCvs);
+
+  // --- 10. SISWI CASUAL (MAYA & PUTRI - KANTIN & GAZEBO) ---
+  for (let f = 0; f < 4; f++) {
+    const cvs = document.createElement('canvas');
+    cvs.width = 64;
+    cvs.height = 64;
+    const ctx = cvs.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+    drawSiswiCasualFrame(ctx, f);
+    spriteManager.images.set(`siswi_casual_${f}`, cvs);
+  }
+  const siswiPortCvs = document.createElement('canvas');
+  siswiPortCvs.width = 128;
+  siswiPortCvs.height = 128;
+  const scCtx = siswiPortCvs.getContext('2d');
+  scCtx.imageSmoothingEnabled = false;
+  drawSiswiCasualPortrait(scCtx);
+  spriteManager.images.set('siswi_casual_portrait', siswiPortCvs);
+
+  // --- 11. RYZEN (KARAKTER UTAMA LAKI-LAKI - GUARANTEED FAIL-SAFE IN-MEMORY SPRITES) ---
+  for (let f = 0; f < 4; f++) {
+    const cvs = document.createElement('canvas');
+    cvs.width = 64;
+    cvs.height = 64;
+    const ctx = cvs.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+    drawRyzenFrame(ctx, f, 'down');
+    spriteManager.images.set(`ryzen_idle_${f}`, cvs);
+    spriteManager.images.set(`ryzen_down_${f}`, cvs);
+
+    const cvsUp = document.createElement('canvas');
+    cvsUp.width = 64;
+    cvsUp.height = 64;
+    const ctxUp = cvsUp.getContext('2d');
+    ctxUp.imageSmoothingEnabled = false;
+    drawRyzenFrame(ctxUp, f, 'up');
+    spriteManager.images.set(`ryzen_up_${f}`, cvsUp);
+  }
+  const ryzenPortCvs = document.createElement('canvas');
+  ryzenPortCvs.width = 128;
+  ryzenPortCvs.height = 128;
+  const ryCtx = ryzenPortCvs.getContext('2d');
+  ryCtx.imageSmoothingEnabled = false;
+  drawRyzenPortrait(ryCtx);
+  spriteManager.images.set('ryzen_portrait', ryzenPortCvs);
+  // Also register as fallback boy_portrait
+  if (!spriteManager.images.has('boy_portrait')) {
+    spriteManager.images.set('boy_portrait', ryzenPortCvs);
+  }
 }
 
 // -------------------------------------------------------------
-// DRAW BU RINA (GURU)
+// DRAW BU RINA (GURU - SEATED AT TEACHER DESK)
 // -------------------------------------------------------------
 function drawTeacherFrame(ctx, frame) {
-  const isWalk = (frame % 2) !== 0;
-  const bobY = isWalk ? -1 : 0;
-  const legOffset = frame === 1 ? -2 : (frame === 3 ? 2 : 0);
+  // Natural subtle breathing on frame 1, natural gentle blink on frame 2
+  const breathe = (frame === 1) ? -1 : 0;
+  const isBlink = (frame === 2);
   const cx = 32;
 
-  // Shoes (Black teacher flat heels)
-  ctx.fillStyle = '#0f172a';
-  ctx.fillRect(cx - 7 - legOffset, 57 + bobY, 6, 3);
-  ctx.fillRect(cx + 1 + legOffset, 57 + bobY, 6, 3);
-
-  // Long Dark Navy / Batik Skirt
+  // Chair Backrest behind teacher (Framing her seated posture)
   ctx.fillStyle = '#1e293b';
-  ctx.fillRect(cx - 9, 44 + bobY, 18, 14);
+  ctx.fillRect(cx - 12, 26 + breathe, 24, 4); // Top backrest rail
+  ctx.fillRect(cx - 12, 28 + breathe, 3, 18); // Left upright
+  ctx.fillRect(cx + 9, 28 + breathe, 3, 18);  // Right upright
+
+  // Shoes (Black teacher flat heels resting politely side-by-side on floor, perfectly stable)
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(cx - 7, 57, 6, 3);
+  ctx.fillRect(cx + 1, 57, 6, 3);
   ctx.fillStyle = '#334155';
-  ctx.fillRect(cx - 7, 44 + bobY, 3, 14);
-  ctx.fillRect(cx + 4, 44 + bobY, 3, 14);
+  ctx.fillRect(cx - 6, 57, 4, 1);
+  ctx.fillRect(cx + 2, 57, 4, 1);
+
+  // Long Dark Navy / Batik Skirt seated neatly on chair
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(cx - 10, 44 + breathe, 20, 13);
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(cx - 8, 44 + breathe, 3, 13);
+  ctx.fillRect(cx + 5, 44 + breathe, 3, 13);
 
   // Blouse / Batik Blazer (Teal / Sage Green patterned teacher batik)
   ctx.fillStyle = '#0d9488'; // Teal batik base
-  ctx.fillRect(cx - 8, 30 + bobY, 16, 15);
+  ctx.fillRect(cx - 8, 30 + breathe, 16, 15);
   // Batik geometric accents
   ctx.fillStyle = '#fef08a';
-  ctx.fillRect(cx - 6, 32 + bobY, 2, 2);
-  ctx.fillRect(cx + 4, 32 + bobY, 2, 2);
-  ctx.fillRect(cx - 4, 36 + bobY, 2, 2);
-  ctx.fillRect(cx + 2, 36 + bobY, 2, 2);
-  ctx.fillRect(cx - 6, 40 + bobY, 2, 2);
-  ctx.fillRect(cx + 4, 40 + bobY, 2, 2);
+  ctx.fillRect(cx - 6, 32 + breathe, 2, 2);
+  ctx.fillRect(cx + 4, 32 + breathe, 2, 2);
+  ctx.fillRect(cx - 4, 36 + breathe, 2, 2);
+  ctx.fillRect(cx + 2, 36 + breathe, 2, 2);
+  ctx.fillRect(cx - 6, 40 + breathe, 2, 2);
+  ctx.fillRect(cx + 4, 40 + breathe, 2, 2);
 
   // ID Card Lanyard (Navy blue strap with white card)
   ctx.fillStyle = '#1d4ed8';
-  ctx.fillRect(cx - 1, 30 + bobY, 2, 6);
+  ctx.fillRect(cx - 1, 30 + breathe, 2, 6);
   ctx.fillStyle = '#ffffff';
-  ctx.fillRect(cx - 2, 36 + bobY, 4, 5);
+  ctx.fillRect(cx - 2, 36 + breathe, 4, 5);
   ctx.fillStyle = '#ef4444';
-  ctx.fillRect(cx - 1, 37 + bobY, 2, 1);
+  ctx.fillRect(cx - 1, 37 + breathe, 2, 1);
 
   // Arms & Sleeves
   ctx.fillStyle = '#0f766e';
-  ctx.fillRect(cx - 11, 31 + bobY, 3, 10);
-  ctx.fillRect(cx + 8, 31 + bobY, 3, 10);
-  // Hands
+  ctx.fillRect(cx - 11, 31 + breathe, 3, 10);
+  ctx.fillRect(cx + 8, 31 + breathe, 3, 10);
+
+  // Lesson Binder / Teaching Book on Lap/Desk
+  ctx.fillStyle = '#0284c7'; // Blue lesson plan book
+  ctx.fillRect(cx - 7, 41 + breathe, 14, 5);
+  ctx.fillStyle = '#ffffff'; // White pages
+  ctx.fillRect(cx - 5, 42 + breathe, 10, 3);
+  if (frame === 1 || frame === 3) {
+    ctx.fillStyle = '#f59e0b'; // Gold teacher stylus/pen
+    ctx.fillRect(cx + 4, 39 + breathe, 4, 2);
+  }
+
+  // Hands resting gently on lesson book
   ctx.fillStyle = '#f6d8b8';
-  ctx.fillRect(cx - 11, 41 + bobY, 3, 3);
-  ctx.fillRect(cx + 8, 41 + bobY, 3, 3);
+  ctx.fillRect(cx - 8, 41 + breathe, 3, 3);
+  ctx.fillRect(cx + 5, 41 + breathe, 3, 3);
 
   // Hijab Head & Chest (Drape)
   ctx.fillStyle = '#042f2e'; // Deep tosca hijab
   ctx.beginPath();
-  ctx.ellipse(cx, 22 + bobY, 10, 11, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx, 22 + breathe, 10, 11, 0, 0, Math.PI * 2);
   ctx.fill();
   // Hijab chest drape
   ctx.fillStyle = '#0f766e';
   ctx.beginPath();
-  ctx.moveTo(cx - 8, 26 + bobY);
-  ctx.lineTo(cx, 34 + bobY);
-  ctx.lineTo(cx + 8, 26 + bobY);
+  ctx.moveTo(cx - 8, 26 + breathe);
+  ctx.lineTo(cx, 34 + breathe);
+  ctx.lineTo(cx + 8, 26 + breathe);
   ctx.fill();
 
   // Face oval
   ctx.fillStyle = '#f6d8b8';
   ctx.beginPath();
-  ctx.ellipse(cx, 22 + bobY, 6, 6, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx, 22 + breathe, 6, 6, 0, 0, Math.PI * 2);
   ctx.fill();
 
   // Eyeglasses (Gold frames)
   ctx.strokeStyle = '#eab308';
   ctx.lineWidth = 1;
-  ctx.strokeRect(cx - 5, 20 + bobY, 4, 3);
-  ctx.strokeRect(cx + 1, 20 + bobY, 4, 3);
+  ctx.strokeRect(cx - 5, 20 + breathe, 4, 3);
+  ctx.strokeRect(cx + 1, 20 + breathe, 4, 3);
   ctx.beginPath();
-  ctx.moveTo(cx - 1, 21 + bobY);
-  ctx.lineTo(cx + 1, 21 + bobY);
+  ctx.moveTo(cx - 1, 21 + breathe);
+  ctx.lineTo(cx + 1, 21 + breathe);
   ctx.stroke();
 
-  // Eyes & Smile
-  ctx.fillStyle = '#1e293b';
-  ctx.fillRect(cx - 4, 21 + bobY, 2, 1);
-  ctx.fillRect(cx + 2, 21 + bobY, 2, 1);
+  // Eyes (Gentle blink on frame 2, open attentive gaze on other frames)
+  if (isBlink) {
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(cx - 4, 22 + breathe, 2, 1);
+    ctx.fillRect(cx + 2, 22 + breathe, 2, 1);
+  } else {
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(cx - 4, 21 + breathe, 2, 2);
+    ctx.fillRect(cx + 2, 21 + breathe, 2, 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(cx - 4, 21 + breathe, 1, 1);
+    ctx.fillRect(cx + 2, 21 + breathe, 1, 1);
+  }
+
+  // Friendly Smile
   ctx.fillStyle = '#e11d48';
-  ctx.fillRect(cx - 1, 25 + bobY, 2, 1);
+  ctx.fillRect(cx - 1, 25 + breathe, 2, 1);
 }
 
 function drawTeacherPortrait(ctx) {
@@ -834,5 +1004,1098 @@ function drawShadowGlitchPortrait(ctx) {
   ctx.font = 'bold 11px monospace';
   ctx.textAlign = 'center';
   ctx.fillText('???', cx, 117);
+  ctx.textAlign = 'start';
+}
+
+// -------------------------------------------------------------
+// DRAW IBU KANTIN (PENGELOLA KANTIN SEHAT SMKN 1 KATAPANG)
+// Warm motherly Indonesian canteen vendor with colorful apron,
+// terracotta/maroon hijab, rosy cheeks, and serving snacks/tea
+// -------------------------------------------------------------
+function drawIbuKantinFrame(ctx, frame) {
+  const breathe = (frame === 1) ? -1 : 0;
+  const isBlink = (frame === 2);
+  const cx = 32;
+
+  // Canteen kitchen shoes / clogs (Dark maroon-brown, resting on ground)
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(cx - 7, 57, 6, 3);
+  ctx.fillRect(cx + 1, 57, 6, 3);
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(cx - 6, 57, 4, 1);
+  ctx.fillRect(cx + 2, 57, 4, 1);
+
+  // Long comfortable dark brown skirt under apron
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(cx - 9, 46 + breathe, 18, 12);
+
+  // Warm cream floral blouse base
+  ctx.fillStyle = '#fef3c7';
+  ctx.fillRect(cx - 9, 31 + breathe, 18, 15);
+
+  // Chef / Canteen Apron (Bright Terracotta / Red-Orange)
+  ctx.fillStyle = '#ea580c';
+  // Apron bib (chest)
+  ctx.fillRect(cx - 6, 33 + breathe, 12, 12);
+  // Apron skirt (waist down)
+  ctx.fillRect(cx - 8, 43 + breathe, 16, 12);
+  // Apron waist ties / waistband
+  ctx.fillStyle = '#c2410c';
+  ctx.fillRect(cx - 9, 42 + breathe, 18, 2);
+
+  // Front Apron Pocket (White cloth pocket for order notes/money)
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(cx - 4, 46 + breathe, 8, 6);
+  ctx.fillStyle = '#cbd5e1';
+  ctx.strokeRect(cx - 4, 46 + breathe, 8, 6);
+  // Red order pen in apron pocket
+  ctx.fillStyle = '#ef4444';
+  ctx.fillRect(cx + 1, 44 + breathe, 1, 3);
+
+  // Hanging hand towel on left hip (Authentic kantin vendor serbet)
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(cx - 10, 44 + breathe, 2, 8);
+  ctx.fillStyle = '#0284c7';
+  ctx.fillRect(cx - 10, 50 + breathe, 2, 1);
+
+  // Arms & Sleeves (Cream blouse rolled up at wrists)
+  ctx.fillStyle = '#fef3c7';
+  ctx.fillRect(cx - 11, 32 + breathe, 3, 9);
+  ctx.fillRect(cx + 8, 32 + breathe, 3, 9);
+  // Skin forearms & hands
+  ctx.fillStyle = '#fed7aa';
+  ctx.fillRect(cx - 11, 41 + breathe, 3, 3);
+  ctx.fillRect(cx + 8, 41 + breathe, 3, 3);
+
+  // Canteen Prop in Hands: Stainless tray with Iced Tea (Es Teh Manis)
+  // Serving tray
+  ctx.fillStyle = '#94a3b8';
+  ctx.fillRect(cx - 6, 40 + breathe, 12, 3);
+  // Glass of Es Teh Manis
+  ctx.fillStyle = '#b45309'; // Iced amber tea
+  ctx.fillRect(cx - 2, 35 + breathe, 4, 5);
+  // Ice cube highlight
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(cx - 1, 36 + breathe, 1, 1);
+  // Green straw
+  ctx.fillStyle = '#22c55e';
+  ctx.fillRect(cx + 1, 33 + breathe, 1, 3);
+
+  // Hijab: Warm Terracotta / Maroon (Authentic motherly hijab)
+  ctx.fillStyle = '#9f1239'; // Deep maroon-coral hijab
+  ctx.beginPath();
+  ctx.ellipse(cx, 22 + breathe, 10, 11, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Hijab Drape over chest (Tucked neatly into apron bib)
+  ctx.fillStyle = '#be123c';
+  ctx.beginPath();
+  ctx.moveTo(cx - 8, 25 + breathe);
+  ctx.lineTo(cx, 33 + breathe);
+  ctx.lineTo(cx + 8, 25 + breathe);
+  ctx.fill();
+
+  // Face oval (Warm, motherly, kindly Indonesian skin tone)
+  ctx.fillStyle = '#fed7aa';
+  ctx.beginPath();
+  ctx.ellipse(cx, 22 + breathe, 6, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Rosy cheeks (Friendly motherly blush)
+  ctx.fillStyle = 'rgba(244, 63, 94, 0.35)';
+  ctx.fillRect(cx - 5, 23 + breathe, 2, 2);
+  ctx.fillRect(cx + 3, 23 + breathe, 2, 2);
+
+  // Eyes (Kindly warm gaze, blinking on frame 2)
+  if (isBlink) {
+    ctx.fillStyle = '#451a03';
+    ctx.fillRect(cx - 4, 22 + breathe, 2, 1);
+    ctx.fillRect(cx + 2, 22 + breathe, 2, 1);
+  } else {
+    ctx.fillStyle = '#451a03';
+    ctx.fillRect(cx - 4, 21 + breathe, 2, 2);
+    ctx.fillRect(cx + 2, 21 + breathe, 2, 2);
+    // Eye shine
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(cx - 4, 21 + breathe, 1, 1);
+    ctx.fillRect(cx + 2, 21 + breathe, 1, 1);
+  }
+
+  // Cheerful Welcoming Smile
+  ctx.fillStyle = '#e11d48';
+  ctx.fillRect(cx - 2, 25 + breathe, 4, 1);
+}
+
+function drawIbuKantinPortrait(ctx) {
+  // Warm Canteen Kitchen Gradient Background
+  const grad = ctx.createLinearGradient(0, 0, 128, 128);
+  grad.addColorStop(0, '#7c2d12');
+  grad.addColorStop(0.6, '#431407');
+  grad.addColorStop(1, '#1c1917');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 128, 128);
+
+  // Border frame (Warm Golden Amber)
+  ctx.strokeStyle = '#f59e0b';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(2, 2, 124, 124);
+
+  const cx = 64;
+
+  // Shoulders & Cream Blouse
+  ctx.fillStyle = '#fef3c7';
+  ctx.beginPath();
+  ctx.ellipse(cx, 118, 50, 28, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Orange / Terracotta Apron Front
+  ctx.fillStyle = '#ea580c';
+  ctx.beginPath();
+  ctx.moveTo(cx - 24, 98);
+  ctx.lineTo(cx + 24, 98);
+  ctx.lineTo(cx + 30, 128);
+  ctx.lineTo(cx - 30, 128);
+  ctx.closePath();
+  ctx.fill();
+
+  // Apron Pocket with Order Pad & Pen
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(cx - 14, 106, 28, 18);
+  ctx.strokeStyle = '#cbd5e1';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(cx - 14, 106, 28, 18);
+  // Pocket notes lines
+  ctx.fillStyle = '#94a3b8';
+  ctx.fillRect(cx - 10, 112, 16, 2);
+  ctx.fillRect(cx - 10, 116, 20, 2);
+  // Red pen in pocket
+  ctx.fillStyle = '#dc2626';
+  ctx.fillRect(cx + 6, 102, 3, 7);
+
+  // Hijab Drape over Shoulders (Warm Maroon/Coral)
+  ctx.fillStyle = '#9f1239';
+  ctx.beginPath();
+  ctx.moveTo(cx - 32, 80);
+  ctx.quadraticCurveTo(cx, 104, cx + 32, 80);
+  ctx.quadraticCurveTo(cx, 95, cx - 32, 80);
+  ctx.fill();
+
+  // Hijab Head Outer Shell
+  ctx.fillStyle = '#be123c';
+  ctx.beginPath();
+  ctx.ellipse(cx, 54, 31, 37, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#9f1239';
+  ctx.beginPath();
+  ctx.ellipse(cx - 2, 54, 29, 35, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Inner Hijab Cap
+  ctx.fillStyle = '#881337';
+  ctx.beginPath();
+  ctx.ellipse(cx, 44, 21, 23, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Face (Warm Indonesian Skin Tone)
+  ctx.fillStyle = '#fed7aa';
+  ctx.beginPath();
+  ctx.ellipse(cx, 57, 19, 21, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Rosy Cheeks Blush
+  ctx.fillStyle = 'rgba(244, 63, 94, 0.32)';
+  ctx.beginPath();
+  ctx.ellipse(cx - 11, 62, 6, 4, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx + 11, 62, 6, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Warm Friendly Eyes (Kind, crinkled smile)
+  ctx.fillStyle = '#451a03';
+  ctx.beginPath();
+  ctx.ellipse(cx - 8, 54, 3, 3, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx + 8, 54, 3, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Eye gleams
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(cx - 9, 52, 2, 2);
+  ctx.fillRect(cx + 7, 52, 2, 2);
+
+  // Soft Eyebrows
+  ctx.strokeStyle = '#78350f';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(cx - 13, 48);
+  ctx.quadraticCurveTo(cx - 8, 45, cx - 3, 48);
+  ctx.moveTo(cx + 3, 48);
+  ctx.quadraticCurveTo(cx + 8, 45, cx + 13, 48);
+  ctx.stroke();
+
+  // Gentle Nose
+  ctx.fillStyle = '#fba666';
+  ctx.fillRect(cx - 1, 57, 3, 3);
+
+  // Motherly Warm Smile
+  ctx.fillStyle = '#e11d48';
+  ctx.beginPath();
+  ctx.arc(cx, 65, 7, 0.15 * Math.PI, 0.85 * Math.PI, false);
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = '#e11d48';
+  ctx.stroke();
+
+  // Dimples
+  ctx.fillStyle = 'rgba(225, 29, 72, 0.5)';
+  ctx.fillRect(cx - 9, 64, 2, 2);
+  ctx.fillRect(cx + 8, 64, 2, 2);
+
+  // Name Tag Plaque at Bottom
+  ctx.fillStyle = 'rgba(2, 6, 23, 0.85)';
+  ctx.fillRect(8, 104, 112, 18);
+  ctx.strokeStyle = '#f59e0b';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(8, 104, 112, 18);
+  ctx.fillStyle = '#fbbf24';
+  ctx.font = 'bold 9px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('IBU KANTIN', cx, 117);
+  ctx.textAlign = 'start';
+}
+
+// -------------------------------------------------------------
+// 6. DRAW PEDAGANG KAKI LIMA (MANG UJANG - CILOK & BATAGOR)
+// -------------------------------------------------------------
+function drawPedagangKakiLimaFrame(ctx, frame) {
+  const breathe = (frame === 1) ? -1 : 0;
+  const cx = 32;
+
+  // Sepatu sandal / selop santai
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(cx - 7, 57, 6, 3);
+  ctx.fillRect(cx + 1, 57, 6, 3);
+
+  // Celana panjang bahan gelap
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(cx - 7, 45 + breathe, 6, 12);
+  ctx.fillRect(cx + 1, 45 + breathe, 6, 12);
+
+  // Kaos polo / kemeja bergaris abang cilok (Kuning-Krem garis oranye)
+  ctx.fillStyle = '#fef08a';
+  ctx.fillRect(cx - 8, 30 + breathe, 16, 16);
+  ctx.fillStyle = '#f97316';
+  ctx.fillRect(cx - 8, 34 + breathe, 16, 2);
+  ctx.fillRect(cx - 8, 38 + breathe, 16, 2);
+  ctx.fillRect(cx - 8, 42 + breathe, 16, 2);
+
+  // Apron pedagang putih/krem
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(cx - 6, 36 + breathe, 12, 16);
+  ctx.fillStyle = '#cbd5e1';
+  ctx.strokeRect(cx - 6, 36 + breathe, 12, 16);
+
+  // Handuk kecil melingkar di leher (Khas abang jualan keliling)
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillRect(cx - 8, 28 + breathe, 3, 10);
+  ctx.fillRect(cx + 5, 28 + breathe, 3, 10);
+  ctx.fillRect(cx - 6, 27 + breathe, 12, 3);
+
+  // Lengan & Tangan
+  ctx.fillStyle = '#fef08a';
+  ctx.fillRect(cx - 10, 31 + breathe, 3, 8);
+  ctx.fillRect(cx + 7, 31 + breathe, 3, 8);
+  ctx.fillStyle = '#fed7aa';
+  ctx.fillRect(cx - 10, 39 + breathe, 3, 4);
+  ctx.fillRect(cx + 7, 39 + breathe, 3, 4);
+
+  // Mangkok cilok / centong saus di tangan
+  ctx.fillStyle = '#ef4444'; // Mangkok plastik merah
+  ctx.fillRect(cx + 6, 38 + breathe, 7, 5);
+  ctx.fillStyle = '#b45309'; // Bumbu kacang
+  ctx.fillRect(cx + 7, 37 + breathe, 5, 2);
+  ctx.fillStyle = '#fef08a'; // Tusuk cilok bambu
+  ctx.fillRect(cx - 9, 36 + breathe, 2, 7);
+
+  // Leher & Kepala
+  ctx.fillStyle = '#fed7aa';
+  ctx.fillRect(cx - 3, 24 + breathe, 6, 5);
+  ctx.beginPath();
+  ctx.ellipse(cx, 19 + breathe, 7, 7, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Kumis tipis ramah pedagang
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(cx - 4, 21 + breathe, 8, 1.5);
+  // Senyum
+  ctx.fillStyle = '#dc2626';
+  ctx.fillRect(cx - 2, 23 + breathe, 4, 1);
+
+  // Mata ramah
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(cx - 4, 18 + breathe, 2, 2);
+  ctx.fillRect(cx + 2, 18 + breathe, 2, 2);
+
+  // Peci hitam / topi pedagang
+  ctx.fillStyle = '#090d16';
+  ctx.fillRect(cx - 8, 11 + breathe, 16, 6);
+  ctx.fillStyle = '#d97706'; // Aksen garis emas di peci
+  ctx.fillRect(cx - 8, 16 + breathe, 16, 1);
+}
+
+function drawPedagangKakiLimaPortrait(ctx) {
+  const grad = ctx.createLinearGradient(0, 0, 128, 128);
+  grad.addColorStop(0, '#854d0e');
+  grad.addColorStop(1, '#1c1917');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 128, 128);
+
+  ctx.strokeStyle = '#f59e0b';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(2, 2, 124, 124);
+
+  const cx = 64;
+  // Baju & Apron
+  ctx.fillStyle = '#fef08a';
+  ctx.beginPath();
+  ctx.ellipse(cx, 118, 52, 26, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(cx - 22, 95, 44, 33);
+  // Handuk leher biru
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillRect(cx - 30, 80, 10, 36);
+  ctx.fillRect(cx + 20, 80, 10, 36);
+  // Wajah
+  ctx.fillStyle = '#fed7aa';
+  ctx.beginPath();
+  ctx.ellipse(cx, 60, 22, 23, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Kumis
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(cx - 10, 68, 20, 4);
+  // Senyum
+  ctx.fillStyle = '#ef4444';
+  ctx.beginPath();
+  ctx.arc(cx, 74, 6, 0.1 * Math.PI, 0.9 * Math.PI, false);
+  ctx.fill();
+  // Mata
+  ctx.fillStyle = '#0f172a';
+  ctx.beginPath();
+  ctx.ellipse(cx - 8, 55, 3, 3, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx + 8, 55, 3, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Peci
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(cx - 24, 34, 48, 16);
+  ctx.fillStyle = '#f59e0b';
+  ctx.fillRect(cx - 24, 48, 48, 3);
+
+  // Plaque
+  ctx.fillStyle = 'rgba(2, 6, 23, 0.85)';
+  ctx.fillRect(8, 104, 112, 18);
+  ctx.strokeStyle = '#f59e0b';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(8, 104, 112, 18);
+  ctx.fillStyle = '#fbbf24';
+  ctx.font = 'bold 9px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('MANG UJANG (CILOK)', cx, 117);
+  ctx.textAlign = 'start';
+}
+
+// -------------------------------------------------------------
+// 7. DRAW DRIVER OJOL (BANG DEDI - OJEK ONLINE)
+// -------------------------------------------------------------
+function drawOjolFrame(ctx, frame) {
+  const breathe = (frame === 1) ? -1 : 0;
+  const cx = 32;
+
+  // Sepatu boots motor hitam
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(cx - 7, 57, 6, 3);
+  ctx.fillRect(cx + 1, 57, 6, 3);
+
+  // Celana jeans hitam/gelap
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(cx - 7, 45 + breathe, 6, 12);
+  ctx.fillRect(cx + 1, 45 + breathe, 6, 12);
+
+  // Jaket Hijau Ojol Ikonik
+  ctx.fillStyle = '#16a34a'; // Hijau ojol terang
+  ctx.fillRect(cx - 9, 29 + breathe, 18, 17);
+  // Strip hitam & reflektor silver di dada/lengan jaket
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(cx - 9, 35 + breathe, 18, 4);
+  ctx.fillStyle = '#f8fafc'; // Reflektor silver
+  ctx.fillRect(cx - 9, 39 + breathe, 18, 1.5);
+
+  // Lengan & Tangan
+  ctx.fillStyle = '#15803d';
+  ctx.fillRect(cx - 11, 30 + breathe, 3, 9);
+  ctx.fillRect(cx + 8, 30 + breathe, 3, 9);
+  ctx.fillStyle = '#fed7aa';
+  ctx.fillRect(cx - 11, 39 + breathe, 3, 3);
+  ctx.fillRect(cx + 8, 39 + breathe, 3, 3);
+
+  // Smartphone ojol di tangan kanan
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(cx + 8, 36 + breathe, 4, 7);
+  ctx.fillStyle = '#38bdf8'; // Layar HP menyala ada peta/orderan
+  ctx.fillRect(cx + 9, 37 + breathe, 2, 5);
+
+  // Leher & Wajah
+  ctx.fillStyle = '#fed7aa';
+  ctx.fillRect(cx - 3, 24 + breathe, 6, 5);
+  ctx.beginPath();
+  ctx.ellipse(cx, 19 + breathe, 7, 7, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Mata & Senyum ramah
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(cx - 4, 18 + breathe, 2, 2);
+  ctx.fillRect(cx + 2, 18 + breathe, 2, 2);
+  ctx.fillStyle = '#dc2626';
+  ctx.fillRect(cx - 2, 22 + breathe, 4, 1.5);
+
+  // Helm Hijau Ojol
+  ctx.fillStyle = '#16a34a';
+  ctx.beginPath();
+  ctx.arc(cx, 16 + breathe, 8, Math.PI, 0, false);
+  ctx.fill();
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(cx - 8, 15 + breathe, 16, 2.5);
+  ctx.fillStyle = '#f8fafc'; // Kaca helm visor berkilau
+  ctx.fillRect(cx - 5, 13 + breathe, 10, 2);
+}
+
+function drawOjolPortrait(ctx) {
+  const grad = ctx.createLinearGradient(0, 0, 128, 128);
+  grad.addColorStop(0, '#14532d');
+  grad.addColorStop(1, '#052e16');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 128, 128);
+
+  ctx.strokeStyle = '#22c55e';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(2, 2, 124, 124);
+
+  const cx = 64;
+  // Jaket Hijau Ojol
+  ctx.fillStyle = '#16a34a';
+  ctx.beginPath();
+  ctx.ellipse(cx, 118, 52, 26, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(cx - 30, 96, 60, 12);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(cx - 30, 108, 60, 3);
+
+  // Wajah
+  ctx.fillStyle = '#fed7aa';
+  ctx.beginPath();
+  ctx.ellipse(cx, 60, 22, 23, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Mata
+  ctx.fillStyle = '#0f172a';
+  ctx.beginPath();
+  ctx.ellipse(cx - 8, 56, 3, 3, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx + 8, 56, 3, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Senyum
+  ctx.fillStyle = '#dc2626';
+  ctx.beginPath();
+  ctx.arc(cx, 68, 6, 0.1 * Math.PI, 0.9 * Math.PI, false);
+  ctx.fill();
+  // Helm Hijau Ojol
+  ctx.fillStyle = '#16a34a';
+  ctx.beginPath();
+  ctx.arc(cx, 44, 25, Math.PI, 0, false);
+  ctx.fill();
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(cx - 25, 42, 50, 7);
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillRect(cx - 18, 36, 36, 5);
+
+  // Plaque
+  ctx.fillStyle = 'rgba(2, 6, 23, 0.85)';
+  ctx.fillRect(8, 104, 112, 18);
+  ctx.strokeStyle = '#22c55e';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(8, 104, 112, 18);
+  ctx.fillStyle = '#4ade80';
+  ctx.font = 'bold 9px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('BANG DEDI (OJOL)', cx, 117);
+  ctx.textAlign = 'start';
+}
+
+// -------------------------------------------------------------
+// 8. DRAW WARGA SEKITAR (PAK YANTO)
+// -------------------------------------------------------------
+function drawWargaFrame(ctx, frame) {
+  const breathe = (frame === 1) ? -1 : 0;
+  const cx = 32;
+
+  // Sandal kulit / pantofel santai
+  ctx.fillStyle = '#451a03';
+  ctx.fillRect(cx - 7, 57, 6, 3);
+  ctx.fillRect(cx + 1, 57, 6, 3);
+
+  // Celana bahan krem/khaki
+  ctx.fillStyle = '#d6d3d1';
+  ctx.fillRect(cx - 7, 45 + breathe, 6, 12);
+  ctx.fillRect(cx + 1, 45 + breathe, 6, 12);
+
+  // Baju Batik Katapang / Kemeja Etnik Santai (Coklat Marun bermotif)
+  ctx.fillStyle = '#7c2d12';
+  ctx.fillRect(cx - 8, 30 + breathe, 16, 16);
+  ctx.fillStyle = '#fde047';
+  ctx.fillRect(cx - 6, 34 + breathe, 3, 3);
+  ctx.fillRect(cx + 3, 34 + breathe, 3, 3);
+  ctx.fillRect(cx - 2, 39 + breathe, 4, 3);
+
+  // Lengan & Tangan
+  ctx.fillStyle = '#7c2d12';
+  ctx.fillRect(cx - 10, 31 + breathe, 3, 8);
+  ctx.fillRect(cx + 7, 31 + breathe, 3, 8);
+  ctx.fillStyle = '#fed7aa';
+  ctx.fillRect(cx - 10, 39 + breathe, 3, 4);
+  ctx.fillRect(cx + 7, 39 + breathe, 3, 4);
+
+  // Wajah & Kacamata
+  ctx.fillStyle = '#fed7aa';
+  ctx.fillRect(cx - 3, 24 + breathe, 6, 5);
+  ctx.beginPath();
+  ctx.ellipse(cx, 19 + breathe, 7, 7, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Kacamata bingkai emas
+  ctx.strokeStyle = '#eab308';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(cx - 5, 17 + breathe, 4, 3);
+  ctx.strokeRect(cx + 1, 17 + breathe, 4, 3);
+
+  // Senyum bijak
+  ctx.fillStyle = '#b91c1c';
+  ctx.fillRect(cx - 2, 22 + breathe, 4, 1.5);
+
+  // Peci Hitam Warga
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(cx - 7, 11 + breathe, 14, 6);
+}
+
+function drawWargaPortrait(ctx) {
+  const grad = ctx.createLinearGradient(0, 0, 128, 128);
+  grad.addColorStop(0, '#431407');
+  grad.addColorStop(1, '#1c1917');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 128, 128);
+
+  ctx.strokeStyle = '#d97706';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(2, 2, 124, 124);
+
+  const cx = 64;
+  // Baju Batik
+  ctx.fillStyle = '#7c2d12';
+  ctx.beginPath();
+  ctx.ellipse(cx, 118, 52, 26, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#fde047';
+  ctx.fillRect(cx - 12, 100, 6, 6);
+  ctx.fillRect(cx + 6, 100, 6, 6);
+
+  // Wajah
+  ctx.fillStyle = '#fed7aa';
+  ctx.beginPath();
+  ctx.ellipse(cx, 60, 22, 23, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Kacamata
+  ctx.strokeStyle = '#eab308';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(cx - 15, 52, 12, 9);
+  ctx.strokeRect(cx + 3, 52, 12, 9);
+  ctx.beginPath();
+  ctx.moveTo(cx - 3, 56);
+  ctx.lineTo(cx + 3, 56);
+  ctx.stroke();
+
+  // Senyum
+  ctx.fillStyle = '#dc2626';
+  ctx.beginPath();
+  ctx.arc(cx, 71, 6, 0.1 * Math.PI, 0.9 * Math.PI, false);
+  ctx.fill();
+
+  // Peci
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(cx - 22, 34, 44, 16);
+
+  // Plaque
+  ctx.fillStyle = 'rgba(2, 6, 23, 0.85)';
+  ctx.fillRect(8, 104, 112, 18);
+  ctx.strokeStyle = '#d97706';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(8, 104, 112, 18);
+  ctx.fillStyle = '#fde047';
+  ctx.font = 'bold 9px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('PAK YANTO (WARGA)', cx, 117);
+  ctx.textAlign = 'start';
+}
+
+// -------------------------------------------------------------
+// 9. DRAW SISWA BASKET (DONI)
+// -------------------------------------------------------------
+function drawSiswaBasketFrame(ctx, frame) {
+  const breathe = (frame === 1) ? -1 : 0;
+  const bounce = (frame % 2 === 1) ? 2 : 0;
+  const cx = 32;
+
+  // Sepatu basket sporty tinggi (Merah-Putih)
+  ctx.fillStyle = '#dc2626';
+  ctx.fillRect(cx - 8, 56, 7, 4);
+  ctx.fillRect(cx + 1, 56, 7, 4);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(cx - 7, 58, 5, 1.5);
+  ctx.fillRect(cx + 2, 58, 5, 1.5);
+
+  // Celana basket pendek SMKN 1 Katapang (Navy dengan garis merah)
+  ctx.fillStyle = '#1e3a8a';
+  ctx.fillRect(cx - 8, 44 + breathe, 7, 12);
+  ctx.fillRect(cx + 1, 44 + breathe, 7, 12);
+  ctx.fillStyle = '#ef4444';
+  ctx.fillRect(cx - 9, 44 + breathe, 1, 12);
+  ctx.fillRect(cx + 8, 44 + breathe, 1, 12);
+
+  // Jersey basket (Merah Marun dengan Nomor 7)
+  ctx.fillStyle = '#b91c1c';
+  ctx.fillRect(cx - 8, 29 + breathe, 16, 16);
+  // Nomor 7 di dada
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 8px sans-serif';
+  ctx.fillText('7', cx - 2, 40 + breathe);
+
+  // Lengan & Tangan
+  ctx.fillStyle = '#fed7aa';
+  ctx.fillRect(cx - 10, 30 + breathe, 3, 10);
+  ctx.fillRect(cx + 7, 30 + breathe, 3, 10);
+
+  // Bola Basket di tangan / dipantulkan
+  ctx.fillStyle = '#ea580c'; // Warna bola basket oranye
+  ctx.beginPath();
+  ctx.arc(cx + 12, 44 + breathe + bounce, 5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#0f172a';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Wajah & Rambut sporty
+  ctx.fillStyle = '#fed7aa';
+  ctx.fillRect(cx - 3, 24 + breathe, 6, 5);
+  ctx.beginPath();
+  ctx.ellipse(cx, 18 + breathe, 7, 7, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Mata & Senyum berenergi
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(cx - 4, 17 + breathe, 2, 2);
+  ctx.fillRect(cx + 2, 17 + breathe, 2, 2);
+  ctx.fillStyle = '#ef4444';
+  ctx.fillRect(cx - 2, 21 + breathe, 4, 1.5);
+
+  // Headband basket merah & rambut hitam jabrik
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(cx - 7, 10 + breathe, 14, 5);
+  ctx.fillStyle = '#ef4444'; // Headband
+  ctx.fillRect(cx - 7, 14 + breathe, 14, 2.5);
+}
+
+function drawSiswaBasketPortrait(ctx) {
+  const grad = ctx.createLinearGradient(0, 0, 128, 128);
+  grad.addColorStop(0, '#1e3a8a');
+  grad.addColorStop(1, '#0f172a');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 128, 128);
+
+  ctx.strokeStyle = '#ef4444';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(2, 2, 124, 124);
+
+  const cx = 64;
+  // Jersey Marun
+  ctx.fillStyle = '#b91c1c';
+  ctx.beginPath();
+  ctx.ellipse(cx, 118, 52, 26, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 22px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('7', cx, 118);
+
+  // Wajah
+  ctx.fillStyle = '#fed7aa';
+  ctx.beginPath();
+  ctx.ellipse(cx, 60, 22, 23, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Mata
+  ctx.fillStyle = '#0f172a';
+  ctx.beginPath();
+  ctx.ellipse(cx - 8, 56, 3, 3, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx + 8, 56, 3, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Senyum
+  ctx.fillStyle = '#dc2626';
+  ctx.beginPath();
+  ctx.arc(cx, 68, 7, 0.1 * Math.PI, 0.9 * Math.PI, false);
+  ctx.fill();
+  // Rambut & Headband
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(cx - 24, 32, 48, 16);
+  ctx.fillStyle = '#ef4444';
+  ctx.fillRect(cx - 24, 46, 48, 6);
+
+  // Plaque
+  ctx.fillStyle = 'rgba(2, 6, 23, 0.85)';
+  ctx.fillRect(8, 104, 112, 18);
+  ctx.strokeStyle = '#ef4444';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(8, 104, 112, 18);
+  ctx.fillStyle = '#fca5a5';
+  ctx.font = 'bold 9px monospace';
+  ctx.fillText('DONI (BASKET RPL)', cx, 117);
+  ctx.textAlign = 'start';
+}
+
+// -------------------------------------------------------------
+// 10. DRAW SISWI CASUAL (MAYA & PUTRI - KANTIN & GAZEBO)
+// -------------------------------------------------------------
+function drawSiswiCasualFrame(ctx, frame) {
+  const breathe = (frame === 1) ? -1 : 0;
+  const isBlink = (frame === 2);
+  const cx = 32;
+
+  // Sepatu kets putih siswi
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(cx - 6, 57, 5, 3);
+  ctx.fillRect(cx + 1, 57, 5, 3);
+  ctx.fillStyle = '#cbd5e1';
+  ctx.fillRect(cx - 6, 59, 5, 1);
+  ctx.fillRect(cx + 1, 59, 5, 1);
+
+  // Rok panjang abu-abu SMK
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(cx - 8, 44 + breathe, 16, 14);
+
+  // Rompi Rajut Tosca Pastel & Kemeja Putih
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(cx - 7, 30 + breathe, 14, 15);
+  ctx.fillStyle = '#0d9488'; // Rompi tosca
+  ctx.fillRect(cx - 7, 33 + breathe, 14, 12);
+  ctx.fillStyle = '#f8fafc'; // Kerah kemeja V-neck
+  ctx.beginPath();
+  ctx.moveTo(cx - 4, 33 + breathe);
+  ctx.lineTo(cx, 39 + breathe);
+  ctx.lineTo(cx + 4, 33 + breathe);
+  ctx.fill();
+
+  // Dasi sekolah biru muda
+  ctx.fillStyle = '#0284c7';
+  ctx.fillRect(cx - 1, 35 + breathe, 2, 6);
+
+  // Lengan & Tangan
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(cx - 9, 31 + breathe, 2, 9);
+  ctx.fillRect(cx + 7, 31 + breathe, 2, 9);
+  ctx.fillStyle = '#fed7aa';
+  ctx.fillRect(cx - 9, 40 + breathe, 2, 3);
+  ctx.fillRect(cx + 7, 40 + breathe, 2, 3);
+
+  // Catatan binder / buku kecil di tangan
+  ctx.fillStyle = '#f472b6'; // Buku pink pastel
+  ctx.fillRect(cx + 6, 38 + breathe, 5, 6);
+
+  // Wajah & Hijab Tosca Lembut
+  ctx.fillStyle = '#0f766e'; // Hijab tosca
+  ctx.beginPath();
+  ctx.ellipse(cx, 20 + breathe, 8, 9, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#fed7aa';
+  ctx.beginPath();
+  ctx.ellipse(cx, 20 + breathe, 5, 5.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Pipi merona
+  ctx.fillStyle = 'rgba(244, 63, 94, 0.3)';
+  ctx.fillRect(cx - 4, 21 + breathe, 2, 1.5);
+  ctx.fillRect(cx + 2, 21 + breathe, 2, 1.5);
+
+  // Mata manis
+  if (isBlink) {
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(cx - 3, 20 + breathe, 2, 1);
+    ctx.fillRect(cx + 1, 20 + breathe, 2, 1);
+  } else {
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(cx - 3, 19 + breathe, 2, 2);
+    ctx.fillRect(cx + 1, 19 + breathe, 2, 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(cx - 3, 19 + breathe, 1, 1);
+    ctx.fillRect(cx + 1, 19 + breathe, 1, 1);
+  }
+
+  // Senyum ramah
+  ctx.fillStyle = '#f43f5e';
+  ctx.fillRect(cx - 1.5, 23 + breathe, 3, 1);
+}
+
+function drawSiswiCasualPortrait(ctx) {
+  const grad = ctx.createLinearGradient(0, 0, 128, 128);
+  grad.addColorStop(0, '#0f766e');
+  grad.addColorStop(1, '#115e59');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 128, 128);
+
+  ctx.strokeStyle = '#2dd4bf';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(2, 2, 124, 124);
+
+  const cx = 64;
+  // Rompi & Seragam
+  ctx.fillStyle = '#0d9488';
+  ctx.beginPath();
+  ctx.ellipse(cx, 118, 52, 26, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#f8fafc';
+  ctx.beginPath();
+  ctx.moveTo(cx - 16, 92);
+  ctx.lineTo(cx, 110);
+  ctx.lineTo(cx + 16, 92);
+  ctx.fill();
+  ctx.fillStyle = '#0284c7';
+  ctx.fillRect(cx - 3, 96, 6, 18);
+
+  // Hijab & Wajah
+  ctx.fillStyle = '#0f766e';
+  ctx.beginPath();
+  ctx.ellipse(cx, 58, 25, 27, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#fed7aa';
+  ctx.beginPath();
+  ctx.ellipse(cx, 59, 17, 18, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Pipi
+  ctx.fillStyle = 'rgba(244, 63, 94, 0.35)';
+  ctx.beginPath();
+  ctx.ellipse(cx - 9, 64, 4, 3, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx + 9, 64, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Mata
+  ctx.fillStyle = '#0f172a';
+  ctx.beginPath();
+  ctx.ellipse(cx - 7, 56, 3, 3.5, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx + 7, 56, 3, 3.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(cx - 8, 54, 2, 2);
+  ctx.fillRect(cx + 6, 54, 2, 2);
+
+  // Senyum
+  ctx.fillStyle = '#f43f5e';
+  ctx.beginPath();
+  ctx.arc(cx, 68, 5, 0.1 * Math.PI, 0.9 * Math.PI, false);
+  ctx.fill();
+
+  // Plaque
+  ctx.fillStyle = 'rgba(2, 6, 23, 0.85)';
+  ctx.fillRect(8, 104, 112, 18);
+  ctx.strokeStyle = '#2dd4bf';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(8, 104, 112, 18);
+  ctx.fillStyle = '#5eead4';
+  ctx.font = 'bold 9px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('SISWI SMKN 1 KATAPANG', cx, 117);
+  ctx.textAlign = 'start';
+}
+
+// -------------------------------------------------------------
+// 11. DRAW RYZEN (KARAKTER UTAMA LAKI-LAKI - ROCK SOLID FALLBACK)
+// -------------------------------------------------------------
+function drawRyzenFrame(ctx, frame, facing = 'down') {
+  const breathe = (frame === 1) ? -1 : 0;
+  const legOffset = (frame === 1) ? 2 : (frame === 3 ? -2 : 0);
+  const cx = 32;
+
+  // Sepatu Kets Sporty SMK
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(cx - 7, 57 + (facing === 'up' ? -legOffset : legOffset), 6, 3);
+  ctx.fillRect(cx + 1, 57 - (facing === 'up' ? -legOffset : legOffset), 6, 3);
+  ctx.fillStyle = '#38bdf8'; // Aksen biru sporty
+  ctx.fillRect(cx - 6, 57 + (facing === 'up' ? -legOffset : legOffset), 4, 1);
+  ctx.fillRect(cx + 2, 57 - (facing === 'up' ? -legOffset : legOffset), 4, 1);
+
+  // Celana Panjang Abu-Abu SMK
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(cx - 7, 44 + breathe, 6, 13);
+  ctx.fillRect(cx + 1, 44 + breathe, 6, 13);
+
+  // Kemeja Putih Seragam SMK
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(cx - 8, 30 + breathe, 16, 15);
+
+  if (facing === 'down') {
+    // Dasi Abu-Abu Bergaris Rapi
+    ctx.fillStyle = '#64748b';
+    ctx.fillRect(cx - 2, 32 + breathe, 4, 11);
+    ctx.fillStyle = '#0284c7'; // Strip biru muda di dasi
+    ctx.fillRect(cx - 1, 35 + breathe, 2, 2);
+    // Saku & Badge OSIS SMKN 1 Katapang
+    ctx.fillStyle = '#cbd5e1';
+    ctx.fillRect(cx - 6, 36 + breathe, 3, 4);
+    ctx.fillStyle = '#ef4444';
+    ctx.fillRect(cx - 5, 37 + breathe, 1, 2);
+
+    // Lengan & Tangan
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(cx - 10, 31 + breathe, 3, 8);
+    ctx.fillRect(cx + 7, 31 + breathe, 3, 8);
+    ctx.fillStyle = '#fed7aa';
+    ctx.fillRect(cx - 10, 39 + breathe, 3, 3);
+    ctx.fillRect(cx + 7, 39 + breathe, 3, 3);
+
+    // Leher & Wajah
+    ctx.fillStyle = '#fed7aa';
+    ctx.fillRect(cx - 3, 24 + breathe, 6, 6);
+    ctx.beginPath();
+    ctx.ellipse(cx, 19 + breathe, 7, 7, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Mata Keren & Fokus
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(cx - 4, 18 + breathe, 2, 2);
+    ctx.fillRect(cx + 2, 18 + breathe, 2, 2);
+    ctx.fillStyle = '#38bdf8'; // Iris biru keren
+    ctx.fillRect(cx - 3, 18 + breathe, 1, 1);
+    ctx.fillRect(cx + 3, 18 + breathe, 1, 1);
+
+    // Senyum percaya diri
+    ctx.fillStyle = '#dc2626';
+    ctx.fillRect(cx - 2, 22 + breathe, 4, 1.5);
+
+    // Rambut Coklat Tua / Hitam Bergaya Anime RPL
+    ctx.fillStyle = '#1e1b2e';
+    ctx.fillRect(cx - 8, 11 + breathe, 16, 7);
+    ctx.fillRect(cx - 9, 14 + breathe, 2, 6);
+    ctx.fillRect(cx + 7, 14 + breathe, 2, 6);
+    // Poni keren
+    ctx.beginPath();
+    ctx.moveTo(cx - 6, 17 + breathe);
+    ctx.lineTo(cx - 3, 20 + breathe);
+    ctx.lineTo(cx, 16 + breathe);
+    ctx.lineTo(cx + 3, 20 + breathe);
+    ctx.lineTo(cx + 6, 17 + breathe);
+    ctx.fill();
+  } else {
+    // Tampak Belakang (Facing UP)
+    ctx.fillStyle = '#cbd5e1';
+    ctx.fillRect(cx - 8, 30 + breathe, 16, 2); // Garis kerah belakang
+    // Lengan
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(cx - 10, 31 + breathe, 3, 8);
+    ctx.fillRect(cx + 7, 31 + breathe, 3, 8);
+    // Kepala belakang (Rambut lebat)
+    ctx.fillStyle = '#1e1b2e';
+    ctx.beginPath();
+    ctx.ellipse(cx, 18 + breathe, 8, 8, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillRect(cx - 7, 21 + breathe, 14, 5); // Tengkuk rambut
+  }
+}
+
+function drawRyzenPortrait(ctx) {
+  const grad = ctx.createLinearGradient(0, 0, 128, 128);
+  grad.addColorStop(0, '#0f172a');
+  grad.addColorStop(0.6, '#1e293b');
+  grad.addColorStop(1, '#0284c7');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 128, 128);
+
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(2, 2, 124, 124);
+
+  const cx = 64;
+  // Bahu & Kemeja Putih
+  ctx.fillStyle = '#f8fafc';
+  ctx.beginPath();
+  ctx.ellipse(cx, 118, 52, 26, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Dasi Abu-Abu
+  ctx.fillStyle = '#64748b';
+  ctx.fillRect(cx - 6, 92, 12, 34);
+  ctx.fillStyle = '#0284c7';
+  ctx.fillRect(cx - 4, 102, 8, 4);
+
+  // Wajah
+  ctx.fillStyle = '#fed7aa';
+  ctx.beginPath();
+  ctx.ellipse(cx, 60, 22, 23, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Mata Keren
+  ctx.fillStyle = '#0f172a';
+  ctx.beginPath();
+  ctx.ellipse(cx - 8, 56, 3.5, 3.5, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx + 8, 56, 3.5, 3.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillRect(cx - 7, 55, 2, 2);
+  ctx.fillRect(cx + 7, 55, 2, 2);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(cx - 9, 54, 1.5, 1.5);
+  ctx.fillRect(cx + 7, 54, 1.5, 1.5);
+
+  // Alis tegas
+  ctx.strokeStyle = '#0f172a';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(cx - 13, 49);
+  ctx.lineTo(cx - 3, 50);
+  ctx.moveTo(cx + 3, 50);
+  ctx.lineTo(cx + 13, 49);
+  ctx.stroke();
+
+  // Senyum percaya diri
+  ctx.fillStyle = '#dc2626';
+  ctx.beginPath();
+  ctx.arc(cx, 68, 6, 0.1 * Math.PI, 0.9 * Math.PI, false);
+  ctx.fill();
+
+  // Rambut Keren
+  ctx.fillStyle = '#1e1b2e';
+  ctx.beginPath();
+  ctx.arc(cx, 44, 25, Math.PI, 0, false);
+  ctx.fill();
+  ctx.fillRect(cx - 25, 42, 50, 8);
+  // Poni anime
+  ctx.beginPath();
+  ctx.moveTo(cx - 20, 50);
+  ctx.lineTo(cx - 10, 62);
+  ctx.lineTo(cx - 2, 50);
+  ctx.lineTo(cx + 8, 62);
+  ctx.lineTo(cx + 18, 50);
+  ctx.fill();
+
+  // Plaque
+  ctx.fillStyle = 'rgba(2, 6, 23, 0.85)';
+  ctx.fillRect(8, 104, 112, 18);
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(8, 104, 112, 18);
+  ctx.fillStyle = '#38bdf8';
+  ctx.font = 'bold 9px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('RYZEN (PROGRAMMER)', cx, 117);
   ctx.textAlign = 'start';
 }

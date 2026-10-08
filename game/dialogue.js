@@ -264,7 +264,7 @@ export const DIALOGUES = {
   ibu_kantin_intro: (player) => [
     {
       speaker: 'Ibu Kantin',
-      portrait: 'teacher_portrait',
+      portrait: 'ibu_kantin_portrait',
       text: `Halo ${player.name}! Mau jajan apa nih saat jam istirahat?`
     },
     {
@@ -274,7 +274,7 @@ export const DIALOGUES = {
     },
     {
       speaker: 'Ibu Kantin',
-      portrait: 'teacher_portrait',
+      portrait: 'ibu_kantin_portrait',
       text: 'Ada Es Teh Manis dingin dan Roti Bakar hangat di meja kantin, ambil saja yang kamu suka ya!',
       action: 'canteen_buy_food_quest'
     }
@@ -447,6 +447,236 @@ export const DIALOGUES = {
       speaker: 'Bu Rina',
       portrait: 'teacher_portrait',
       text: `Selamat ${player.name}! Pengetahuan RPL kamu sungguh membanggakan. Teruslah berkarya dan berinovasi!`
+    }
+  ],
+
+  // --- DIALOGUE NPC LUAR SEKOLAH ---
+  mang_ujang_intro: (player) => [
+    {
+      speaker: 'Mang Ujang',
+      portrait: 'pedagang_kaki_lima_portrait',
+      text: `Halo adek ${player.name}! Jam istirahat ya? Nih cilok anget bumbu kacang sama batagor gurih khas Katapang!`
+    },
+    {
+      speaker: player.name,
+      portrait: player.gender === 'boy' ? 'boy_portrait' : 'girl_portrait',
+      text: 'Wah, aromanya wangi banget Mang! Tiap jam istirahat mangkal di luar gerbang ya?'
+    },
+    {
+      speaker: 'Mang Ujang',
+      portrait: 'pedagang_kaki_lima_portrait',
+      text: 'Iya dek, siswa SMKN 1 Katapang langganan setia mamang. Semangat ya pameran RPL-nya, harum namanya sekolah ini!'
+    }
+  ],
+
+  bang_dedi_intro: (player) => [
+    {
+      speaker: 'Bang Dedi',
+      portrait: 'ojol_portrait',
+      text: `Siang dek ${player.name}! Abang lagi nunggu orderan penumpang sama pesanan paket di seberang gerbang nih.`
+    },
+    {
+      speaker: player.name,
+      portrait: player.gender === 'boy' ? 'boy_portrait' : 'girl_portrait',
+      text: 'Rame orderan hari ini Bang Dedi?'
+    },
+    {
+      speaker: 'Bang Dedi',
+      portrait: 'ojol_portrait',
+      text: 'Alhamdulillah dek, pas jam istirahat sekolah jalanan luar selalu ramai. Keren ya anak-anak SMK sekarang pada jago bikin aplikasi!'
+    }
+  ],
+
+  pak_yanto_intro: (player) => [
+    {
+      speaker: 'Pak Yanto',
+      portrait: 'warga_portrait',
+      text: `Assalamu'alaikum nak ${player.name}. Bapak lagi jalan santai di depan sekolah.`
+    },
+    {
+      speaker: 'Pak Yanto',
+      portrait: 'warga_portrait',
+      text: 'Warga sekitar bangga banget sama SMKN 1 Katapang. Murid-muridnya sopan dan pintar merakit teknologi komputer.'
+    },
+    {
+      speaker: player.name,
+      portrait: player.gender === 'boy' ? 'boy_portrait' : 'girl_portrait',
+      text: 'Wa\'alaikumsalam Pak Yanto! Terima kasih banyak atas doa dan dukungannya untuk kami!'
+    }
+  ],
+
+  // --- DIALOGUE NPC RAMAI DALAM SEKOLAH ---
+  doni_basket: (player) => [
+    {
+      speaker: 'Doni',
+      portrait: 'siswa_basket_portrait',
+      text: `Yo ${player.name}! Istirahat gini paling seger buat shooting basket bentar biar gak pegel habis ngoding di lab!`
+    },
+    {
+      speaker: player.name,
+      portrait: player.gender === 'boy' ? 'boy_portrait' : 'girl_portrait',
+      text: 'Keren Don! Nanti sore tanding antar kelas kan?'
+    },
+    {
+      speaker: 'Doni',
+      portrait: 'siswa_basket_portrait',
+      text: 'Pasti dong! Tim RPL harus juara! Habis ini giliran Fajar yang coba 3-point.'
+    }
+  ],
+
+  fajar_basket: (player) => [
+    {
+      speaker: 'Fajar',
+      portrait: 'rian_portrait',
+      text: `Haha Doni passing ke sini bolanya! Eh ${player.name}, jangan lupa cobain jajanan kantin mumpung belum bel masuk ya!`
+    }
+  ],
+
+  nisa_kantin: (player) => [
+    {
+      speaker: 'Nisa',
+      portrait: 'siti_portrait',
+      text: `Hai ${player.name}! Es teh manis buatan Bu Kantin beneran penyelamat dahaga, seger banget!`
+    },
+    {
+      speaker: player.name,
+      portrait: player.gender === 'boy' ? 'boy_portrait' : 'girl_portrait',
+      text: 'Iya Nisa, manis dinginnya pas banget!'
+    }
+  ],
+
+  maya_kantin: (player) => [
+    {
+      speaker: 'Maya',
+      portrait: 'siswi_casual_portrait',
+      text: `Roti bakar kejunya lumer banget di lidah! Habis makan yuk kita keliling liat pameran di koridor.`
+    }
+  ],
+
+  andi_mading: (player) => [
+    {
+      speaker: 'Andi',
+      portrait: 'rian_portrait',
+      text: `Hai ${player.name}! Di mading banyak info keren tentang lomba software nasional sama info sertifikasi kompetensi kejuruan!`
+    }
+  ],
+
+  putri_gazebo: (player) => [
+    {
+      speaker: 'Putri',
+      portrait: 'siswi_casual_portrait',
+      text: `Suasana gazebo adem banget ya ${player.name}. Belajar logika algoritma sambil kena angin sepoi-sepoi jadi makin paham!`
+    }
+  ],
+
+  farhan_pohon: (player) => [
+    {
+      speaker: 'Farhan',
+      portrait: 'rian_portrait',
+      text: `Ngadem di bawah pohon rindang ini bikin rileks pikiran. Siap fokus lagi pas pelajaran kejuruan nanti!`
+    }
+  ],
+
+  bayu_kantin: (player) => [
+    {
+      speaker: 'Bayu',
+      portrait: 'rian_portrait',
+      text: `Lagi antre beli gorengan anget nih. Jam istirahat kantin selalu rame, suasananya seru!`
+    }
+  ],
+
+  dewi_kantin: (player) => [
+    {
+      speaker: 'Dewi',
+      portrait: 'siti_portrait',
+      text: `Bu Kantin selalu ramah melayani semua siswa. Makanannya juga higienis dan terjangkau!`
+    }
+  ],
+
+  gilang_hallway: (player) => [
+    {
+      speaker: 'Gilang',
+      portrait: 'rian_portrait',
+      text: `Halo ${player.name}! Selamat datang di Booth Web Development! Ini karya website sistem informasi sekolah buatan kelompok kami.`
+    }
+  ],
+
+  sari_hallway: (player) => [
+    {
+      speaker: 'Sari',
+      portrait: 'siswi_casual_portrait',
+      text: `Hai ${player.name}! Silakan coba prototype UI/UX aplikasi mobile kami. Tampilannya kami rancang agar mudah digunakan semua siswa!`
+    }
+  ],
+
+  // --- DIALOGUE 5 NPC BARU DI RUANG KELAS ---
+  dimas_kelas: (player) => [
+    {
+      speaker: 'Dimas',
+      portrait: 'rian_portrait',
+      text: `Hei ${player.name}! Lagi jam istirahat ya? Aku lagi lanjutin kodingan logic algorithm buat tugas Bu Rina nih.`
+    },
+    {
+      speaker: player.name,
+      portrait: player.gender === 'boy' ? 'boy_portrait' : 'girl_portrait',
+      text: 'Keren Dimas, jangan lupa istirahat atau jajan ke kantin juga ya!'
+    },
+    {
+      speaker: 'Dimas',
+      portrait: 'rian_portrait',
+      text: 'Siap! Nanti habis fungsi recursive ini beres aku langsung ke kantin.'
+    }
+  ],
+
+  dinda_kelas: (player) => [
+    {
+      speaker: 'Dinda',
+      portrait: 'siswi_casual_portrait',
+      text: `Hai ${player.name}! Aku lagi merapikan desain UI/UX poster pameran RPL di laptop. Palet warnanya disesuaikan sama tema sekolah kita!`
+    },
+    {
+      speaker: player.name,
+      portrait: player.gender === 'boy' ? 'boy_portrait' : 'girl_portrait',
+      text: 'Desainmu selalu estetik dan rapi Dinda, mantap banget!'
+    }
+  ],
+
+  rizky_kelas: (player) => [
+    {
+      speaker: 'Rizky',
+      portrait: 'rian_portrait',
+      text: `Halo ${player.name}! Di ruangan kelas sebelah lagi rame ya? Kami di sini lagi ngetes sensor mikrokontroler buat showcase IoT RPL.`
+    },
+    {
+      speaker: player.name,
+      portrait: player.gender === 'boy' ? 'boy_portrait' : 'girl_portrait',
+      text: 'Wah keren banget proyek IoT-nya Rizky, semangat perakitannya!'
+    }
+  ],
+
+  tio_kelas: (player) => [
+    {
+      speaker: 'Tio',
+      portrait: 'rian_portrait',
+      text: `Yo ${player.name}! Mau jalan ke kantin ya? Nanti kalau beli roti bakar kabar-kabari ya, lagi asyik bedah relasi tabel SQL bareng Alya nih.`
+    },
+    {
+      speaker: player.name,
+      portrait: player.gender === 'boy' ? 'boy_portrait' : 'girl_portrait',
+      text: 'Haha siap Tio, nanti aku mampir ke kantin dulu ya!'
+    }
+  ],
+
+  alya_kelas: (player) => [
+    {
+      speaker: 'Alya',
+      portrait: 'siti_portrait',
+      text: `Hai ${player.name}! Query database pendaftaran siswa kami sudah berhasil terhubung dan dites di endpoint API lokal!`
+    },
+    {
+      speaker: player.name,
+      portrait: player.gender === 'boy' ? 'boy_portrait' : 'girl_portrait',
+      text: 'Keren banget Alya! Kerja tim kalian solid banget!'
     }
   ]
 };

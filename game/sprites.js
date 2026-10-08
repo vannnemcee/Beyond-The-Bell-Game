@@ -74,6 +74,23 @@ class SpriteManager {
       { name: 'boy_up_3', src: 'assets/characters/backwalkboy4.png' },
       { name: 'boy_up_4', src: 'assets/characters/backwalkboy5.png' },
 
+      // Ryzen (Boy) Authentic High-Res Chibi Animation (sprite_00.png to sprite_12.png)
+      { name: 'boy_idle_0', src: 'assets/characters/sprite_00.png' },
+      { name: 'boy_idle_1', src: 'assets/characters/sprite_01.png' },
+      { name: 'boy_idle_2', src: 'assets/characters/sprite_02.png' },
+      { name: 'boy_idle_3', src: 'assets/characters/sprite_03.png' },
+      { name: 'boy_idle_4', src: 'assets/characters/sprite_04.png' },
+      { name: 'boy_idle_5', src: 'assets/characters/sprite_05.png' },
+      { name: 'boy_idle_6', src: 'assets/characters/sprite_06.png' },
+      { name: 'boy_idle_7', src: 'assets/characters/sprite_07.png' },
+      { name: 'boy_idle_8', src: 'assets/characters/sprite_08.png' },
+      { name: 'boy_idle_9', src: 'assets/characters/sprite_09.png' },
+      { name: 'boy_idle_10', src: 'assets/characters/sprite_10.png' },
+      { name: 'boy_idle_11', src: 'assets/characters/sprite_11.png' },
+      { name: 'boy_idle_12', src: 'assets/characters/sprite_12.png' },
+      { name: 'boy_portrait', src: 'assets/characters/sprite_00.png' },
+      { name: 'boy_emergency', src: 'assets/characters/boy1.png' },
+
       // Wintel (Girl) Authentic Character Idle & Movement sprites (alisha_00.png to alisha_18.png)
       { name: 'girl_idle_0', src: 'assets/characters/alisha_00.png' },
       { name: 'girl_idle_1', src: 'assets/characters/alisha_01.png' },

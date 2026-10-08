@@ -20,6 +20,16 @@ export const MAPS = {
         targetX: 640,
         targetY: 135,
         label: 'Masuk ke Ruang Kelas RPL'
+      },
+      {
+        x: 2290,
+        y: 350,
+        w: 80,
+        h: 45,
+        targetMap: 'canteen',
+        targetX: 550,
+        targetY: 440,
+        label: 'Masuk ke Kantin Indoor'
       }
     ],
     npcs: [
@@ -44,7 +54,7 @@ export const MAPS = {
         y: 410,
         w: 100,
         h: 100,
-        spriteName: 'teacher',
+        spriteName: 'ibu_kantin',
         facing: 'down',
         interactionRadius: 90,
         dialogueId: 'ibu_kantin_intro'
@@ -61,6 +71,138 @@ export const MAPS = {
         facing: 'down',
         interactionRadius: 85,
         dialogueId: 'budi_intro'
+      },
+      // --- NPC LUAR GERBANG SEKOLAH ---
+      {
+        id: 'mang_ujang',
+        name: 'Mang Ujang',
+        role: 'Pedagang Cilok Luar Gerbang',
+        x: 1140,
+        y: 45,
+        w: 100,
+        h: 100,
+        spriteName: 'pedagang_kaki_lima',
+        facing: 'down',
+        interactionRadius: 100,
+        dialogueId: 'mang_ujang_intro'
+      },
+      {
+        id: 'bang_dedi',
+        name: 'Bang Dedi',
+        role: 'Driver Ojol Luar Gerbang',
+        x: 1390,
+        y: 45,
+        w: 100,
+        h: 100,
+        spriteName: 'ojol',
+        facing: 'down',
+        interactionRadius: 100,
+        dialogueId: 'bang_dedi_intro'
+      },
+      {
+        id: 'pak_yanto',
+        name: 'Pak Yanto',
+        role: 'Warga Sekitar Katapang',
+        x: 1030,
+        y: 45,
+        w: 100,
+        h: 100,
+        spriteName: 'warga',
+        facing: 'down',
+        interactionRadius: 100,
+        dialogueId: 'pak_yanto_intro'
+      },
+      // --- NPC RAMAI DALAM AREA SEKOLAH ---
+      {
+        id: 'doni',
+        name: 'Doni',
+        role: 'Atlet Basket RPL',
+        x: 460,
+        y: 1020,
+        w: 100,
+        h: 100,
+        spriteName: 'siswa_basket',
+        facing: 'down',
+        interactionRadius: 85,
+        dialogueId: 'doni_basket'
+      },
+      {
+        id: 'fajar',
+        name: 'Fajar',
+        role: 'Murid RPL (Tim Basket)',
+        x: 550,
+        y: 1020,
+        w: 100,
+        h: 100,
+        spriteName: 'rian',
+        facing: 'left',
+        interactionRadius: 85,
+        dialogueId: 'fajar_basket'
+      },
+      {
+        id: 'nisa',
+        name: 'Nisa',
+        role: 'Siswi RPL (Meja Kantin 1)',
+        x: 1880,
+        y: 480,
+        w: 100,
+        h: 100,
+        spriteName: 'siti',
+        facing: 'down',
+        interactionRadius: 85,
+        dialogueId: 'nisa_kantin'
+      },
+      {
+        id: 'maya',
+        name: 'Maya',
+        role: 'Siswi RPL (Meja Kantin 2)',
+        x: 2110,
+        y: 480,
+        w: 100,
+        h: 100,
+        spriteName: 'siswi_casual',
+        facing: 'down',
+        interactionRadius: 85,
+        dialogueId: 'maya_kantin'
+      },
+      {
+        id: 'andi',
+        name: 'Andi',
+        role: 'Murid RPL (Baca Mading)',
+        x: 1420,
+        y: 870,
+        w: 100,
+        h: 100,
+        spriteName: 'rian',
+        facing: 'up',
+        interactionRadius: 85,
+        dialogueId: 'andi_mading'
+      },
+      {
+        id: 'putri',
+        name: 'Putri',
+        role: 'Siswi UI/UX (Gazebo Santai)',
+        x: 2320,
+        y: 130,
+        w: 100,
+        h: 100,
+        spriteName: 'siswi_casual',
+        facing: 'down',
+        interactionRadius: 85,
+        dialogueId: 'putri_gazebo'
+      },
+      {
+        id: 'farhan',
+        name: 'Farhan',
+        role: 'Murid RPL (Ngadem Pohon)',
+        x: 340,
+        y: 680,
+        w: 100,
+        h: 100,
+        spriteName: 'rian',
+        facing: 'down',
+        interactionRadius: 85,
+        dialogueId: 'farhan_pohon'
       }
     ],
     items: [
@@ -84,17 +226,6 @@ export const MAPS = {
         h: 24,
         icon: '🍞',
         desc: 'Roti bakar hangat renyah favorit siswa SMKN 1 Katapang.',
-        collected: false
-      },
-      {
-        id: 'brosur_pameran',
-        name: 'Brosur Pameran RPL',
-        x: 1300,
-        y: 820,
-        w: 24,
-        h: 24,
-        icon: '📑',
-        desc: 'Brosur resmi jadwal dan denah pameran karya siswa RPL.',
         collected: false
       }
     ],
@@ -132,8 +263,10 @@ export const MAPS = {
       { type: 'tree', x: 2450, y: 1450, w: 90, h: 100 }
     ],
     colliders: [
-      // Batas Atas (Gerbang Utama & Dinding Luar)
-      { x: 0, y: 0, w: 2600, h: 90 },
+      // Batas Atas (Dinding Luar Kiri & Kanan Gerbang, dengan bukaan gerbang di x: 1210..1380)
+      { x: 0, y: 0, w: 1210, h: 90 },
+      { x: 1390, y: 0, w: 1210, h: 90 },
+      { x: 1210, y: 0, w: 180, h: 45 }, // Palang pagar gerbang luar sekolah
       // Batas Tepi Kiri & Kanan
       { x: 0, y: 0, w: 50, h: 1700 },
       { x: 2550, y: 0, w: 50, h: 1700 },
@@ -238,6 +371,32 @@ export const MAPS = {
         facing: 'down',
         interactionRadius: 85,
         dialogueId: 'siti_intro'
+      },
+      {
+        id: 'gilang_hallway',
+        name: 'Gilang',
+        role: 'Penjaga Booth Web App',
+        x: 160,
+        y: 240,
+        w: 100,
+        h: 100,
+        spriteName: 'rian',
+        facing: 'down',
+        interactionRadius: 85,
+        dialogueId: 'gilang_hallway'
+      },
+      {
+        id: 'sari_hallway',
+        name: 'Sari',
+        role: 'Penjaga Booth Mobile UI/UX',
+        x: 910,
+        y: 240,
+        w: 100,
+        h: 100,
+        spriteName: 'siswi_casual',
+        facing: 'down',
+        interactionRadius: 85,
+        dialogueId: 'sari_hallway'
       }
     ],
     items: [],
@@ -323,13 +482,13 @@ export const MAPS = {
         id: 'bu_rina',
         name: 'Bu Rina (Guru)',
         role: 'Guru Kejuruan RPL',
-        x: 350,
-        y: 75,
+        x: 452,
+        y: 96,
         w: 100,
         h: 100,
         spriteName: 'teacher',
         facing: 'down',
-        interactionRadius: 65,
+        interactionRadius: 85,
         dialogueId: 'bu_rina_intro'
       },
       {
@@ -357,6 +516,72 @@ export const MAPS = {
         facing: 'up',
         interactionRadius: 75,
         dialogueId: 'teman_kelas'
+      },
+      // --- 5 NPC BARU DI RUANG KELAS (KANAN ATAS, KIRI BAWAH, KANAN BAWAH) ---
+      {
+        id: 'dimas_kelas',
+        name: 'Dimas',
+        role: 'Murid RPL (Kelas Kanan Atas)',
+        x: 965,
+        y: 210,
+        w: 100,
+        h: 100,
+        spriteName: 'rian',
+        facing: 'up',
+        interactionRadius: 80,
+        dialogueId: 'dimas_kelas'
+      },
+      {
+        id: 'dinda_kelas',
+        name: 'Dinda',
+        role: 'Siswi UI/UX (Kelas Kanan Atas)',
+        x: 1040,
+        y: 138,
+        w: 100,
+        h: 100,
+        spriteName: 'siswi_casual',
+        facing: 'up',
+        interactionRadius: 80,
+        dialogueId: 'dinda_kelas'
+      },
+      {
+        id: 'rizky_kelas',
+        name: 'Rizky',
+        role: 'Murid IoT (Kelas Kiri Bawah)',
+        x: 208,
+        y: 825,
+        w: 100,
+        h: 100,
+        spriteName: 'rian',
+        facing: 'up',
+        interactionRadius: 80,
+        dialogueId: 'rizky_kelas'
+      },
+      {
+        id: 'tio_kelas',
+        name: 'Tio',
+        role: 'Murid Database (Kelas Kanan Bawah)',
+        x: 893,
+        y: 825,
+        w: 100,
+        h: 100,
+        spriteName: 'rian',
+        facing: 'up',
+        interactionRadius: 80,
+        dialogueId: 'tio_kelas'
+      },
+      {
+        id: 'alya_kelas',
+        name: 'Alya',
+        role: 'Siswi Backend (Kelas Kanan Bawah)',
+        x: 1047,
+        y: 825,
+        w: 100,
+        h: 100,
+        spriteName: 'siti',
+        facing: 'up',
+        interactionRadius: 80,
+        dialogueId: 'alya_kelas'
       }
     ],
     items: [],
@@ -757,10 +982,36 @@ export const MAPS = {
         y: 130,
         w: 100,
         h: 100,
-        spriteName: 'teacher',
+        spriteName: 'ibu_kantin',
         facing: 'down',
         interactionRadius: 85,
         dialogueId: 'ibu_kantin_intro'
+      },
+      {
+        id: 'bayu_kantin',
+        name: 'Bayu',
+        role: 'Murid RPL (Antre Makanan)',
+        x: 270,
+        y: 200,
+        w: 100,
+        h: 100,
+        spriteName: 'rian',
+        facing: 'up',
+        interactionRadius: 85,
+        dialogueId: 'bayu_kantin'
+      },
+      {
+        id: 'dewi_kantin',
+        name: 'Dewi',
+        role: 'Siswi RPL (Beli Camilan)',
+        x: 550,
+        y: 200,
+        w: 100,
+        h: 100,
+        spriteName: 'siti',
+        facing: 'up',
+        interactionRadius: 85,
+        dialogueId: 'dewi_kantin'
       }
     ],
     items: [

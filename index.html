@@ -13,6 +13,11 @@
   <meta property="og:title" content="Beyond The Bell" />
   <meta property="og:description" content="Beyond The Bell: Pameran RPL - Game petualangan 2D pixel art pameran karya siswa SMKN 1 Katapang Kabupaten Bandung." />
 
+  <!-- Preload Essential Character Sprites for Instant Lobby Switching -->
+  <link rel="preload" as="image" href="assets/characters/alisha_00.png" />
+  <link rel="preload" as="image" href="assets/characters/sprite_00.png" />
+  <link rel="preload" as="image" href="assets/characters/boy1.png" />
+
   <style>
     @font-face {
       font-family: 'PressStart2P';
@@ -1222,33 +1227,80 @@
       'assets/characters/sprite_12.png'
     ];
 
-    // Authentic idle breathing & animation loop
+    // Explicit browser in-memory preloading for both genders
+    const femaleImgCache = femaleFrames.map(src => {
+      const img = new Image();
+      img.src = src;
+      return img;
+    });
+    const maleImgCache = maleFrames.map(src => {
+      const img = new Image();
+      img.src = src;
+      return img;
+    });
+
+    // Error fallback for lobby character preview
+    if (lobbyCharImg) {
+      lobbyCharImg.onerror = () => {
+        if (selectedGender === 'boy') {
+          lobbyCharImg.src = 'assets/characters/boy1.png';
+          lobbyCharImg.style.visibility = 'visible';
+        } else {
+          lobbyCharImg.src = 'assets/characters/alisha_00.png';
+          lobbyCharImg.style.visibility = 'visible';
+        }
+      };
+    }
+
+    // Authentic idle breathing & animation loop (Only swaps when frame is fully loaded)
     setInterval(() => {
       if (!lobbyScreen || lobbyScreen.classList.contains('hidden')) return;
       if (selectedGender === 'girl') {
         femaleFrame = (femaleFrame + 1) % femaleFrames.length;
-        lobbyCharImg.src = femaleFrames[femaleFrame];
+        const target = femaleImgCache[femaleFrame];
+        if (target && target.complete && target.naturalWidth > 0) {
+          lobbyCharImg.src = femaleFrames[femaleFrame];
+        }
       } else {
         maleFrame = (maleFrame + 1) % maleFrames.length;
-        lobbyCharImg.src = maleFrames[maleFrame];
+        const target = maleImgCache[maleFrame];
+        if (target && target.complete && target.naturalWidth > 0) {
+          lobbyCharImg.src = maleFrames[maleFrame];
+        } else if (lobbyCharImg.naturalWidth === 0 && !lobbyCharImg.src.includes('boy1.png')) {
+          lobbyCharImg.src = 'assets/characters/boy1.png';
+        }
       }
     }, 95);
 
     function updateCharacterView() {
       if (selectedGender === 'girl') {
+        femaleFrame = 0;
         lobbyCharImg.src = femaleFrames[0];
+        lobbyCharImg.style.visibility = 'visible';
+        lobbyCharImg.style.display = 'block';
+        lobbyCharImg.style.opacity = '1';
         lobbyCharName.textContent = 'WINTEL';
         lobbyCharRole.textContent = '(Siswi RPL · UI/UX)';
         lobbyCharRole.className = 'font-mono text-[11px] text-pink-300 ml-1.5';
         btnSwitchP.className = 'relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 border-amber-400 ring-4 ring-amber-400/50 shadow-2xl transition-all cursor-pointer group active:scale-95';
         btnSwitchL.className = 'relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 border-slate-700 shadow-xl opacity-75 hover:opacity-100 transition-all cursor-pointer group active:scale-95';
       } else {
-        lobbyCharImg.src = maleFrames[0];
+        maleFrame = 0;
+        const safeMaleSrc = (maleImgCache[0] && maleImgCache[0].complete && maleImgCache[0].naturalWidth > 0)
+          ? maleFrames[0]
+          : (maleImgCache.find(img => img.complete && img.naturalWidth > 0)?.src || maleFrames[0] || 'assets/characters/boy1.png');
+        lobbyCharImg.src = safeMaleSrc;
+        lobbyCharImg.style.visibility = 'visible';
+        lobbyCharImg.style.display = 'block';
+        lobbyCharImg.style.opacity = '1';
         lobbyCharName.textContent = 'RYZEN';
         lobbyCharRole.textContent = '(Siswa RPL · Programmer)';
         lobbyCharRole.className = 'font-mono text-[11px] text-emerald-300 ml-1.5';
         btnSwitchL.className = 'relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 border-amber-400 ring-4 ring-amber-400/50 shadow-2xl transition-all cursor-pointer group active:scale-95';
         btnSwitchP.className = 'relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 border-slate-700 shadow-xl opacity-75 hover:opacity-100 transition-all cursor-pointer group active:scale-95';
+      }
+      if (gameLoaderCharImg) {
+        gameLoaderCharImg.src = selectedGender === 'boy' ? (maleFrames[0] || 'assets/characters/boy1.png') : femaleFrames[0];
       }
     }
 

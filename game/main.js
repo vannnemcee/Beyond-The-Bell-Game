@@ -421,6 +421,8 @@ class GameEngine {
       if (rian) { rian.x = 127; rian.y = 138; rian.facing = 'up'; }
       const siti = map.npcs.find(n => n.id === 'teman_siti');
       if (siti) { siti.x = 288; siti.y = 138; siti.facing = 'up'; }
+      const buRina = map.npcs.find(n => n.id === 'bu_rina');
+      if (buRina) { buRina.x = 452; buRina.y = 96; buRina.facing = 'down'; }
     }
   }
 
@@ -678,6 +680,8 @@ class GameEngine {
       lines = DIALOGUES.teman_siti(this.player);
     } else if (npc.id === 'teman_rian') {
       lines = DIALOGUES.teman_rian(this.player);
+    } else if (npc.dialogueId && typeof DIALOGUES[npc.dialogueId] === 'function') {
+      lines = DIALOGUES[npc.dialogueId](this.player);
     }
 
     if (lines && lines.length > 0) {
@@ -2256,7 +2260,7 @@ class GameEngine {
       this.ctx.strokeRect(1940, 335, 300, 28);
       this.ctx.fillStyle = isGlitch ? '#e879f9' : '#facc15';
       this.ctx.font = 'bold 12px sans-serif';
-      this.ctx.fillText(isGlitch ? '🍴 KANTIN SEHAT [TERKUTUK] 🍴' : '🍴 KANTIN SMKN 1 KATAPANG 🍴', 1970, 353);
+      this.ctx.fillText(isGlitch ? '🍴 KANTIN SEHAT 🍴' : '🍴 KANTIN SEHAT 🍴', 1970, 353);
 
       // Canteen Tables & Parasols
       const drawCanteenTable = (tx, ty) => {
@@ -2304,16 +2308,70 @@ class GameEngine {
       this.ctx.font = 'bold 10px monospace';
       this.ctx.fillText('GAZEBO', 2325, 170);
 
-      // 8. TOP AREA: PINTU GERBANG UTAMA (x: 1200..1400, y: 0..90)
-      // Perimeter Boundary Wall along full map.width
-      this.ctx.fillStyle = isGlitch ? '#0f051d' : '#1e293b';
-      this.ctx.fillRect(0, 0, map.width, 90);
-      this.ctx.strokeStyle = isGlitch ? '#4c1d95' : '#334155';
-      this.ctx.lineWidth = 1;
-      for (let by = 10; by < 90; by += 15) {
+      // 8. TOP AREA: PINTU GERBANG UTAMA & JALAN RAYA LUAR SEKOLAH (y: 0..90)
+      // Jalan Raya Luar Gerbang Sekolah (Asphalt Road)
+      this.ctx.fillStyle = isGlitch ? '#090314' : '#1e293b';
+      this.ctx.fillRect(0, 0, map.width, 45);
+      // Garis Marka Jalan Kuning Putih
+      this.ctx.strokeStyle = isGlitch ? '#4c1d95' : '#fbbf24';
+      this.ctx.lineWidth = 2;
+      this.ctx.setLineDash([20, 15]);
+      this.ctx.beginPath();
+      this.ctx.moveTo(0, 22);
+      this.ctx.lineTo(map.width, 22);
+      this.ctx.stroke();
+      this.ctx.setLineDash([]);
+
+      // Trotoar Luar Gerbang Sekolah (Sidewalk Pavement)
+      this.ctx.fillStyle = isGlitch ? '#180c2b' : '#475569';
+      this.ctx.fillRect(0, 45, map.width, 45);
+      // Paving curb edge
+      this.ctx.strokeStyle = isGlitch ? '#3b0764' : '#94a3b8';
+      this.ctx.lineWidth = 2;
+      this.ctx.beginPath();
+      this.ctx.moveTo(0, 45);
+      this.ctx.lineTo(map.width, 45);
+      this.ctx.stroke();
+
+      // Gerobak Cilok Mang Ujang di trotoar luar gerbang (x: 1080, y: 25)
+      this.ctx.fillStyle = '#b45309';
+      this.ctx.fillRect(1080, 25, 45, 30);
+      this.ctx.fillStyle = '#ea580c';
+      this.ctx.fillRect(1095, 18, 18, 12);
+      this.ctx.fillStyle = '#fef08a';
+      this.ctx.fillRect(1082, 38, 41, 10);
+      this.ctx.fillStyle = '#7c2d12';
+      this.ctx.font = 'bold 7px sans-serif';
+      this.ctx.fillText('CILOK', 1088, 46);
+
+      // Motor Ojol Bang Dedi di trotoar luar (x: 1450, y: 25)
+      this.ctx.fillStyle = '#0f172a';
+      this.ctx.fillRect(1455, 32, 38, 18);
+      this.ctx.fillStyle = '#16a34a';
+      this.ctx.fillRect(1465, 26, 18, 8);
+      this.ctx.fillStyle = '#64748b';
+      this.ctx.beginPath();
+      this.ctx.arc(1460, 48, 7, 0, Math.PI * 2);
+      this.ctx.arc(1488, 48, 7, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      // Tembok Pagar Sekolah Kiri & Kanan (dengan kisi-kisi besi)
+      this.ctx.fillStyle = isGlitch ? '#1f132e' : '#334155';
+      this.ctx.fillRect(0, 75, 1200, 18);
+      this.ctx.fillRect(1390, 75, map.width - 1390, 18);
+      // Kisi-kisi besi pagar sekolah
+      this.ctx.strokeStyle = '#64748b';
+      this.ctx.lineWidth = 2;
+      for (let px = 20; px < 1190; px += 25) {
         this.ctx.beginPath();
-        this.ctx.moveTo(0, by);
-        this.ctx.lineTo(map.width, by);
+        this.ctx.moveTo(px, 45);
+        this.ctx.lineTo(px, 90);
+        this.ctx.stroke();
+      }
+      for (let px = 1400; px < map.width - 20; px += 25) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(px, 45);
+        this.ctx.lineTo(px, 90);
         this.ctx.stroke();
       }
 
@@ -2560,21 +2618,21 @@ class GameEngine {
 
   renderNpcs(map) {
     for (const npc of map.npcs) {
-      // Re-created natural contact shadow specifically for NPCs:
-      // Snugly positioned at the actual sole of feet (y + h * 0.94)
+      // Re-created ground contact shadow specifically for NPCs:
+      // Positioned properly lower down directly under the soles of feet / ground plane
       const npcCenterX = npc.x + npc.w / 2;
-      const npcFootY = npc.y + npc.h * 0.94;
+      const npcFootY = npc.y + npc.h - 1;
 
       // Soft ambient ground shadow
-      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.28)';
+      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
       this.ctx.beginPath();
-      this.ctx.ellipse(npcCenterX, npcFootY, 21, 6.5, 0, 0, Math.PI * 2);
+      this.ctx.ellipse(npcCenterX, npcFootY, 20, 6, 0, 0, Math.PI * 2);
       this.ctx.fill();
 
       // Deep contact core shadow right under the shoes
-      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
+      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.20)';
       this.ctx.beginPath();
-      this.ctx.ellipse(npcCenterX, npcFootY, 14, 3.5, 0, 0, Math.PI * 2);
+      this.ctx.ellipse(npcCenterX, npcFootY, 13, 3, 0, 0, Math.PI * 2);
       this.ctx.fill();
 
       // Sprite
@@ -2583,21 +2641,52 @@ class GameEngine {
         const frame = Math.floor(Date.now() / 250) % 8;
         sprite = sprites.get(`satpam_${frame}`) || sprites.get('satpam_0');
       } else if (npc.spriteName === 'teacher') {
-        const frame = Math.floor(Date.now() / 350) % 4;
+        const frame = Math.floor(Date.now() / 500) % 4;
         sprite = sprites.get(`teacher_${frame}`) || sprites.get('teacher_portrait');
+      } else if (npc.spriteName === 'ibu_kantin') {
+        const frame = Math.floor(Date.now() / 400) % 4;
+        sprite = sprites.get(`ibu_kantin_${frame}`) || sprites.get('ibu_kantin_portrait');
+      } else if (npc.spriteName === 'pedagang_kaki_lima') {
+        const frame = Math.floor(Date.now() / 350) % 4;
+        sprite = sprites.get(`pedagang_kaki_lima_${frame}`) || sprites.get('pedagang_kaki_lima_portrait');
+      } else if (npc.spriteName === 'ojol') {
+        const frame = Math.floor(Date.now() / 350) % 4;
+        sprite = sprites.get(`ojol_${frame}`) || sprites.get('ojol_portrait');
+      } else if (npc.spriteName === 'warga') {
+        const frame = Math.floor(Date.now() / 350) % 4;
+        sprite = sprites.get(`warga_${frame}`) || sprites.get('warga_portrait');
+      } else if (npc.spriteName === 'siswa_basket') {
+        const frame = Math.floor(Date.now() / 350) % 4;
+        sprite = sprites.get(`siswa_basket_${frame}`) || sprites.get('siswa_basket_portrait');
+      } else if (npc.spriteName === 'siswi_casual') {
+        const frame = Math.floor(Date.now() / 350) % 4;
+        sprite = sprites.get(`siswi_casual_${frame}`) || sprites.get('siswi_casual_portrait');
       } else if (npc.spriteName === 'rian') {
         const frame = Math.floor(Date.now() / 350) % 4;
         sprite = sprites.get(`rian_${frame}`) || sprites.get('rian_portrait');
       } else if (npc.spriteName === 'siti') {
         const frame = Math.floor(Date.now() / 350) % 4;
         sprite = sprites.get(`siti_${frame}`) || sprites.get('siti_portrait');
+      } else {
+        sprite = sprites.get(npc.spriteName) || sprites.get(`${npc.spriteName}_0`) || sprites.get('rian_0');
       }
 
-      if (sprite && ((sprite.naturalWidth && sprite.naturalWidth > 0) || (sprite.width && sprite.width > 0))) {
+      const isNpcSpriteValid = sprite && (
+        (sprite.naturalWidth && sprite.naturalWidth > 0) ||
+        (sprite instanceof HTMLCanvasElement && sprite.width > 0) ||
+        (sprite.width && sprite.width > 0 && sprite.complete)
+      );
+
+      if (isNpcSpriteValid) {
         this.ctx.drawImage(sprite, npc.x, npc.y, npc.w, npc.h);
       } else {
-        this.ctx.fillStyle = '#38bdf8';
-        this.ctx.fillRect(npc.x, npc.y, npc.w, npc.h);
+        const safeFallback = sprites.get('rian_0') || sprites.get('teacher_0');
+        if (safeFallback) {
+          this.ctx.drawImage(safeFallback, npc.x, npc.y, npc.w, npc.h);
+        } else {
+          this.ctx.fillStyle = '#38bdf8';
+          this.ctx.fillRect(npc.x, npc.y, npc.w, npc.h);
+        }
       }
 
       // Name & Role Tag with Clean Black Outline
@@ -2656,15 +2745,17 @@ class GameEngine {
     let spriteKey = '';
     if (p.gender === 'boy') {
       if (p.isSitting) {
-        spriteKey = 'boy_down_0';
+        spriteKey = 'boy_idle_0';
       } else if (p.facing === 'down') {
-        spriteKey = `boy_down_${p.isMoving ? p.animFrame : 0}`;
+        const frameSpeed = p.isMoving ? 75 : 95;
+        const frame = Math.floor(Date.now() / frameSpeed) % 13;
+        spriteKey = `boy_idle_${frame}`;
       } else if (p.facing === 'up') {
         spriteKey = `boy_up_${p.isMoving ? (p.animFrame % 5) : 0}`;
-      } else if (p.facing === 'right') {
-        spriteKey = 'boy_down_0';
-      } else if (p.facing === 'left') {
-        spriteKey = 'boy_down_0';
+      } else if (p.facing === 'right' || p.facing === 'left') {
+        const frameSpeed = p.isMoving ? 75 : 95;
+        const frame = Math.floor(Date.now() / frameSpeed) % 13;
+        spriteKey = `boy_idle_${frame}`;
       }
     } else {
       // Wintel (Girl) - Sequence animation from 00 to 18 (19 frames)
@@ -2677,11 +2768,19 @@ class GameEngine {
       }
     }
 
-    const sprite = sprites.get(spriteKey) || (p.gender === 'boy' ? sprites.get('boy_down_0') : sprites.get('girl_idle_0'));
-    if (sprite && sprite.complete && sprite.naturalWidth > 0) {
-      const bounce = (p.isMoving && p.gender === 'girl') ? Math.sin(Date.now() / 80) * 1.5 : 0;
+    const fallbackKey = p.gender === 'boy' ? 'boy_idle_0' : 'girl_idle_0';
+    let sprite = sprites.get(spriteKey) || sprites.get(fallbackKey) || (p.gender === 'boy' ? (sprites.get('boy_down_0') || sprites.get('boy_emergency') || sprites.get('ryzen_idle_0') || sprites.get('rian_0')) : sprites.get('girl_portrait'));
+
+    const isSpriteValid = sprite && (
+      (sprite.naturalWidth && sprite.naturalWidth > 0) ||
+      (sprite instanceof HTMLCanvasElement && sprite.width > 0) ||
+      (sprite.width && sprite.width > 0 && sprite.complete)
+    );
+
+    if (isSpriteValid) {
+      const bounce = p.isMoving ? Math.sin(Date.now() / 80) * 1.5 : 0;
       const sittingYOffset = p.isSitting ? 3 : 0;
-      if (p.gender === 'girl' && p.facing === 'left') {
+      if (p.facing === 'left') {
         this.ctx.save();
         this.ctx.translate(p.x + p.w, p.y + bounce + sittingYOffset);
         this.ctx.scale(-1, 1);
@@ -2691,6 +2790,25 @@ class GameEngine {
         this.ctx.drawImage(sprite, p.x, p.y + bounce + sittingYOffset, p.w, p.h);
       }
     } else {
+      // Immediate emergency fallback to ensure boy or girl never disappears
+      const bounce = p.isMoving ? Math.sin(Date.now() / 80) * 1.5 : 0;
+      const sittingYOffset = p.isSitting ? 3 : 0;
+      const emergencySprite = p.gender === 'boy'
+        ? (sprites.get('ryzen_idle_0') || sprites.get('ryzen_down_0') || sprites.get('boy_emergency') || sprites.get('rian_0'))
+        : (sprites.get('girl_portrait') || sprites.get('siti_0'));
+
+      if (emergencySprite && (emergencySprite.naturalWidth > 0 || (emergencySprite instanceof HTMLCanvasElement && emergencySprite.width > 0))) {
+        if (p.facing === 'left') {
+          this.ctx.save();
+          this.ctx.translate(p.x + p.w, p.y + bounce + sittingYOffset);
+          this.ctx.scale(-1, 1);
+          this.ctx.drawImage(emergencySprite, 0, 0, p.w, p.h);
+          this.ctx.restore();
+        } else {
+          this.ctx.drawImage(emergencySprite, p.x, p.y + bounce + sittingYOffset, p.w, p.h);
+        }
+        return;
+      }
       this.ctx.fillStyle = p.gender === 'boy' ? '#3b82f6' : '#ec4899';
       this.ctx.fillRect(p.x, p.y, p.w, p.h);
     }
@@ -3007,7 +3125,14 @@ class GameEngine {
     this.ctx.stroke();
 
     // Speaker Portrait Frame
-    const portrait = sprites.get(d.currentLine.portrait);
+    let portrait = sprites.get(d.currentLine.portrait);
+    if (!portrait || (!portrait.naturalWidth && !(portrait instanceof HTMLCanvasElement) && !portrait.complete)) {
+      if (d.currentLine.speaker === this.player.name) {
+        portrait = this.player.gender === 'boy'
+          ? (sprites.get('ryzen_portrait') || sprites.get('boy_portrait') || sprites.get('boy_down_0') || sprites.get('rian_portrait'))
+          : (sprites.get('girl_portrait') || sprites.get('siti_portrait'));
+      }
+    }
     const portSize = 96;
     const portX = boxX + 16;
     const portY = boxY + 20;
