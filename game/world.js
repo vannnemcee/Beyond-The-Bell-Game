@@ -20,16 +20,6 @@ export const MAPS = {
         targetX: 640,
         targetY: 135,
         label: 'Masuk ke Ruang Kelas RPL'
-      },
-      {
-        x: 2290,
-        y: 350,
-        w: 80,
-        h: 45,
-        targetMap: 'canteen',
-        targetX: 550,
-        targetY: 440,
-        label: 'Masuk ke Kantin Indoor'
       }
     ],
     npcs: [
@@ -45,6 +35,19 @@ export const MAPS = {
         facing: 'down',
         interactionRadius: 90,
         dialogueId: 'satpam_intro'
+      },
+      {
+        id: 'teman_siti_gate',
+        name: 'Siti',
+        role: 'Sahabat Sekelas (Jam Pulang)',
+        x: 1290,
+        y: 130,
+        w: 100,
+        h: 100,
+        spriteName: 'siti',
+        facing: 'down',
+        interactionRadius: 90,
+        dialogueId: 'ending_gate_farewell'
       },
       {
         id: 'ibu_kantin',
@@ -166,6 +169,32 @@ export const MAPS = {
         dialogueId: 'maya_kantin'
       },
       {
+        id: 'bayu_kantin',
+        name: 'Bayu',
+        role: 'Murid RPL (Antre Jajan Kantin)',
+        x: 1950,
+        y: 440,
+        w: 100,
+        h: 100,
+        spriteName: 'rian',
+        facing: 'up',
+        interactionRadius: 85,
+        dialogueId: 'bayu_kantin'
+      },
+      {
+        id: 'dewi_kantin',
+        name: 'Dewi',
+        role: 'Siswi RPL (Beli Camilan Kantin)',
+        x: 2280,
+        y: 480,
+        w: 100,
+        h: 100,
+        spriteName: 'siti',
+        facing: 'down',
+        interactionRadius: 85,
+        dialogueId: 'dewi_kantin'
+      },
+      {
         id: 'andi',
         name: 'Andi',
         role: 'Murid RPL (Baca Mading)',
@@ -209,23 +238,49 @@ export const MAPS = {
       {
         id: 'es_teh',
         name: 'Es Teh Manis Segar',
+        price: 3000,
         x: 1880,
-        y: 530,
+        y: 520,
         w: 24,
         h: 24,
-        icon: '🧋',
-        desc: 'Es teh manis dingin segar pelepas dahaga saat jam istirahat!',
+        icon: '🧃',
+        desc: 'Es teh manis dingin segar pelepas dahaga saat jam istirahat! (Rp 3.000)',
         collected: false
       },
       {
         id: 'roti_bakar',
         name: 'Roti Bakar Coklat Keju',
-        x: 2100,
-        y: 530,
+        price: 5000,
+        x: 2060,
+        y: 520,
         w: 24,
         h: 24,
-        icon: '🍞',
-        desc: 'Roti bakar hangat renyah favorit siswa SMKN 1 Katapang.',
+        icon: '🥪',
+        desc: 'Roti bakar hangat renyah favorit siswa SMKN 1 Katapang. (Rp 5.000)',
+        collected: false
+      },
+      {
+        id: 'gorengan',
+        name: 'Gorengan Bakwan & Gehu Hangat',
+        price: 2000,
+        x: 1960,
+        y: 395,
+        w: 24,
+        h: 24,
+        icon: '🥟',
+        desc: 'Gorengan garing hangat renyah dengan cabai rawit khas kantin sekolah! (Rp 2.000)',
+        collected: false
+      },
+      {
+        id: 'cilok_kuah',
+        name: 'Cilok Bumbu Kacang Sedap',
+        price: 5000,
+        x: 2280,
+        y: 520,
+        w: 24,
+        h: 24,
+        icon: '🍢',
+        desc: 'Cilok kenyal gurih lezat disiram bumbu kacang pedas manis yang sedap! (Rp 5.000)',
         collected: false
       }
     ],
@@ -333,16 +388,6 @@ export const MAPS = {
         targetX: 500,
         targetY: 400,
         label: 'Masuk Laboratorium Komputer'
-      },
-      {
-        x: 520,
-        y: 110,
-        w: 70,
-        h: 40,
-        targetMap: 'canteen',
-        targetX: 450,
-        targetY: 420,
-        label: 'Masuk ke Kantin Sekolah'
       }
     ],
     npcs: [
@@ -708,82 +753,60 @@ export const MAPS = {
         desc: 'Pedang pusaka berkilau legendaris yang tersembunyi di sudut terdalam labirin semak rimbun.',
         collected: false
       },
-      // 2. 7 Buku Bengkel SMK (TKJ, Tekstil, Otomotif, Mesin, Elektronika, BP, RPL)
+      // 2. 5 Buku Anomali Bengkel Kejuruan SMK (Soal Bervariasi Antar-Bengkel)
       {
         id: 'glitch_buku_1',
-        name: 'Buku Bengkel TKJ',
-        x: 2340,
-        y: 180,
+        name: 'Buku Anomali Bengkel #1',
+        x: 2320,
+        y: 160,
         w: 24,
         h: 24,
         icon: '📖',
-        desc: 'Buku anomali bengkel TKJ (crimping, tester, optik) di Gazebo Timur.',
+        desc: 'Buku anomali bengkel (Perkakas Presisi & Jaringan) di Gazebo Timur.',
         collected: false
       },
       {
         id: 'glitch_buku_2',
-        name: 'Buku Bengkel Tekstil',
+        name: 'Buku Anomali Bengkel #2',
         x: 500,
         y: 1060,
         w: 24,
         h: 24,
         icon: '📖',
-        desc: 'Buku anomali bengkel Tekstil (mesin tenun, obras, printing) di area barat.',
+        desc: 'Buku anomali bengkel (Mesin Produksi & Fiber Optik) di area lapangan barat.',
         collected: false
       },
       {
         id: 'glitch_buku_3',
-        name: 'Buku Bengkel Otomotif (OTO)',
-        x: 2360,
+        name: 'Buku Anomali Bengkel #3',
+        x: 2340,
         y: 640,
         w: 24,
         h: 24,
         icon: '📖',
-        desc: 'Buku anomali bengkel Otomotif (kunci momen, feeler, timing light) di teras belakang kantin.',
+        desc: 'Buku anomali bengkel (Diagnostik Silinder, Osiloskop & Siaran) di teras belakang kantin.',
         collected: false
       },
       {
         id: 'glitch_buku_4',
-        name: 'Buku Bengkel Mesin',
-        x: 2420,
-        y: 1440,
+        name: 'Buku Anomali Bengkel #4',
+        x: 2060,
+        y: 1220,
         w: 24,
         h: 24,
         icon: '📖',
-        desc: 'Buku anomali bengkel Pemesinan (mesin bubut, frais, mikrometer) di gudang perkakas tua.',
+        desc: 'Buku anomali bengkel (Mesin Frais, Sablon Tekstil & OPM) di gudang perkakas.',
         collected: false
       },
       {
         id: 'glitch_buku_5',
-        name: 'Buku Bengkel Elektronika',
+        name: 'Buku Anomali Bengkel #5',
         x: 1300,
         y: 920,
         w: 24,
         h: 24,
         icon: '📖',
-        desc: 'Buku anomali bengkel Elektronika (solder, osiloskop, multimeter) di tiang bendera tengah.',
-        collected: false
-      },
-      {
-        id: 'glitch_buku_6',
-        name: 'Buku Bengkel BP (Broadcasting)',
-        x: 820,
-        y: 380,
-        w: 24,
-        h: 24,
-        icon: '📖',
-        desc: 'Buku anomali bengkel BP (video switcher, teleprompter, lavalier mic) di panggung studio luar.',
-        collected: false
-      },
-      {
-        id: 'glitch_buku_7',
-        name: 'Buku Bengkel RPL',
-        x: 1680,
-        y: 720,
-        w: 24,
-        h: 24,
-        icon: '📖',
-        desc: 'Buku anomali lab & bengkel RPL (IDE, Git, debugger, database) di teras depan gedung lab.',
+        desc: 'Buku anomali bengkel (Pemrograman, Scanner EFI & Elektronika) di tiang bendera tengah.',
         collected: false
       },
       // 3. 3 Kunci Gerbang Kuno

@@ -1,442 +1,402 @@
-// Beyond The Bell - RPL Educational Quiz Engine
+// Beyond The Bell - Vocational Workshops Educational Quiz Engine
+// 5 Buku Anomali Bengkel Kejuruan SMK dengan Soal Bervariasi Lintas Bengkel
+// Jawaban diacak secara dinamis sehingga jawaban benar tidak selalu 'A'
 
 export const QUIZ_QUESTIONS = [
   {
-    question: '1. Dalam pemrograman web, teknologi apa yang bertanggung jawab mengatur styling, tata letak, dan warna tampilan?',
+    question: '1. Dalam pemrograman web, teknologi apa yang bertanggung jawab mengatur styling, tata letak, dan warna tampilan antarmuka?',
     options: [
-      { text: 'A. HTML', correct: false },
-      { text: 'B. CSS', correct: true },
-      { text: 'C. SQL', correct: false },
-      { text: 'D. JSON', correct: false }
+      { text: 'CSS (Cascading Style Sheets)', correct: true },
+      { text: 'HTML', correct: false },
+      { text: 'SQL', correct: false },
+      { text: 'JSON', correct: false }
     ],
-    explanation: 'CSS (Cascading Style Sheets) digunakan untuk mengatur gaya visual dan layout halaman web.'
+    explanation: 'CSS (Cascading Style Sheets) digunakan untuk mengatur gaya visual, estetika, warna, dan layout halaman web.'
   },
   {
     question: '2. Apakah kepanjangan resmi dari program keahlian RPL di SMK?',
     options: [
-      { text: 'A. Rekayasa Perangkat Lunak', correct: true },
-      { text: 'B. Rancang Pengolah Logika', correct: false },
-      { text: 'C. Riset Perangkat Lapangan', correct: false },
-      { text: 'D. Rekayasa Piranti Listrik', correct: false }
+      { text: 'Rekayasa Perangkat Lunak', correct: true },
+      { text: 'Rancang Pengolah Logika', correct: false },
+      { text: 'Riset Perangkat Lapangan', correct: false },
+      { text: 'Rekayasa Piranti Listrik', correct: false }
     ],
     explanation: 'RPL adalah Rekayasa Perangkat Lunak (Software Engineering).'
   },
   {
     question: '3. Pada diagram ERD (Entity Relationship Diagram), komponen Entitas biasanya disimbolkan dengan bentuk...',
     options: [
-      { text: 'A. Belah Ketupat', correct: false },
-      { text: 'B. Lingkaran / Oval', correct: false },
-      { text: 'C. Persegi Panjang', correct: true },
-      { text: 'D. Segitiga', correct: false }
+      { text: 'Persegi Panjang', correct: true },
+      { text: 'Belah Ketupat', correct: false },
+      { text: 'Lingkaran / Oval', correct: false },
+      { text: 'Segitiga', correct: false }
     ],
     explanation: 'Persegi panjang melambangkan Entitas, belah ketupat melambangkan Relasi, dan oval melambangkan Atribut.'
   },
   {
-    question: '4. Perintah Git apa yang digunakan untuk mengirim komit lokal ke repositori GitHub / Cloud?',
+    question: '4. Perintah Git apa yang digunakan untuk mengirim komit lokal ke repositori GitHub / Cloud remote?',
     options: [
-      { text: 'A. git pull', correct: false },
-      { text: 'B. git commit', correct: false },
-      { text: 'C. git push', correct: true },
-      { text: 'D. git status', correct: false }
+      { text: 'git push', correct: true },
+      { text: 'git pull', correct: false },
+      { text: 'git commit', correct: false },
+      { text: 'git status', correct: false }
     ],
-    explanation: 'git push digunakan untuk mempublikasikan komit lokal ke branch server remote.'
+    explanation: 'git push digunakan untuk mempublikasikan komit lokal ke branch server remote seperti GitHub.'
   },
   {
     question: '5. Di antara perulangan berikut, manakah yang menjamin blok kode dieksekusi minimal satu kali?',
     options: [
-      { text: 'A. for loop', correct: false },
-      { text: 'B. while loop', correct: false },
-      { text: 'C. do...while loop', correct: true },
-      { text: 'D. recursive function', correct: false }
+      { text: 'do...while loop', correct: true },
+      { text: 'for loop', correct: false },
+      { text: 'while loop', correct: false },
+      { text: 'recursive function', correct: false }
     ],
-    explanation: 'do...while mengeksekusi body perulangan terlebih dahulu sebelum mengevaluasi kondisi terminasi.'
+    explanation: 'do...while mengeksekusi tubuh perulangan terlebih dahulu sebelum mengevaluasi kondisi terminasi.'
   }
 ];
 
 export const BOOK_QUIZZES = {
   glitch_buku_1: {
-    title: 'Buku Bengkel TKJ (Teknik Komputer & Jaringan)',
+    title: 'Buku Anomali Bengkel #1 (Variasi Lintas Bengkel SMK)',
+    desc: 'Ujian komprehensif kejuruan: Jaringan, Otomotif, Pemesinan, Elektronika, dan RPL.',
     questions: [
       {
-        question: '1. Di bengkel TKJ, apakah fungsi utama dari tang crimping (crimping tool)?',
+        workshop: 'Bengkel TKJ - Jaringan Kabel',
+        question: '1. [Bengkel TKJ] Alat perkakas yang digunakan untuk mengupas kabel dan memasang pin konektor RJ-45 pada kabel UTP / LAN adalah...',
         options: [
-          { text: 'A. Mengukur tegangan listrik pada motherboard', correct: false },
-          { text: 'B. Menjepit dan memasang konektor RJ-45 pada ujung kabel UTP / LAN', correct: true },
-          { text: 'C. Menyambungkan kabel fiber optik dengan pembakar', correct: false },
-          { text: 'D. Mengikis isolasi tembaga agar tidak panas', correct: false }
+          { text: 'Tang Crimping (Crimping Tool)', correct: true },
+          { text: 'Solder Uap Listrik', correct: false },
+          { text: 'Kunci Inggris Mekanik', correct: false },
+          { text: 'Fusion Splicer Optik', correct: false }
         ],
-        explanation: 'Tang crimping berfungsi untuk mengupas jaket kabel dan menekan pin tembaga konektor RJ-45 ke urutan kabel UTP.'
+        explanation: 'Tang crimping berfungsi untuk mengupas jaket kabel UTP serta menjepit dan mengunci pin tembaga konektor RJ-45.'
       },
       {
-        question: '2. Alat ukur di bengkel TKJ yang digunakan untuk memastikan ke-8 pin koneksi kabel LAN terpasang dengan benar (straight/cross) adalah...',
+        workshop: 'Bengkel Otomotif - Sistem Mesin',
+        question: '2. [Bengkel Otomotif] Alat khusus mekanik untuk mengencangkan baut kepala silinder mesin dengan batas torsi terukur presisi adalah...',
         options: [
-          { text: 'A. LAN Cable Tester', correct: true },
-          { text: 'B. Multimeter Analog', correct: false },
-          { text: 'C. Spectrum Analyzer', correct: false },
-          { text: 'D. Mikrometer Jaringan', correct: false }
+          { text: 'Kunci Momen (Torque Wrench)', correct: true },
+          { text: 'Tang Buaya Pengunci', correct: false },
+          { text: 'Obeng Ketok Manual', correct: false },
+          { text: 'Kunci Pipa Baja', correct: false }
         ],
-        explanation: 'LAN Cable Tester memiliki 8 lampu LED indikator untuk menguji integritas koneksi kabel jaringan pin-demi-pin.'
+        explanation: 'Kunci momen (torque wrench) memastikan setiap baut kepala silinder mesin dikencangkan sesuai batas spesifikasi torsi pabrikan.'
       },
       {
-        question: '3. Mesin canggih di bengkel TKJ yang digunakan untuk menyambungkan dua inti serat kaca kabel Fiber Optic menggunakan busur listrik presisi adalah...',
+        workshop: 'Bengkel Pemesinan - Alat Ukur Presisi',
+        question: '3. [Bengkel Pemesinan] Alat ukur presisi untuk mengukur diameter luar, celah dalam, dan kedalaman benda kerja dengan ketelitian 0,05 mm adalah...',
         options: [
-          { text: 'A. Solder Uap', correct: false },
-          { text: 'B. Fusion Splicer', correct: true },
-          { text: 'C. Mesin Press Hidrolik', correct: false },
-          { text: 'D. Crimper Optik', correct: false }
+          { text: 'Jangka Sorong (Vernier Caliper)', correct: true },
+          { text: 'Busur Derajat', correct: false },
+          { text: 'Waterpass Kayu', correct: false },
+          { text: 'Penggaris Segitiga Plastik', correct: false }
         ],
-        explanation: 'Fusion Splicer meleburkan dua ujung core kaca serat optik dengan pemanas elektroda busur listrik presisi mikron.'
+        explanation: 'Jangka sorong memiliki rahang luar untuk diameter luar, rahang dalam untuk celah lubang, dan ekor pengukur kedalaman.'
       },
       {
-        question: '4. Alat di bengkel TKJ yang berfungsi untuk mengukur besaran redaman (loss) dan daya sinyal cahaya pada kabel fiber optic adalah...',
+        workshop: 'Bengkel Elektronika - Rangkaian & PCB',
+        question: '4. [Bengkel Elektronika] Alat pemanas yang digunakan untuk mencairkan timah guna merekatkan kaki komponen elektronika ke jalur PCB adalah...',
         options: [
-          { text: 'A. Optical Power Meter (OPM)', correct: true },
-          { text: 'B. Barcode Scanner', correct: false },
-          { text: 'C. Tachometer Laser', correct: false },
-          { text: 'D. Manometer Digital', correct: false }
+          { text: 'Solder Listrik (Soldering Iron)', correct: true },
+          { text: 'Hot Gun Industri', correct: false },
+          { text: 'Kompor Induksi Mini', correct: false },
+          { text: 'Las Karbit Tabung', correct: false }
         ],
-        explanation: 'OPM (Optical Power Meter) mengukur kekuatan daya cahaya (dBm/Watt) yang keluar dari kabel fiber optik.'
+        explanation: 'Solder listrik memanaskan mata bit tembaga untuk mencairkan timah solder pada sambungan kaki komponen PCB.'
       },
       {
-        question: '5. Di bengkel TKJ, alat "Wire Stripper" berfungsi khusus untuk...',
+        workshop: 'Bengkel RPL - Desain Antarmuka Web',
+        question: '5. [Bengkel RPL] Di lab RPL, teknologi web yang bertanggung jawab mengatur tata letak, warna, tipografi, dan estetika visual antarmuka adalah...',
         options: [
-          { text: 'A. Mengupas lapisan kulit jaket pelindung kabel UTP tanpa memotong kawat tembaga', correct: true },
-          { text: 'B. Mendinginkan prosesor server yang overheat', correct: false },
-          { text: 'C. Mengonversi sinyal analog ke digital', correct: false },
-          { text: 'D. Menyimpan konfigurasi IP router secara offline', correct: false }
+          { text: 'CSS (Cascading Style Sheets)', correct: true },
+          { text: 'SQL Query Database', correct: false },
+          { text: 'JSON Data Format', correct: false },
+          { text: 'PHP Interpreter', correct: false }
         ],
-        explanation: 'Wire stripper memiliki celah pisau terkalibrasi khusus untuk memotong jaket PVC pelindung tanpa melukai konduktor kabel.'
+        explanation: 'CSS mengatur tata letak, warna, tipografi, animasi, dan tata visual seluruh elemen dokumen HTML.'
       }
     ]
   },
+
   glitch_buku_2: {
-    title: 'Buku Bengkel Tekstil (Tenun, Pemintalan & Garmen)',
+    title: 'Buku Anomali Bengkel #2 (Variasi Lintas Bengkel SMK)',
+    desc: 'Ujian komprehensif kejuruan: Pemesinan, Otomotif, Serat Optik, Basis Data, dan Tekstil.',
     questions: [
       {
-        question: '1. Di bengkel tekstil, mesin utama yang berfungsi menganyam persilangan benang lusi (warp) dan benang pakan (weft) menjadi lembaran kain adalah...',
+        workshop: 'Bengkel Pemesinan - Mesin Perkakas',
+        question: '1. [Bengkel Pemesinan] Mesin perkakas pokok yang bekerja memutar benda kerja lalu disayat oleh pahat untuk membuat poros silinder adalah...',
         options: [
-          { text: 'A. Mesin Tenun (Weaving Loom)', correct: true },
-          { text: 'B. Mesin Obras', correct: false },
-          { text: 'C. Mesin Bordir Komputer', correct: false },
-          { text: 'D. Mesin Pemotong Kain', correct: false }
+          { text: 'Mesin Bubut (Lathe Machine)', correct: true },
+          { text: 'Mesin Gerinda Duduk', correct: false },
+          { text: 'Mesin Bor Tangan', correct: false },
+          { text: 'Mesin Gergaji Pita', correct: false }
         ],
-        explanation: 'Mesin tenun (weaving loom) menganyam benang lusi memanjang dan benang pakan melintang untuk menghasilkan kain tenun.'
+        explanation: 'Mesin bubut menyayat benda kerja yang berputar pada chuck spindel untuk membuat poros silindris, tirus, atau ulir.'
       },
       {
-        question: '2. Mesin jahit di bengkel garmen tekstil yang bertugas merapikan, memotong, sekaligus mengunci tepi potongan kain agar serat benang tidak terurai adalah...',
+        workshop: 'Bengkel Otomotif - Celah Katup Mesin',
+        question: '2. [Bengkel Otomotif] Bilah-bilah pelat baja tipis bertingkat untuk mengukur celah renggang katup mesin dan celah elektroda busi adalah...',
         options: [
-          { text: 'A. Mesin Obras (Overlock Sewing Machine)', correct: true },
-          { text: 'B. Mesin Jahit Lurus Jarum 1', correct: false },
-          { text: 'C. Mesin Pasang Kancing', correct: false },
-          { text: 'D. Mesin Lubang Kancing', correct: false }
+          { text: 'Feeler Gauge (Thickness Gauge)', correct: true },
+          { text: 'Mistar Baja Rata', correct: false },
+          { text: 'Dial Indicator Gauge', correct: false },
+          { text: 'Mikrometer Ulir', correct: false }
         ],
-        explanation: 'Mesin obras (overlock) memiliki pisau pemotong tepian dan rajutan 3 hingga 5 benang untuk mengunci tepi kain.'
+        explanation: 'Feeler gauge tersusun dari bilah baja berketebalan presisi untuk mengukur celah renggang katup dan elektroda busi.'
       },
       {
-        question: '3. Mesin di bengkel tekstil modern yang digunakan untuk mentransfer motif gambar grafis berwarna ke atas permukaan kain menggunakan rol silinder atau tinta digital adalah...',
+        workshop: 'Bengkel TKJ - Serat Kaca Fiber Optik',
+        question: '3. [Bengkel TKJ] Mesin di bengkel jaringan fiber optik yang melebur dan menyambung dua inti serat kaca dengan busur listrik mikro adalah...',
         options: [
-          { text: 'A. Mesin Printing / Sablon Tekstil Digital', correct: true },
-          { text: 'B. Mesin Boiler Uap', correct: false },
-          { text: 'C. Mesin Pres Panas Hidrolik', correct: false },
-          { text: 'D. Mesin Carding Serat', correct: false }
+          { text: 'Fusion Splicer', correct: true },
+          { text: 'Crimper Tool LAN', correct: false },
+          { text: 'Solder Uap Elektronika', correct: false },
+          { text: 'Patch Cord Manual', correct: false }
         ],
-        explanation: 'Mesin textile printing mencetak pasta warna atau tinta reaktif/sublimasi langsung membentuk motif grafis di atas kain.'
+        explanation: 'Fusion Splicer menyatukan dua ujung core kaca serat optik dengan presisi mikron menggunakan leburan busur listrik.'
       },
       {
-        question: '4. Di bengkel tekstil, mesin "Spinning Machine" (Mesin Pemintal) berfungsi untuk...',
+        workshop: 'Bengkel RPL - Basis Data Relasional',
+        question: '4. [Bengkel RPL] Diagram visual yang memodelkan entitas, atribut, dan hubungan relasi tabel pada basis data relasional disebut...',
         options: [
-          { text: 'A. Menarik dan memilin serat kapas atau serat sintetis menjadi gulungan benang siap pakai', correct: true },
-          { text: 'B. Mengeringkan pakaian dalam hitungan detik', correct: false },
-          { text: 'C. Mencuci pakaian dengan deterjen kimia keras', correct: false },
-          { text: 'D. Melubangi pola kancing secara otomatis', correct: false }
+          { text: 'Entity Relationship Diagram (ERD)', correct: true },
+          { text: 'Flowchart Algoritma', correct: false },
+          { text: 'Wireframe Antarmuka UI', correct: false },
+          { text: 'Use Case Diagram', correct: false }
         ],
-        explanation: 'Mesin spinning (pemintal) memproses serat kapas/sintetis dengan memberi tarikan dan puntiran (twist) sehingga menjadi benang.'
+        explanation: 'ERD memodelkan struktur tabel, atribut kunci, serta kardinalitas hubungan antar entitas basis data.'
       },
       {
-        question: '5. Mesin jahit bengkel garmen tekstil tipe "Overdeck / Interlock" umumnya digunakan untuk...',
+        workshop: 'Bengkel Tekstil - Garmen & Anyaman',
+        question: '5. [Bengkel Tekstil] Mesin industri tekstil yang menganyam persilangan benang lusi (memanjang) dan benang pakan (melintang) menjadi kain adalah...',
         options: [
-          { text: 'A. Menjahit keliman lipatan ujung bawah kaos dan lingkar leher dengan jahitan lentur berantai', correct: true },
-          { text: 'B. Menenun kain sutra alam', correct: false },
-          { text: 'C. Memintal benang jahit dari kapas', correct: false },
-          { text: 'D. Mengukur ketebalan serat kain wol', correct: false }
+          { text: 'Mesin Tenun (Weaving Loom)', correct: true },
+          { text: 'Mesin Obras', correct: false },
+          { text: 'Mesin Pemotong Pola', correct: false },
+          { text: 'Mesin Kancing Otomatis', correct: false }
         ],
-        explanation: 'Mesin overdeck (kamkut) menghasilkan jahitan elastis berantai rangkap yang cocok untuk bahan stretch/kaos.'
+        explanation: 'Mesin tenun (weaving loom) menganyam benang lusi dan pakan bersilangan untuk menghasilkan lembaran kain.'
       }
     ]
   },
+
   glitch_buku_3: {
-    title: 'Buku Bengkel Otomotif (OTO / TKR & TBSM)',
+    title: 'Buku Anomali Bengkel #3 (Variasi Lintas Bengkel SMK)',
+    desc: 'Ujian komprehensif kejuruan: Kompresi Silinder, Osiloskop, Pengujian LAN, Studio TV, dan Git.',
     questions: [
       {
-        question: '1. Di bengkel otomotif, alat khusus yang digunakan untuk mengencangkan baut kepala silinder mesin dengan ukuran kekencangan terukur adalah...',
+        workshop: 'Bengkel Otomotif - Tekanan Kompresi',
+        question: '1. [Bengkel Otomotif] Alat mekanik yang dipasang pada lubang busi silinder untuk mengukur besaran tekanan kompresi ruang bakar mesin adalah...',
         options: [
-          { text: 'A. Kunci Inggris', correct: false },
-          { text: 'B. Kunci Momen (Torque Wrench)', correct: true },
-          { text: 'C. Tang Buaya', correct: false },
-          { text: 'D. Obeng Ketok', correct: false }
+          { text: 'Compression Tester', correct: true },
+          { text: 'Radiator Cap Tester', correct: false },
+          { text: 'Manometer Angin Ban', correct: false },
+          { text: 'Barometer Ruang', correct: false }
         ],
-        explanation: 'Kunci momen (torque wrench) memastikan setiap baut kepala silinder mesin dikencangkan sesuai spesifikasi torsi pabrik (Nm/kgf.m).'
+        explanation: 'Compression tester mengukur tekanan kompresi ruang bakar silinder untuk mendeteksi kebocoran ring piston atau katup.'
       },
       {
-        question: '2. Alat ukur pelat tipis presisi yang digunakan mekanik bengkel otomotif untuk mengukur celah elektroda busi dan celah katup adalah...',
+        workshop: 'Bengkel Elektronika - Bentuk Gelombang',
+        question: '2. [Bengkel Elektronika] Instrumen laboratorium yang menampilkan grafik bentuk gelombang sinyal listrik (frekuensi & amplitudo) terhadap waktu adalah...',
         options: [
-          { text: 'A. Feeler Gauge (Thickness Gauge)', correct: true },
-          { text: 'B. Mistar Baja', correct: false },
-          { text: 'C. Dial Indicator', correct: false },
-          { text: 'D. Busur Derajat', correct: false }
+          { text: 'Osiloskop (Oscilloscope)', correct: true },
+          { text: 'Lux Meter Cahaya', correct: false },
+          { text: 'Tachometer Putaran', correct: false },
+          { text: 'Barometer Presisi', correct: false }
         ],
-        explanation: 'Feeler gauge tersusun dari bilah baja berketebalan presisi untuk mengukur celah renggang katup mesin dan elektroda busi.'
+        explanation: 'Osiloskop memvisualisasikan grafik bentuk gelombang sinyal listrik, amplitudo tegangan, dan frekuensi gelombang secara presisi.'
       },
       {
-        question: '3. Alat bengkel otomotif yang dipasang pada lubang busi untuk mengukur tekanan kompresi ruang bakar silinder mesin adalah...',
+        workshop: 'Bengkel TKJ - Verifikasi Jalur LAN',
+        question: '3. [Bengkel TKJ] Alat penguji yang memiliki 8 lampu LED indikator berurutan untuk memverifikasi keutuhan sambungan kabel LAN adalah...',
         options: [
-          { text: 'A. Compression Tester', correct: true },
-          { text: 'B. Vacuum Gauge', correct: false },
-          { text: 'C. Tyre Gauge', correct: false },
-          { text: 'D. Barometer Mesin', correct: false }
+          { text: 'LAN Cable Tester', correct: true },
+          { text: 'Termometer Inframerah', correct: false },
+          { text: 'Spektrometer Prisma', correct: false },
+          { text: 'Multitester Ohm Meter', correct: false }
         ],
-        explanation: 'Compression tester mendeteksi kebocoran ring piston atau katup dengan mengukur tekanan kompresi silinder saat cranking.'
+        explanation: 'LAN Cable Tester menguji kontinuitas ke-8 pin konduktor kabel UTP/STP untuk memastikan tidak ada jalur terputus atau tertukar.'
       },
       {
-        question: '4. Lampu strobo di bengkel otomotif yang berkedip saat busi memercikkan api untuk memeriksa sudut saat pengapian mesin adalah...',
+        workshop: 'Bengkel Penyiaran - Studio Broadcast',
+        question: '4. [Bengkel Penyiaran] Perangkat pengendali di studio penyiaran televisi untuk memilih dan mengalihkan transisi feed berbagai kamera live adalah...',
         options: [
-          { text: 'A. Timing Light', correct: true },
-          { text: 'B. Senter LED Inspeksi', correct: false },
-          { text: 'C. Tachometer Analog', correct: false },
-          { text: 'D. Lampu Halogen', correct: false }
+          { text: 'Video Switcher / Video Mixer', correct: true },
+          { text: 'Teleprompter Layar Kaca', correct: false },
+          { text: 'Audio Equalizer Rak', correct: false },
+          { text: 'Clapperboard Sutradara', correct: false }
         ],
-        explanation: 'Timing light menembakkan cahaya kilat ke tanda puli kruk as untuk mengecek ketepatan sudut saat pengapian busi.'
+        explanation: 'Video Switcher (vision mixer) mengatur pergantian feed kamera siaran langsung dan efek transisi video secara real-time.'
       },
       {
-        question: '5. Di bengkel otomotif, alat "Car Lift" atau dongkrak buaya hidrolik berfungsi untuk...',
+        workshop: 'Bengkel RPL - Kontrol Versi Git',
+        question: '5. [Bengkel RPL] Perintah Git yang digunakan pengembang perangkat lunak untuk mengirimkan komit lokal ke repositori remote di GitHub adalah...',
         options: [
-          { text: 'A. Mengangkat kendaraan secara stabil dan aman agar teknisi dapat melakukan servis kolong sasis / transmisi', correct: true },
-          { text: 'B. Menyetel sistem injeksi bensin elektronik', correct: false },
-          { text: 'C. Mengukur emisi gas buang knalpot', correct: false },
-          { text: 'D. Menguras minyak rem secara otomatis', correct: false }
+          { text: 'git push', correct: true },
+          { text: 'git pull', correct: false },
+          { text: 'git clone', correct: false },
+          { text: 'git branch', correct: false }
         ],
-        explanation: 'Car lift (hydraulic lift) mengangkat unit mobil ke ketinggian kerja ergonomis untuk inspeksi suspensi, knalpot, dan transmisi.'
+        explanation: 'Perintah git push mengunggah komit lokal ke server repositori remote seperti GitHub atau GitLab.'
       }
     ]
   },
+
   glitch_buku_4: {
-    title: 'Buku Bengkel Teknik Pemesinan (Bubut & Frais)',
+    title: 'Buku Anomali Bengkel #4 (Variasi Lintas Bengkel SMK)',
+    desc: 'Ujian komprehensif kejuruan: Mesin Frais, Sablon Digital, Timing Pengapian, Multimeter, dan Daya Optik.',
     questions: [
       {
-        question: '1. Mesin perkakas utama di bengkel mesin yang berfungsi memotong benda kerja silindris yang berputar menggunakan pahat bubut adalah...',
+        workshop: 'Bengkel Pemesinan - Mesin Frais',
+        question: '1. [Bengkel Pemesinan] Mesin perkakas yang menggunakan pisau berputar bermata potong majemuk untuk menyayat bidang rata, alur, atau roda gigi adalah...',
         options: [
-          { text: 'A. Mesin Sekrap', correct: false },
-          { text: 'B. Mesin Bubut (Lathe Machine)', correct: true },
-          { text: 'C. Mesin Gerinda Silinder', correct: false },
-          { text: 'D. Mesin Bending Pipa', correct: false }
+          { text: 'Mesin Frais (Milling Machine)', correct: true },
+          { text: 'Mesin Las Busur Listrik', correct: false },
+          { text: 'Mesin Gerinda Silindris', correct: false },
+          { text: 'Mesin Skrap Tangan', correct: false }
         ],
-        explanation: 'Mesin bubut (lathe) memutar benda kerja pada cekam (chuck) sementara pahat menyayat material untuk membentuk silinder atau ulir.'
+        explanation: 'Mesin frais menyayat benda kerja diam menggunakan pisau frais bermata potong majemuk yang berputar pada arbor spindel.'
       },
       {
-        question: '2. Mesin perkakas di bengkel mesin yang menggunakan pisau berputar (cutter) untuk meratakan permukaan dan membuat alur roda gigi adalah...',
+        workshop: 'Bengkel Tekstil - Sablon Kain Digital',
+        question: '2. [Bengkel Tekstil] Mesin di industri pakaian modern yang digunakan untuk mentransfer desain grafis berwarna langsung ke atas permukaan kain adalah...',
         options: [
-          { text: 'A. Mesin Frais (Milling Machine)', correct: true },
-          { text: 'B. Mesin Gergaji Pita', correct: false },
-          { text: 'C. Mesin Press Logam', correct: false },
-          { text: 'D. Mesin Bor Meja', correct: false }
+          { text: 'Mesin Printing / Sablon Tekstil Digital', correct: true },
+          { text: 'Mesin Boiler Uap', correct: false },
+          { text: 'Mesin Pemintal Benang', correct: false },
+          { text: 'Mesin Jahit Rantai', correct: false }
         ],
-        explanation: 'Mesin frais (milling) menyayat benda kerja diam dengan pisau frais berputar untuk menghasilkan bidang datar atau alur profil.'
+        explanation: 'Mesin printing tekstil mencetak pasta tinta warna reaktif atau sublimasi langsung sesuai pola grafis komputer.'
       },
       {
-        question: '3. Bagian pada jangka sorong (vernier caliper) di bengkel mesin yang digunakan khusus untuk mengukur kedalaman lubang benda kerja adalah...',
+        workshop: 'Bengkel Otomotif - Waktu Percikan Busi',
+        question: '3. [Bengkel Otomotif] Lampu strobo mekanik yang dinyalakan sinkron dengan busi untuk memeriksa dan menyetel sudut waktu pengapian adalah...',
         options: [
-          { text: 'A. Ekor pengukur kedalaman (Depth Bar / Rod)', correct: true },
-          { text: 'B. Rahang ukur luar', correct: false },
-          { text: 'C. Rahang ukur dalam', correct: false },
-          { text: 'D. Baut pengunci skala', correct: false }
+          { text: 'Timing Light', correct: true },
+          { text: 'Senter LED Mekanik', correct: false },
+          { text: 'Lampu Halogen Sorot', correct: false },
+          { text: 'Stroboscope Audio', correct: false }
         ],
-        explanation: 'Bilah ekor pengukur kedalaman menjulur di ujung jangka sorong untuk mengukur ceruk dan kedalaman lubang tembus.'
+        explanation: 'Timing light menembakkan kilatan cahaya sinkron dengan percikan busi untuk membaca derajat tanda timing pada pulley poros engkol.'
       },
       {
-        question: '4. Alat ukur presisi di bengkel mesin yang memiliki ketelitian sangat tinggi hingga 0,01 mm untuk mengukur diameter poros adalah...',
+        workshop: 'Bengkel Elektronika - Pengukuran Listrik',
+        question: '4. [Bengkel Elektronika] Alat ukur serbaguna di laboratorium elektronika yang dapat mengukur Arus (A), Tegangan (V), dan Hambatan (Ohm) adalah...',
         options: [
-          { text: 'A. Mikrometer Sekrup (Micrometer)', correct: true },
-          { text: 'B. Penggaris Siku Baja', correct: false },
-          { text: 'C. Meteran Gulung', correct: false },
-          { text: 'D. Kaliper Kayu', correct: false }
+          { text: 'Multimeter (AVO Meter)', correct: true },
+          { text: 'Barometer Presisi', correct: false },
+          { text: 'Higrometer Udara', correct: false },
+          { text: 'Luxmeter Ruangan', correct: false }
         ],
-        explanation: 'Mikrometer sekrup memiliki skala bidal (thimble) yang mampu mengukur dimensi ketebalan dan poros hingga 0,01 milimeter.'
+        explanation: 'Multimeter (AVO meter) mengukur tiga besaran pokok rangkaian elektronika: Arus (A), Tegangan (V), dan Hambatan (Ohm).'
       },
       {
-        question: '5. Sesuai standar K3 bengkel mesin, alat pelindung diri (APD) yang wajib dipakai saat membubut atau menggerinda untuk melindungi mata adalah...',
+        workshop: 'Bengkel TKJ - Daya Sinyal Cahaya',
+        question: '5. [Bengkel TKJ] Alat di bengkel serat optik yang berfungsi mengukur intensitas daya sinyal cahaya dan redaman (loss) dalam satuan dBm adalah...',
         options: [
-          { text: 'A. Kacamata Pengaman (Safety Goggles / Kedok Pelindung)', correct: true },
-          { text: 'B. Masker kain tipis', correct: false },
-          { text: 'C. Penutup telinga busa saja', correct: false },
-          { text: 'D. Sarung tangan rajut kain longgar', correct: false }
+          { text: 'Optical Power Meter (OPM)', correct: true },
+          { text: 'Mikrometer Sekrup', correct: false },
+          { text: 'Barcode Scanner', correct: false },
+          { text: 'Luxmeter Sinar', correct: false }
         ],
-        explanation: 'Kacamata safety mencegah beram atau tatal logam panas yang terlempar berkecepatan tinggi mengenai mata operator.'
+        explanation: 'OPM mengukur besaran intensitas daya optik dan redaman sinyal cahaya pada kabel serat optik dalam satuan dBm atau Watt.'
       }
     ]
   },
+
   glitch_buku_5: {
-    title: 'Buku Bengkel Elektronika Industri',
+    title: 'Buku Anomali Bengkel #5 (Variasi Lintas Bengkel SMK)',
+    desc: 'Ujian komprehensif kejuruan: Algoritma Pemrograman, Studio Teleprompter, Kupas Kabel, OBD-II Scanner, dan Power Supply.',
     questions: [
       {
-        question: '1. Di bengkel elektronika, alat utama yang digunakan untuk melelehkan timah guna merekatkan kaki komponen pada PCB adalah...',
+        workshop: 'Bengkel RPL - Logika Algoritma',
+        question: '1. [Bengkel RPL] Struktur perulangan pemrograman manakah yang menjamin blok kode di dalamnya dieksekusi minimal satu kali sebelum memeriksa kondisi?',
         options: [
-          { text: 'A. Solder Listrik (Soldering Iron)', correct: true },
-          { text: 'B. Hot Air Gun Blower', correct: false },
-          { text: 'C. Catok Meja', correct: false },
-          { text: 'D. Tang Pengupas', correct: false }
+          { text: 'do...while loop', correct: true },
+          { text: 'for loop', correct: false },
+          { text: 'while loop', correct: false },
+          { text: 'switch case', correct: false }
         ],
-        explanation: 'Solder listrik memanaskan ujung tip logam untuk mencairkan timah paduan pada titik kontak pad PCB.'
+        explanation: 'do...while mengeksekusi tubuh pernyataan terlebih dahulu, baru memeriksa kondisi terminasi di akhir blok.'
       },
       {
-        question: '2. Alat ukur serbaguna di bengkel elektronika yang dapat mengukur Tegangan (Volt), Kuat Arus (Ampere), dan Hambatan (Ohm) adalah...',
+        workshop: 'Bengkel Penyiaran - Teks Naskah Berjalan',
+        question: '2. [Bengkel Penyiaran] Kaca monitor pantul di depan lensa kamera studio yang memantulkan naskah berjalan agar presenter membaca lancar sambil menatap kamera adalah...',
         options: [
-          { text: 'A. Multimeter (AVO Meter)', correct: true },
-          { text: 'B. Luxmeter Cahaya', correct: false },
-          { text: 'C. Barometer Tekanan', correct: false },
-          { text: 'D. Higrometer Kelembapan', correct: false }
+          { text: 'Teleprompter', correct: true },
+          { text: 'Video Switcher', correct: false },
+          { text: 'Boom Pole Mic', correct: false },
+          { text: 'Green Screen Backdrop', correct: false }
         ],
-        explanation: 'Multimeter (Ampere-Volt-Ohm meter) adalah instrumen pokok teknisi elektronika untuk mengukur dan mendiagnosis rangkaian.'
+        explanation: 'Teleprompter memantulkan teks naskah ke kaca optik transparan tepat di depan lensa kamera video.'
       },
       {
-        question: '3. Alat ukur laboratorium elektronika yang menampilkan grafik visual bentuk gelombang sinyal listrik (frekuensi dan amplitudo) pada layar adalah...',
+        workshop: 'Bengkel TKJ - Kupas Jaket Kabel',
+        question: '3. [Bengkel TKJ] Di bengkel jaringan, alat "Wire Stripper" dirancang khusus dengan berbagai ukuran celah pisau presisi untuk...',
         options: [
-          { text: 'A. Osiloskop (Oscilloscope)', correct: true },
-          { text: 'B. Frekuensi Generator Pasif', correct: false },
-          { text: 'C. Spektrometer Prisma', correct: false },
-          { text: 'D. Termograf Termal', correct: false }
+          { text: 'Mengupas kulit isolasi jaket kabel tanpa memotong serat kawat tembaga', correct: true },
+          { text: 'Menyambungkan kabel tanpa solder', correct: false },
+          { text: 'Mendinginkan prosesor switch', correct: false },
+          { text: 'Memperkuat frekuensi wifi', correct: false }
         ],
-        explanation: 'Osiloskop memplot sinyal listrik sebagai grafik tegangan terhadap waktu pada sumbu horizontal dan vertikal layar.'
+        explanation: 'Wire stripper mengupas jaket pelindung kabel tanpa memotong atau menggores serat kawat konduktor tembaga di dalamnya.'
       },
       {
-        question: '4. Di bengkel elektronika, alat "Desoldering Pump" (Atraktor sedotan timah) digunakan untuk...',
+        workshop: 'Bengkel Otomotif - Scanner Injeksi EFI',
+        question: '4. [Bengkel Otomotif] Alat diagnosa elektronik yang dicolokkan ke port OBD-II untuk membaca kode kerusakan (DTC) dan sensor mesin injeksi EFI adalah...',
         options: [
-          { text: 'A. Menyedot timah cair saat mencopot komponen elektronika dari lubang PCB', correct: true },
-          { text: 'B. Membersihkan debu dari dalam casing komputer', correct: false },
-          { text: 'C. Menghirup asap pembakaran solder', correct: false },
-          { text: 'D. Menyemprotkan cairan pembersih sirkuit', correct: false }
+          { text: 'Engine Diagnostic Scanner (OBD-II Scanner)', correct: true },
+          { text: 'Kunci Pas Ring', correct: false },
+          { text: 'Obeng Magnet Mekanik', correct: false },
+          { text: 'Pengukur Tekanan Ban', correct: false }
         ],
-        explanation: 'Desoldering pump memiliki piston pegas vakum untuk menyedot lelehan timah dari titik solderan secara cepat.'
+        explanation: 'Engine Scanner membaca data sensor live dan kode kerusakan DTC dari unit komputer ECU mesin kendaraan secara digital.'
       },
       {
-        question: '5. Perangkat bengkel elektronika yang berfungsi menghasilkan sumber tegangan listrik DC yang stabil dan dapat diatur voltasenya adalah...',
+        workshop: 'Bengkel Elektronika - Catu Daya Teregulasi',
+        question: '5. [Bengkel Elektronika] Alat di meja kerja elektronika yang mengubah listrik AC 220V menjadi tegangan DC stabil yang voltasenya dapat disetel presisi adalah...',
         options: [
-          { text: 'A. Regulated DC Power Supply (Catu Daya)', correct: true },
-          { text: 'B. Induktor Ferit', correct: false },
-          { text: 'C. Kapasitor Elektrolit', correct: false },
-          { text: 'D. Transformator Step Up Tanpa Dioda', correct: false }
+          { text: 'Regulated DC Power Supply', correct: true },
+          { text: 'Inverter DC ke AC', correct: false },
+          { text: 'Trafo Las Listrik', correct: false },
+          { text: 'Genset Motor Bensin', correct: false }
         ],
-        explanation: 'DC Power Supply teregulasi menyediakan suplai voltase dan batas arus DC yang presisi untuk menyalakan rangkaian prototipe.'
-      }
-    ]
-  },
-  glitch_buku_6: {
-    title: 'Buku Bengkel BP (Broadcasting & Studio Siaran)',
-    questions: [
-      {
-        question: '1. Di bengkel studio Broadcasting (BP), alat utama yang digunakan sutradara siaran untuk mengatur perpindahan feed kamera secara live adalah...',
-        options: [
-          { text: 'A. Video Switcher (Vision Mixer)', correct: true },
-          { text: 'B. Teleprompter Layar Kaca', correct: false },
-          { text: 'C. Clapperboard Kayu', correct: false },
-          { text: 'D. Tripod Fluid Head', correct: false }
-        ],
-        explanation: 'Video switcher (vision mixer) memilih, memotong (cut), atau melakukan transisi (dissolve/wipe) antar kamera live siaran.'
-      },
-      {
-        question: '2. Perangkat di studio penyiaran yang menampilkan naskah teks berjalan tepat di depan lensa kamera agar presenter membaca tanpa menunduk adalah...',
-        options: [
-          { text: 'A. Teleprompter', correct: true },
-          { text: 'B. Monitor Program Master', correct: false },
-          { text: 'C. Multi-Viewer Screen', correct: false },
-          { text: 'D. Waveform Monitor', correct: false }
-        ],
-        explanation: 'Teleprompter menggunakan cermin transparan one-way di depan lensa kamera untuk memantulkan teks naskah berita.'
-      },
-      {
-        question: '3. Jenis mikrofon kecil yang dijepitkan di kerah baju presenter agar suara terdengar jernih tanpa mengganggu visual kamera siaran disebut...',
-        options: [
-          { text: 'A. Lavalier / Clip-on Microphone', correct: true },
-          { text: 'B. Microphone Shotgun Boom', correct: false },
-          { text: 'C. Microphone Ribbon Vintage', correct: false },
-          { text: 'D. Dynamic Mic Handheld', correct: false }
-        ],
-        explanation: 'Lavalier mic (clip-on) berukuran mini dan dijepitkan di kerah pakaian host untuk merekam vokal secara konstan dan rapi.'
-      },
-      {
-        question: '4. Teknik tata cahaya standar studio produksi penyiaran yang terdiri dari Key Light, Fill Light, dan Back Light disebut teknik...',
-        options: [
-          { text: 'A. Three-Point Lighting', correct: true },
-          { text: 'B. Silhouette Lighting', correct: false },
-          { text: 'C. Strobe Flash Lighting', correct: false },
-          { text: 'D. Diffused Daylight Only', correct: false }
-        ],
-        explanation: 'Three-point lighting menciptakan dimensi subjek: Key Light (cahaya utama), Fill Light (pengisi bayangan), dan Back Light (pemisah latar).'
-      },
-      {
-        question: '5. Di master control room (MCR) studio penyiaran, meja konsol yang mengatur volume fader, gain, dan equalizer dari seluruh audio presenter adalah...',
-        options: [
-          { text: 'A. Audio Mixer Console', correct: true },
-          { text: 'B. Video Routing Switcher', correct: false },
-          { text: 'C. Character Generator (CG)', correct: false },
-          { text: 'D. Intercom Headset Beltpack', correct: false }
-        ],
-        explanation: 'Audio mixer console mengontrol level balance audio suara presenter, background music (BGM), dan sound effect siaran.'
-      }
-    ]
-  },
-  glitch_buku_7: {
-    title: 'Buku Bengkel RPL (Rekayasa Perangkat Lunak)',
-    questions: [
-      {
-        question: '1. Di bengkel / lab RPL, aplikasi "Integrated Development Environment" (IDE) seperti VS Code berfungsi sebagai...',
-        options: [
-          { text: 'A. Lingkungan terpadu untuk menulis sintaks kode, debugging, dan integrasi build tools', correct: true },
-          { text: 'B. Pengatur kecepatan kipas prosesor server', correct: false },
-          { text: 'C. Pemotong kabel jaringan otomatis', correct: false },
-          { text: 'D. Alat pembuat animasi tanpa baris kode', correct: false }
-        ],
-        explanation: 'IDE menyediakan editor teks pintar, terminal, syntax highlighting, dan debugger terpadu bagi programmer.'
-      },
-      {
-        question: '2. Sistem kontrol versi di lab RPL seperti "Git" memiliki fungsi utama untuk...',
-        options: [
-          { text: 'A. Mencatat setiap riwayat commit perubahan kode dan mengelola kolaborasi branch tim', correct: true },
-          { text: 'B. Menghapus harddisk server secara acak', correct: false },
-          { text: 'C. Mendinginkan casing komputer', correct: false },
-          { text: 'D. Menyetel alamat MAC address kartu jaringan', correct: false }
-        ],
-        explanation: 'Git mencatat commit riwayat pengembangan kode, memungkinkan revert rollback bug, dan memfasilitasi kerja tim secara aman.'
-      },
-      {
-        question: '3. Fitur perkakas pemrograman "Debugger" di bengkel RPL berfungsi untuk...',
-        options: [
-          { text: 'A. Melacak dan mengeksekusi alur kode baris-demi-baris (step-by-step) guna menemukan bug', correct: true },
-          { text: 'B. Membersihkan debu motherboard menggunakan kuas', correct: false },
-          { text: 'C. Menyalakan komputer dari jarak jauh', correct: false },
-          { text: 'D. Mengompresi file video menjadi ukuran kecil', correct: false }
-        ],
-        explanation: 'Debugger memungkinkan developer memasang breakpoint dan menginspeksi nilai variabel secara realtime untuk menemukan bug.'
-      },
-      {
-        question: '4. Perangkat lunak mesin basis data (DBMS Server) seperti PostgreSQL atau MySQL berfungsi untuk...',
-        options: [
-          { text: 'A. Menyimpan, mengorganisir, dan mengelola jutaan record data terstruktur secara aman dan cepat', correct: true },
-          { text: 'B. Mengedit foto grafis beresolusi tinggi', correct: false },
-          { text: 'C. Memformat flashdisk yang terinfeksi virus', correct: false },
-          { text: 'D. Menampilkan sinyal listrik pada osiloskop', correct: false }
-        ],
-        explanation: 'DBMS mengelola penyimpanan data relasional, integritas referensial (foreign keys), dan query SQL berkecepatan tinggi.'
-      },
-      {
-        question: '5. Di bengkel RPL, program "Compiler" atau "Interpreter" memiliki tugas mendasar untuk...',
-        options: [
-          { text: 'A. Menerjemahkan kode sumber bahasa tingkat tinggi ke bahasa mesin yang dimengerti prosesor', correct: true },
-          { text: 'B. Memasang kabel LAN ke stopkontak', correct: false },
-          { text: 'C. Menghitung jumlah tombol keyboard yang ditekan', correct: false },
-          { text: 'D. Menyetel resolusi monitor secara fisik', correct: false }
-        ],
-        explanation: 'Compiler/Interpreter mengonversi kode bahasa tingkat tinggi (seperti C++, Java, JS) menjadi instruksi biner mesin untuk dieksekusi prosesor.'
+        explanation: 'Regulated DC Power Supply menyediakan suplai daya listrik arus searah (DC) teregulasi dengan proteksi arus untuk menguji rangkaian.'
       }
     ]
   }
 };
+
+// Helper: Acak urutan array menggunakan Fisher-Yates shuffle
+export function shuffleArray(arr) {
+  const result = [...arr];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+// Helper: Menyiapkan soal buku dengan jawaban yang diacak secara dinamis
+// Memastikan opsi jawaban (A, B, C, D) selalu teracak posisinya dan TIDAK SELALU 'A'
+export function prepareRandomizedBookQuestions(rawQuestions) {
+  if (!rawQuestions || !Array.isArray(rawQuestions)) return [];
+
+  return rawQuestions.map((q) => {
+    // Bersihkan prefix huruf lama jika ada, lalu acak opsi pilihan jawaban
+    const cleanedOptions = q.options.map(opt => ({
+      text: opt.text.replace(/^[A-D]\.\s*/i, '').trim(),
+      correct: !!opt.correct
+    }));
+
+    // Acak posisi pilihan jawaban secara dinamis
+    const randomizedOptions = shuffleArray(cleanedOptions);
+
+    return {
+      workshop: q.workshop || 'Bengkel Kejuruan SMK',
+      question: q.question,
+      options: randomizedOptions,
+      explanation: q.explanation
+    };
+  });
+}

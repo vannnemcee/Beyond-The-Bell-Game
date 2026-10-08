@@ -186,7 +186,7 @@ export const DIALOGUES = {
     {
       speaker: '???',
       portrait: 'shadow_glitch_portrait',
-      text: 'Sekarang misimu cari 7 buku bengkel kejuruan (TKJ, Tekstil, Otomotif, Mesin, Elektronika, BP, RPL), 3 kunci, dan 1 {(@&@(&!*@(@) agar kamu bisa membuka gerbang sekolah ini HAHHAHA!',
+      text: 'Sekarang misimu cari 5 buku anomali bengkel kejuruan (dengan soal bervariasi dari tiap bengkel), 3 kunci, dan 1 {(@&@(&!*@(@) agar kamu bisa membuka gerbang sekolah ini HAHHAHA!',
       action: 'courtyard_glitch_quest_start'
     }
   ],
@@ -236,7 +236,103 @@ export const DIALOGUES = {
     }
   ],
 
-  // 7. Terbangun di Kelas dengan Keadaan Semula Normal
+  // 7a. Layar Hitam: Siti Membangunkan Pemain di Kegelapan
+  wake_up_in_darkness: (player) => [
+    {
+      speaker: 'Siti',
+      portrait: 'siti_portrait',
+      text: `Woi ${player.name}, bangun... bangun! Kamu gamau pulang kah?`
+    },
+    {
+      speaker: player.name,
+      portrait: player.gender === 'boy' ? 'boy_down_0' : 'girl_portrait',
+      text: 'Hmm...?',
+      action: 'reveal_afternoon_classroom'
+    }
+  ],
+
+  // 7b. Layar Hitam Hilang: Sekolah Sudah Sepi Jam 4 Sore Hanya MC & Siti
+  afternoon_classroom_dialogue: (player) => [
+    {
+      speaker: player.name,
+      portrait: player.gender === 'boy' ? 'boy_down_0' : 'girl_portrait',
+      text: 'Hah... aku dimana??'
+    },
+    {
+      speaker: 'Siti',
+      portrait: 'siti_portrait',
+      text: 'Hei kamu kenapa? Ayo pulang udah jam pulang ini!'
+    },
+    {
+      speaker: player.name,
+      portrait: player.gender === 'boy' ? 'boy_down_0' : 'girl_portrait',
+      text: 'T-tapi... tadi pameran sekolah, dimensi glitch yang runtuh, 5 buku anomali bengkel... bayangan anomali... dan pedang cahaya itu... apa semuanya cuma mimpi?!'
+    },
+    {
+      speaker: player.name,
+      portrait: player.gender === 'boy' ? 'boy_down_0' : 'girl_portrait',
+      text: '(Aku memeriksa saku dan tasku... Pedang dari dimensi lain itu benar-benar lenyap tanpa jejak! Tidak ada satupun senjata mistis yang terbawa ke dunia nyata...)'
+    },
+    {
+      speaker: 'Siti',
+      portrait: 'siti_portrait',
+      text: `Hahaha mimpi aneh apaan sih ${player.name}? Kebanyakan belajar teori bengkel kejuruan ya kamu! Tuh lihat jam dinding kelas, udah jam 4 sore lewat!`
+    },
+    {
+      speaker: 'Siti',
+      portrait: 'siti_portrait',
+      text: 'Sekolah udah sepi melompong. Bu Rina sama anak-anak lain udah pada pulang dari tadi. Ayo cepat bereskan tasmu, kita pulang ke gerbang sekolah bareng! Aku tungguin di depan gerbang ya!'
+    },
+    {
+      speaker: player.name,
+      portrait: player.gender === 'boy' ? 'boy_down_0' : 'girl_portrait',
+      text: 'Hoo gitu ya... Syukurlah semuanya baik-baik saja! Oke Siti, aku bereskan buku dulu lalu langsung susul ke gerbang depan.',
+      action: 'start_afternoon_home_mission'
+    }
+  ],
+
+  afternoon_siti_classroom_reminder: (player) => [
+    {
+      speaker: 'Siti',
+      portrait: 'siti_portrait',
+      text: `Ayo ${player.name}, jangan bengong lagi! Tas sudah siap kan? Yuk kita jalan ke gerbang depan untuk pulang!`
+    }
+  ],
+
+  // 7c. Gerbang Depan Jam 4 Sore: Pamitan Pulang & Tamat
+  ending_gate_farewell: (player) => [
+    {
+      speaker: 'Siti',
+      portrait: 'siti_portrait',
+      text: `Nah, akhirnya sampai juga di gerbang! Jam 4 sore suasana sekolah tenang banget ya.`
+    },
+    {
+      speaker: player.name,
+      portrait: player.gender === 'boy' ? 'boy_down_0' : 'girl_portrait',
+      text: 'Iya Siti, makasih banyak ya udah nungguin dan bangunin aku di kelas tadi.'
+    },
+    {
+      speaker: 'Siti',
+      portrait: 'siti_portrait',
+      text: `Sama-sama ${player.name}! Istirahat yang cukup di rumah ya, jangan sampai ketiduran di kelas lagi besok! Sampai ketemu besok pagi di SMKN 1 Katapang!`
+    },
+    {
+      speaker: player.name,
+      portrait: player.gender === 'boy' ? 'boy_down_0' : 'girl_portrait',
+      text: 'Sampai ketemu besok, Siti!',
+      action: 'trigger_ending_credits'
+    }
+  ],
+
+  satpam_afternoon_farewell: (player) => [
+    {
+      speaker: 'Pak Satpam',
+      portrait: 'satpam_portrait',
+      text: `Sudah jam 4 sore lewat nak ${player.name}, Siti. Hati-hati di jalan ya, langsung pulang ke rumah dan istirahat yang cukup!`
+    }
+  ],
+
+  // 7d. Fallback Legacy
   wake_up_in_class_normal: (player) => [
     {
       speaker: player.name,
@@ -244,20 +340,10 @@ export const DIALOGUES = {
       text: 'Hah... Dimana aku...?'
     },
     {
-      speaker: player.name,
-      portrait: player.gender === 'boy' ? 'boy_down_0' : 'girl_portrait',
-      text: 'Ko... semuanya kembali normal!? Bu Rina sedang mengajar, teman-teman juga ada di sini!'
-    },
-    {
-      speaker: player.name,
-      portrait: player.gender === 'boy' ? 'boy_down_0' : 'girl_portrait',
-      text: 'Apakah yang tadi cuma mimpi buruk... atau peringatan makhluk halus dari Pak Satpam tadi ya?'
-    },
-    {
-      speaker: player.name,
-      portrait: player.gender === 'boy' ? 'boy_down_0' : 'girl_portrait',
-      text: 'Yang penting aku selamat! Sekarang aku bisa fokus ikuti pameran dan kuis RPL dengan tenang.',
-      action: 'normal_dimension_restored'
+      speaker: 'Siti',
+      portrait: 'siti_portrait',
+      text: `Hei ${player.name}, ayo bangun! Sudah jam 4 sore, gerbang sekolah sudah dibuka untuk pulang!`,
+      action: 'start_afternoon_home_mission'
     }
   ],
 
@@ -275,7 +361,7 @@ export const DIALOGUES = {
     {
       speaker: 'Ibu Kantin',
       portrait: 'ibu_kantin_portrait',
-      text: 'Ada Es Teh Manis dingin dan Roti Bakar hangat di meja kantin, ambil saja yang kamu suka ya!',
+      text: 'Di etalase dan meja kantin ada 4 pilihan jajanan favorit: Es Teh Manis dingin, Roti Bakar coklat keju, Gorengan bakwan & gehu anget, dan Cilok bumbu kacang gurih. Silakan ambil jajan yang kamu suka ya!',
       action: 'canteen_buy_food_quest'
     }
   ],

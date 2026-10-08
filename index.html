@@ -9,9 +9,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
   <title>Beyond The Bell</title>
-  <meta name="description" content="Beyond The Bell: Pameran RPL - Game petualangan 2D pixel art pameran karya siswa SMKN 1 Katapang Kabupaten Bandung." />
+  <meta name="description" content="Beyond The Bell: Pameran RPL - Game petualangan 2D pixel art pameran karya siswa Rekayasa Perangkat Lunak." />
   <meta property="og:title" content="Beyond The Bell" />
-  <meta property="og:description" content="Beyond The Bell: Pameran RPL - Game petualangan 2D pixel art pameran karya siswa SMKN 1 Katapang Kabupaten Bandung." />
+  <meta property="og:description" content="Beyond The Bell: Pameran RPL - Game petualangan 2D pixel art pameran karya siswa Rekayasa Perangkat Lunak." />
 
   <!-- Preload Essential Character Sprites for Instant Lobby Switching -->
   <link rel="preload" as="image" href="assets/characters/alisha_00.png" />
@@ -439,8 +439,49 @@
   <!-- ======================================================== -->
   <div id="cutsceneVignette" class="hidden fixed inset-0 z-40 pointer-events-none transition-opacity duration-1000 opacity-0" style="background: radial-gradient(ellipse at center, rgba(0,0,0,0) 35%, rgba(0,0,0,0.88) 100%);"></div>
 
+  <!-- Top-Left Player Status HUD (Avatar, Name, Health Bar, Uang/Money) -->
+  <div id="playerStatusHUD" class="fixed top-3 left-3 z-40 flex items-center gap-2.5 bg-slate-900/95 border-2 border-slate-700/80 rounded-2xl p-2 pr-3.5 shadow-[0_8px_30px_rgba(0,0,0,0.85)] backdrop-blur-md select-none transition-all duration-200">
+    <!-- Avatar Portrait -->
+    <div class="relative w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-slate-950 border-2 border-amber-500/70 overflow-hidden flex items-center justify-center shrink-0 shadow-inner">
+      <img id="hudPlayerAvatar" src="assets/characters/alisha_00.png" alt="Player Avatar" class="w-full h-full object-cover" />
+      <span id="hudPlayerGenderBadge" class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-pink-500/90 rounded-tl-md flex items-center justify-center text-[8px] font-bold text-white">♀</span>
+    </div>
+
+    <!-- Stats Column -->
+    <div class="flex flex-col gap-1 min-w-[130px] sm:min-w-[160px]">
+      <!-- Name & Role -->
+      <div class="flex items-center justify-between">
+        <span id="hudPlayerName" class="font-mono text-xs font-bold text-amber-300 tracking-wider">WINTEL</span>
+        <span id="hudPlayerRole" class="text-[9px] font-mono text-slate-400">Siswi RPL</span>
+      </div>
+
+      <!-- Health Bar -->
+      <div class="flex flex-col gap-0.5">
+        <div class="flex items-center justify-between text-[10px] font-mono leading-none">
+          <span class="text-rose-400 font-bold flex items-center gap-1">
+            <span class="animate-pulse">❤️</span>
+            <span>HP</span>
+          </span>
+          <span id="hudPlayerHpText" class="text-slate-200 font-bold">100 / 100</span>
+        </div>
+        <div class="w-full h-2.5 bg-slate-950 rounded-full border border-slate-700/80 overflow-hidden p-0.5">
+          <div id="hudPlayerHpBar" class="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400 rounded-full transition-all duration-200 shadow-sm" style="width: 100%;"></div>
+        </div>
+      </div>
+
+      <!-- Money / Uang Player -->
+      <div class="flex items-center justify-between text-[11px] font-mono pt-0.5 border-t border-slate-800/80">
+        <span class="text-amber-400 font-bold flex items-center gap-1">
+          <span>🪙</span>
+          <span>Uang:</span>
+        </span>
+        <span id="hudPlayerMoneyText" class="text-amber-300 font-extrabold tracking-wide">Rp 25.000</span>
+      </div>
+    </div>
+  </div>
+
   <!-- Top Left FPS Counter (Toggleable in Settings) -->
-  <div id="fpsBadge" class="fixed top-3 left-3 z-50 flex items-center gap-1.5 bg-black/75 backdrop-blur-md border border-emerald-500/50 rounded-lg px-2.5 py-1 shadow-lg pointer-events-none select-none transition-opacity duration-200">
+  <div id="fpsBadge" class="fixed top-[76px] left-3 z-50 flex items-center gap-1.5 bg-black/75 backdrop-blur-md border border-emerald-500/50 rounded-lg px-2.5 py-1 shadow-lg pointer-events-none select-none transition-opacity duration-200">
     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
     <span id="fpsValue" class="font-mono text-xs font-bold text-emerald-400">FPS: 60</span>
   </div>
@@ -909,6 +950,90 @@
       <button id="btnPlayAgain" class="w-full py-3 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 pixel-text text-xs cursor-pointer shadow-lg">
         LANJUTKAN JELAJAH SEKOLAH
       </button>
+    </div>
+  </div>
+
+  <!-- Ending & Credit Scene Modal (Tamat Jam 4 Sore Pulang ke Gerbang) -->
+  <div id="endingCreditsModal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto select-none">
+    <div class="max-w-lg w-full bg-slate-950/95 border-2 border-amber-500/90 rounded-2xl p-5 sm:p-7 shadow-[0_0_60px_rgba(245,158,11,0.4)] flex flex-col items-center text-center my-auto relative overflow-hidden animate-fade-in">
+      
+      <!-- Sunset warm ambient glow -->
+      <div class="absolute -top-24 -left-24 w-56 h-56 bg-amber-500/20 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -right-24 w-56 h-56 bg-orange-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- Header Badge -->
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-300 font-mono text-[11px] mb-2 shadow-sm">
+        <span>🌅</span>
+        <span class="tracking-widest uppercase font-bold">EPILOGUE · 16:00 WIB</span>
+      </div>
+
+      <!-- Title TAMAT -->
+      <h2 class="pixel-text text-lg sm:text-2xl text-amber-400 drop-shadow-[0_2px_15px_rgba(245,158,11,0.5)] mb-1">
+        ✨ TAMAT (THE END) ✨
+      </h2>
+      <p class="font-mono text-xs text-amber-200/90 tracking-wide font-bold mb-4">
+        Beyond The Bell: Misteri Anomali SMK
+      </p>
+
+      <!-- Epilogue Story Box -->
+      <div class="w-full bg-slate-900/90 border border-amber-500/30 rounded-xl p-3.5 mb-4 text-left font-mono text-xs text-slate-200 leading-relaxed space-y-2">
+        <p>
+          Setelah menembus dimensi anomali yang mencekam, memecahkan teka-teki <strong>5 buku bengkel kejuruan</strong>, dan mengalahkan bayangan misterius di gerbang, kamu akhirnya terbangun di ruang kelas yang damai.
+        </p>
+        <p class="text-amber-300">
+          Ditemani senja jam 4 sore bersama sahabatmu Siti, kamu melangkah pulang melewati gerbang sekolah. Pedang dimensi lain telah tertinggal tanpa jejak, dan dunia nyata kembali aman serta tentram!
+        </p>
+      </div>
+
+      <!-- Adventure Stats Recap Box -->
+      <div class="w-full bg-slate-900/80 border border-slate-800 rounded-xl p-3 mb-4 font-mono text-xs text-left">
+        <div class="text-[10px] text-amber-400 font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5 border-b border-slate-800 pb-1">
+          <span>📊</span>
+          <span>HASIL AKHIR PETUALANGAN</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-slate-300 text-[11px]">
+          <div>Karakter: <strong id="endPlayerName" class="text-white">Player</strong></div>
+          <div>Waktu: <strong class="text-amber-400">16:00 WIB (Sore)</strong></div>
+          <div>Buku Bengkel: <strong class="text-emerald-400">5 / 5 Lolos (100%)</strong></div>
+          <div>Dimensi Glitch: <strong class="text-emerald-400">Selamat & Runtuh</strong></div>
+          <div>Pedang Anomali: <strong class="text-sky-300">Ditinggalkan (Aman)</strong></div>
+          <div>Sisa Uang: <strong id="endPlayerMoney" class="text-amber-300">Rp 25.000</strong></div>
+        </div>
+      </div>
+
+      <!-- Developer & Cast Credits Roll -->
+      <div class="w-full bg-slate-900/60 border border-slate-800/80 rounded-xl p-3.5 mb-5 font-mono text-xs text-left space-y-2.5">
+        <div class="text-[10px] text-amber-400 font-bold uppercase tracking-wider border-b border-slate-800 pb-1 flex items-center justify-between">
+          <span class="flex items-center gap-1.5"><span>📜</span> TIM PENGEMBANG & KREDIT</span>
+          <span class="text-slate-400 text-[9px]">SMKN 1 KATAPANG</span>
+        </div>
+        <div class="space-y-1 text-slate-300 text-[11px]">
+          <div class="flex items-center justify-between">
+            <span class="text-emerald-400 font-bold">💻 Programming:</span>
+            <span class="text-slate-200">Afsel Juniar Fadilah & Evan Angga Subagja</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-amber-400 font-bold">🎨 Desainer:</span>
+            <span class="text-slate-200">Hanisa Siti Nurjannah & Meisya Arestya Putri</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-sky-400 font-bold">📊 Analisis:</span>
+            <span class="text-slate-200">Mahardika Mandala Pratama & Siti Anjani Salimaryamah</span>
+          </div>
+          <div class="flex items-center justify-between pt-1 border-t border-slate-800/60">
+            <span class="text-purple-400 font-bold">🎭 Tokoh Cerita:</span>
+            <span class="text-slate-300">Siti, Bu Rina, Pak Satpam, Ibu Kantin, & Siswa Kejuruan</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="w-full flex flex-col sm:flex-row gap-2.5">
+        <button id="btnRestartGameFromEnd" class="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 pixel-text text-xs cursor-pointer shadow-lg active:scale-95 transition">
+          🔄 MAIN LAGI / RESTART
+        </button>
+      </div>
+
     </div>
   </div>
 
@@ -1595,13 +1720,13 @@
           fpsValue.textContent = `FPS: ${currentFps}`;
           if (currentFps >= 50) {
             fpsValue.className = 'font-mono text-xs font-bold text-emerald-400';
-            fpsBadge.className = 'fixed top-3 left-3 z-50 flex items-center gap-1.5 bg-black/75 backdrop-blur-md border border-emerald-500/50 rounded-lg px-2.5 py-1 shadow-lg pointer-events-none select-none transition-opacity duration-200';
+            fpsBadge.className = 'fixed top-[82px] left-3 z-50 flex items-center gap-1.5 bg-black/75 backdrop-blur-md border border-emerald-500/50 rounded-lg px-2.5 py-1 shadow-lg pointer-events-none select-none transition-opacity duration-200';
           } else if (currentFps >= 30) {
             fpsValue.className = 'font-mono text-xs font-bold text-amber-400';
-            fpsBadge.className = 'fixed top-3 left-3 z-50 flex items-center gap-1.5 bg-black/75 backdrop-blur-md border border-amber-500/50 rounded-lg px-2.5 py-1 shadow-lg pointer-events-none select-none transition-opacity duration-200';
+            fpsBadge.className = 'fixed top-[82px] left-3 z-50 flex items-center gap-1.5 bg-black/75 backdrop-blur-md border border-amber-500/50 rounded-lg px-2.5 py-1 shadow-lg pointer-events-none select-none transition-opacity duration-200';
           } else {
             fpsValue.className = 'font-mono text-xs font-bold text-red-400';
-            fpsBadge.className = 'fixed top-3 left-3 z-50 flex items-center gap-1.5 bg-black/75 backdrop-blur-md border border-red-500/50 rounded-lg px-2.5 py-1 shadow-lg pointer-events-none select-none transition-opacity duration-200';
+            fpsBadge.className = 'fixed top-[82px] left-3 z-50 flex items-center gap-1.5 bg-black/75 backdrop-blur-md border border-red-500/50 rounded-lg px-2.5 py-1 shadow-lg pointer-events-none select-none transition-opacity duration-200';
           }
         }
       }
@@ -1836,6 +1961,17 @@
       game.state = 'PLAYING';
       sound.playClick();
     };
+
+    // Ending Credits Modal UI (Tamat Jam 4 Sore Pulang ke Gerbang)
+    const btnRestartEnd = document.getElementById('btnRestartGameFromEnd');
+    if (btnRestartEnd) {
+      btnRestartEnd.onclick = () => {
+        sound.playClick();
+        const endingModal = document.getElementById('endingCreditsModal');
+        if (endingModal) endingModal.classList.add('hidden');
+        game.returnToTitle();
+      };
+    }
 
     // Close modals on Escape key / Toggle Settings
     window.addEventListener('keydown', (e) => {

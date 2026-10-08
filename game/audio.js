@@ -47,6 +47,45 @@ class SoundEngine {
     }
   }
 
+  // Khusus saat membuka kuis buku anomali di dimensi lain
+  playBookQuizBGM() {
+    this.init();
+    if (!this.audioElement) return;
+    if (this.isQuizBgmActive) return; // Sudah memainkan lagu kuis
+    this.isQuizBgmActive = true;
+    this.previousBgmSrc = this.audioElement.src;
+    this.previousBgmTime = this.audioElement.currentTime || 0;
+    this.audioElement.src = 'assets/audio/Theme 4.aac';
+    this.audioElement.loop = true;
+    this.audioElement.volume = this.muted ? 0 : this.musicVolume;
+    this.audioElement.play().catch(() => {});
+  }
+
+  stopBookQuizBGM() {
+    if (!this.audioElement) return;
+    if (!this.isQuizBgmActive) return;
+    this.isQuizBgmActive = false;
+    if (this.previousBgmSrc) {
+      this.audioElement.src = this.previousBgmSrc;
+      this.audioElement.currentTime = this.previousBgmTime || 0;
+      this.audioElement.loop = true;
+      this.audioElement.volume = this.muted ? 0 : this.musicVolume;
+      this.audioElement.play().catch(() => {});
+    }
+  }
+
+  // Khusus suasana sore hari jam pulang sekolah (jam 4 sore santai dan damai)
+  playAfternoonBGM() {
+    this.init();
+    if (!this.audioElement) return;
+    this.isQuizBgmActive = false;
+    this.audioElement.src = 'assets/audio/Theme 4.aac';
+    this.audioElement.currentTime = 0;
+    this.audioElement.loop = true;
+    this.audioElement.volume = this.muted ? 0 : this.musicVolume;
+    this.audioElement.play().catch(() => {});
+  }
+
   pauseBGM() {
     if (this.audioElement) {
       this.audioElement.pause();

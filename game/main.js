@@ -3,7 +3,7 @@ import { sound } from './audio.js';
 import { sprites } from './sprites.js';
 import { MAPS } from './world.js';
 import { DIALOGUES } from './dialogue.js';
-import { QUIZ_QUESTIONS, BOOK_QUIZZES } from './quiz.js';
+import { QUIZ_QUESTIONS, BOOK_QUIZZES, prepareRandomizedBookQuestions, shuffleArray } from './quiz.js';
 
 class GameEngine {
   constructor() {
@@ -44,7 +44,7 @@ class GameEngine {
       step: 0, // 0: Recess bell starts in class, 1: Go to Hallway, 2: Find Flashdisk, 3: Quiz with Bu Rina, 4: Collect Trophy
       titles: [
         'Jam Istirahat: Pergi ke Kantin untuk istirahat & jajan!',
-        'Beli Makanan Bebas di Kantin',
+        'Beli Jajanan di Kantin Luar (4 Pilihan Jajanan)',
         'Kembali Masuk ke Ruang Kelas',
         'Bicara dengan Bapa (Pak Satpam)',
         'Masuk Kembali ke Ruang Kelas RPL',
@@ -82,12 +82,17 @@ class GameEngine {
     this.glitchArtifact = 0;
     this.hasSword = false;
 
+    // Epilog Sore Hari (Jam 4 Sore / 16:00 WIB)
+    this.isAfternoon = false;
+    this.afternoonSitiMovedToGate = false;
+
     // Boss Battle ("Satpam ?")
     this.bossBattleStarted = false;
     this.bossDefeated = false;
     this.escapePortalActive = false;
     this.playerHp = 100;
     this.playerMaxHp = 100;
+    this.playerMoney = 25000; // Uang saku jajan sekolah (Rp 25.000)
     this.attackCooldown = 0;
     this.isAttacking = false;
     this.attackAnimTimer = 0;
@@ -162,6 +167,7 @@ class GameEngine {
   start() {
     this.resize();
     window.addEventListener('resize', () => this.resize());
+    this.updatePlayerHUD();
 
     // Preload sprites in background without blocking title screen
     sprites.preloadAll(
@@ -192,6 +198,61 @@ class GameEngine {
     this.canvas.style.width = '100%';
     this.canvas.style.height = '100%';
     this.canvas.style.display = 'block';
+  }
+
+  updatePlayerHUD() {
+    const hud = document.getElementById('playerStatusHUD');
+    if (!hud) return;
+
+    if (this.state === 'TITLE') {
+      hud.classList.add('hidden');
+      return;
+    } else {
+      hud.classList.remove('hidden');
+    }
+
+    const nameEl = document.getElementById('hudPlayerName');
+    const roleEl = document.getElementById('hudPlayerRole');
+    const avatarEl = document.getElementById('hudPlayerAvatar');
+    const genderBadgeEl = document.getElementById('hudPlayerGenderBadge');
+    const hpTextEl = document.getElementById('hudPlayerHpText');
+    const hpBarEl = document.getElementById('hudPlayerHpBar');
+    const moneyEl = document.getElementById('hudPlayerMoneyText');
+
+    if (nameEl) nameEl.textContent = (this.player.name || 'Wintel').toUpperCase();
+    if (roleEl) roleEl.textContent = this.player.gender === 'boy' ? 'Siswa RPL' : 'Siswi RPL';
+    if (avatarEl) {
+      avatarEl.src = this.player.gender === 'boy' ? 'assets/characters/boy1.png' : 'assets/characters/alisha_00.png';
+    }
+    if (genderBadgeEl) {
+      if (this.player.gender === 'boy') {
+        genderBadgeEl.textContent = '♂';
+        genderBadgeEl.className = 'absolute bottom-0 right-0 w-3.5 h-3.5 bg-blue-500/90 rounded-tl-md flex items-center justify-center text-[8px] font-bold text-white';
+      } else {
+        genderBadgeEl.textContent = '♀';
+        genderBadgeEl.className = 'absolute bottom-0 right-0 w-3.5 h-3.5 bg-pink-500/90 rounded-tl-md flex items-center justify-center text-[8px] font-bold text-white';
+      }
+    }
+
+    const hp = Math.max(0, this.playerHp);
+    const maxHp = this.playerMaxHp || 100;
+    const hpPercent = Math.max(0, Math.min(100, (hp / maxHp) * 100));
+
+    if (hpTextEl) hpTextEl.textContent = `${hp} / ${maxHp}`;
+    if (hpBarEl) {
+      hpBarEl.style.width = `${hpPercent}%`;
+      if (hpPercent > 50) {
+        hpBarEl.className = 'h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400 rounded-full transition-all duration-200 shadow-sm';
+      } else if (hpPercent > 25) {
+        hpBarEl.className = 'h-full bg-gradient-to-r from-amber-500 to-yellow-400 rounded-full transition-all duration-200 shadow-sm';
+      } else {
+        hpBarEl.className = 'h-full bg-gradient-to-r from-rose-600 to-red-500 rounded-full transition-all duration-200 shadow-sm animate-pulse';
+      }
+    }
+
+    if (moneyEl) {
+      moneyEl.textContent = `Rp ${(this.playerMoney || 0).toLocaleString('id-ID')}`;
+    }
   }
 
   initEvents() {
@@ -379,6 +440,10 @@ class GameEngine {
   returnToTitle() {
     this.state = 'TITLE';
     this.isCutsceneActive = false;
+    this.isAfternoon = false;
+    this.afternoonSitiMovedToGate = false;
+    this.blackout = false;
+    this.hasSword = false;
     const vig = document.getElementById('cutsceneVignette');
     if (vig) {
       vig.style.opacity = '0';
@@ -389,6 +454,10 @@ class GameEngine {
       hud.classList.remove('translate-y-0', 'opacity-100');
       hud.classList.add('translate-y-36', 'opacity-0', 'pointer-events-none');
     }
+    const endModal = document.getElementById('endingCreditsModal');
+    if (endModal) endModal.classList.add('hidden');
+    const victoryModal = document.getElementById('victoryModal');
+    if (victoryModal) victoryModal.classList.add('hidden');
     const lobbyScreen = document.getElementById('lobbyScreen');
     if (lobbyScreen) {
       lobbyScreen.classList.remove('hidden');
@@ -428,6 +497,7 @@ class GameEngine {
 
   triggerClassroomRecessIntro() {
     sound.playBGM();
+    this.updatePlayerHUD();
     const vig = document.getElementById('cutsceneVignette');
     if (vig) {
       vig.classList.remove('hidden');
@@ -438,6 +508,7 @@ class GameEngine {
 
   startGame() {
     this.setupClassroomScene();
+    this.updatePlayerHUD();
   }
 
   startDialogue(lines) {
@@ -500,15 +571,49 @@ class GameEngine {
     sound.playClick();
   }
 
+  isNpcAvailable(npc) {
+    if (!this.isAfternoon) {
+      if (npc.id === 'teman_siti_gate') return false;
+      return true;
+    }
+    // Suasana jam 4 sore: sekolah sudah sepi melompong
+    if (this.currentMapId === 'classroom') {
+      // Di ruang kelas hanya ada Siti sebelum dia jalan ke depan gerbang
+      return !this.afternoonSitiMovedToGate && npc.id === 'teman_siti';
+    }
+    if (this.currentMapId === 'courtyard') {
+      // Di halaman hanya Pak Satpam di pos dan Siti di gerbang jika sudah tiba
+      if (npc.id === 'satpam') return true;
+      if (npc.id === 'teman_siti_gate') return this.afternoonSitiMovedToGate;
+      return false;
+    }
+    return false;
+  }
+
   checkInteractions() {
     const map = MAPS[this.currentMapId];
     if (!map) return;
 
     // 1. Check NPC
     for (const npc of map.npcs) {
+      if (!this.isNpcAvailable(npc)) continue;
       const dist = Math.hypot((this.player.x + this.player.w / 2) - (npc.x + npc.w / 2), (this.player.y + this.player.h / 2) - (npc.y + npc.h / 2));
       if (dist <= Math.max(npc.interactionRadius + 45, 95)) {
         if (!this.hasLineOfSight(this.player, npc)) continue;
+        if (this.isAfternoon) {
+          if (npc.id === 'satpam') {
+            this.startDialogue(DIALOGUES.satpam_afternoon_farewell(this.player));
+            return;
+          }
+          if (npc.id === 'teman_siti_gate' || (npc.id === 'teman_siti' && this.afternoonSitiMovedToGate)) {
+            this.startDialogue(DIALOGUES.ending_gate_farewell(this.player));
+            return;
+          }
+          if (npc.id === 'teman_siti' && !this.afternoonSitiMovedToGate) {
+            this.startDialogue(DIALOGUES.afternoon_siti_classroom_reminder(this.player));
+            return;
+          }
+        }
         this.triggerNpcDialogue(npc);
         return;
       }
@@ -525,20 +630,49 @@ class GameEngine {
             return;
           }
 
-          item.collected = true;
-          this.inventory.push(item);
-          sound.playPickup();
-          this.spawnParticles(item.x, item.y, '#f59e0b', 20);
-          this.showToast(`Mendapatkan: ${item.name}!`);
+          // 1. Jajanan Kantin Luar Sekolah: Memerlukan uang player dan memulihkan HP
+          if (['es_teh', 'roti_bakar', 'gorengan', 'cilok_kuah'].includes(item.id)) {
+            const foodConfig = {
+              es_teh: { name: 'Es Teh Manis Segar', price: 3000, heal: 20 },
+              roti_bakar: { name: 'Roti Bakar Coklat Keju', price: 5000, heal: 35 },
+              gorengan: { name: 'Gorengan Bakwan & Gehu', price: 2000, heal: 15 },
+              cilok_kuah: { name: 'Cilok Bumbu Kacang Sedap', price: 5000, heal: 25 }
+            };
+            const food = foodConfig[item.id] || { name: item.name, price: item.price || 3000, heal: 20 };
 
-          if (item.id === 'es_teh' || item.id === 'roti_bakar') {
+            if (this.playerMoney < food.price) {
+              sound.playWrong();
+              this.showToast(`⚠️ Uang tidak cukup! (Uangmu: Rp ${(this.playerMoney || 0).toLocaleString('id-ID')} | Butuh: Rp ${food.price.toLocaleString('id-ID')})`);
+              return;
+            }
+
+            // Potong uang dan pulihkan health bar player
+            this.playerMoney -= food.price;
+            this.playerHp = Math.min(this.playerMaxHp, this.playerHp + food.heal);
+            this.updatePlayerHUD();
+
+            item.collected = true;
+            this.inventory.push(item);
+            sound.playPickup();
+            this.spawnParticles(item.x, item.y, '#10b981', 30);
+            this.showToast(`Membeli ${food.name}! (-Rp ${food.price.toLocaleString('id-ID')}, +${food.heal} HP)`);
+
             this.hasBoughtFood = true;
             this.quests.step = 2;
             this.updateMissionHUD('Kembali Masuk ke Ruang Kelas');
             setTimeout(() => {
               this.startDialogue(DIALOGUES.canteen_food_bought(this.player));
             }, 300);
-          } else if (item.id === 'kunci_ruangan_kelas') {
+            return;
+          }
+
+          item.collected = true;
+          this.inventory.push(item);
+          sound.playPickup();
+          this.spawnParticles(item.x, item.y, '#f59e0b', 20);
+          this.showToast(`Mendapatkan: ${item.name}!`);
+
+          if (item.id === 'kunci_ruangan_kelas') {
             this.hasKeyRuangan = true;
             this.startDialogue(DIALOGUES.glitch_found_classroom_key(this.player));
           } else if (item.id === 'pedang_semak') {
@@ -770,8 +904,8 @@ class GameEngine {
       this.showToast('Jam Istirahat! Pergilah ke Kantin untuk jajan.');
     } else if (action === 'canteen_buy_food_quest') {
       this.quests.step = 1;
-      this.updateMissionHUD('Beli Makanan Bebas di Kantin');
-      this.showToast('Misi: Beli Makanan Bebas di Kantin!');
+      this.updateMissionHUD('Beli Jajanan di Kantin Luar (4 Pilihan Jajanan)');
+      this.showToast('Misi: Beli Jajanan di Kantin Luar!');
     } else if (action === 'canteen_food_done') {
       this.quests.step = 2;
       this.updateMissionHUD('Kembali Masuk ke Ruang Kelas');
@@ -848,6 +982,29 @@ class GameEngine {
       this.escapePortalActive = true;
       this.updateMissionHUD('DIMENSI RUNTUH! Masuk ke Portal Cahaya di Gerbang!');
       this.showToast('Lari ke portal di gerbang secepat mungkin!');
+    } else if (action === 'reveal_afternoon_classroom') {
+      this.dialogue.active = false;
+      this.dialogue.currentLine = null;
+      this.blackout = false;
+      this.player.isSitting = true;
+      this.player.facing = 'down';
+      sound.playAfternoonBGM();
+      setTimeout(() => {
+        this.startDialogue(DIALOGUES.afternoon_classroom_dialogue(this.player));
+      }, 350);
+    } else if (action === 'start_afternoon_home_mission') {
+      this.dialogue.active = false;
+      this.dialogue.currentLine = null;
+      this.state = 'PLAYING';
+      this.player.isSitting = false;
+      this.afternoonSitiMovedToGate = true;
+      this.updateMissionHUD('Jam Pulang Sekolah (16:00): Berjalanlah menuju Gerbang Utama untuk Pulang ke Rumah!');
+      this.showToast('Jam 4 Sore: Ayo pulang menuju Gerbang Utama Sekolah!');
+      sound.playAfternoonBGM();
+    } else if (action === 'trigger_ending_credits') {
+      this.dialogue.active = false;
+      this.dialogue.currentLine = null;
+      this.triggerEndingCreditsScene();
     } else if (action === 'normal_dimension_restored') {
       this.state = 'PLAYING';
       this.updateMissionHUD('Pameran RPL: Temui Bu Rina & Teman-Teman di Kelas!');
@@ -887,6 +1044,7 @@ class GameEngine {
   }
 
   startQuiz() {
+    QUIZ_QUESTIONS.forEach(q => { delete q.shuffledOptions; });
     this.quiz.currentQuestion = 0;
     this.quiz.score = 0;
     this.quiz.selectedOption = null;
@@ -911,10 +1069,17 @@ class GameEngine {
 
     if (optionsContainer) {
       optionsContainer.innerHTML = '';
-      q.options.forEach((opt, idx) => {
+      if (!q.shuffledOptions) {
+        q.shuffledOptions = shuffleArray(q.options.map(opt => ({
+          text: opt.text.replace(/^[A-D]\.\s*/i, '').trim(),
+          correct: !!opt.correct
+        })));
+      }
+      q.shuffledOptions.forEach((opt, idx) => {
+        const letter = String.fromCharCode(65 + idx);
         const btn = document.createElement('button');
-        btn.className = 'w-full text-left px-4 py-3 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 hover:border-emerald-500 text-slate-100 font-mono text-sm transition-colors cursor-pointer';
-        btn.textContent = opt.text;
+        btn.className = 'w-full text-left px-4 py-3 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 hover:border-emerald-500 text-slate-100 font-mono text-sm transition-colors cursor-pointer flex items-center gap-2.5';
+        btn.innerHTML = `<span class="w-6 h-6 rounded-md bg-emerald-900/60 border border-emerald-500/50 flex items-center justify-center font-bold text-emerald-300 text-xs shrink-0">${letter}</span><span>${opt.text}</span>`;
         btn.onclick = () => this.handleQuizAnswer(idx, opt.correct, q.explanation);
         optionsContainer.appendChild(btn);
       });
@@ -997,11 +1162,18 @@ class GameEngine {
       return;
     }
 
+    // Putar lagu khusus kuis buku dimensi anomali di dimensi lain
+    sound.playBookQuizBGM();
+
+    // Acak urutan opsi jawaban (A, B, C, D) sehingga jawaban benar tidak pernah terpaku pada huruf 'A'
+    const randomizedQuestions = prepareRandomizedBookQuestions(quizData.questions);
+
     this.currentBookQuiz = {
       item: item,
       quizData: quizData,
+      questions: randomizedQuestions,
       currentIndex: 0,
-      total: quizData.questions.length
+      total: randomizedQuestions.length
     };
 
     this.state = 'QUIZ_BOOK';
@@ -1017,8 +1189,8 @@ class GameEngine {
 
   renderBookQuizQuestion() {
     if (!this.currentBookQuiz) return;
-    const { quizData, currentIndex, total, item } = this.currentBookQuiz;
-    const q = quizData.questions[currentIndex];
+    const { quizData, questions, currentIndex, total, item } = this.currentBookQuiz;
+    const q = questions[currentIndex];
     if (!q) return;
 
     const titleEl = document.getElementById('bookQuizTitle');
@@ -1029,7 +1201,11 @@ class GameEngine {
 
     if (titleEl) titleEl.textContent = quizData.title.toUpperCase();
     if (stepEl) stepEl.textContent = `${currentIndex + 1}`;
-    if (questionEl) questionEl.textContent = q.question;
+
+    if (questionEl) {
+      const workshopBadge = q.workshop ? `<span class="inline-block px-2.5 py-0.5 mb-2 rounded-full bg-purple-900/80 border border-purple-500/50 text-[10px] text-purple-200 font-bold uppercase tracking-wider">🛠️ ${q.workshop}</span><br>` : '';
+      questionEl.innerHTML = workshopBadge + q.question;
+    }
 
     if (feedbackEl) {
       feedbackEl.className = 'hidden font-mono text-xs p-2.5 rounded-xl text-center font-bold';
@@ -1039,12 +1215,13 @@ class GameEngine {
     if (optionsContainer) {
       optionsContainer.innerHTML = '';
       q.options.forEach((opt, idx) => {
+        const letter = String.fromCharCode(65 + idx);
         const btn = document.createElement('button');
         btn.className = 'w-full text-left p-3 rounded-xl bg-slate-950/80 hover:bg-purple-950/50 border border-purple-900/60 hover:border-purple-400 text-slate-200 hover:text-white transition flex items-center justify-between cursor-pointer active:scale-[0.99]';
         btn.innerHTML = `
           <div class="flex items-center gap-2.5">
-            <span class="w-6 h-6 rounded-lg bg-purple-900/50 border border-purple-600/50 flex items-center justify-center font-bold text-purple-300 text-[11px]">${String.fromCharCode(65 + idx)}</span>
-            <span class="font-medium text-xs sm:text-sm">${opt.text.replace(/^[A-D]\.\s*/, '')}</span>
+            <span class="w-6 h-6 rounded-lg bg-purple-900/60 border border-purple-500/50 flex items-center justify-center font-bold text-purple-300 text-[11px]">${letter}</span>
+            <span class="font-medium text-xs sm:text-sm">${opt.text}</span>
           </div>
           <span class="text-slate-500 text-[10px] hidden sm:inline">[${idx + 1}]</span>
         `;
@@ -1066,7 +1243,7 @@ class GameEngine {
 
   handleBookQuizAnswer(chosenOpt, chosenBtn, container) {
     if (!this.currentBookQuiz) return;
-    const { quizData, currentIndex, total, item } = this.currentBookQuiz;
+    const { quizData, questions, currentIndex, total, item } = this.currentBookQuiz;
     const feedbackEl = document.getElementById('bookQuizFeedback');
     const allBtns = container.querySelectorAll('button');
     allBtns.forEach(b => b.disabled = true);
@@ -1087,31 +1264,39 @@ class GameEngine {
           }
         }, 650);
       } else {
-        // All 5 questions answered correctly! (5/5)
+        // Semua 5 soal bervariasi bengkel dijawab dengan benar! (5/5)
         sound.playVictory();
         this.spawnParticles(item.x + 12, item.y + 12, '#a855f7', 40);
         if (feedbackEl) {
           feedbackEl.className = 'font-mono text-xs p-3 rounded-xl text-center font-bold bg-gradient-to-r from-purple-900 to-emerald-900 border-2 border-amber-400 text-amber-200 animate-pulse';
-          feedbackEl.innerHTML = `🎉 SEMPURNA! ${total}/${total} SOAL BENAR! Segel Buku Bengkel Berhasil Terbuka!`;
+          feedbackEl.innerHTML = `🎉 SEMPURNA! ${total}/${total} SOAL BENAR! Segel Buku Bengkel Berhasil Terbuka!<br><span class="text-emerald-300 text-[11px] font-semibold">+Rp 5.000 Bonus Saku & +15 HP</span>`;
         }
+
+        // Pulihkan HP dan beri uang bonus
+        this.playerHp = Math.min(this.playerMaxHp, this.playerHp + 15);
+        this.playerMoney += 5000;
+        this.updatePlayerHUD();
 
         item.collected = true;
         this.inventory.push(item);
         this.glitchBooks++;
-        this.showToast(`Buku Bengkel Berhasil Diambil (${this.glitchBooks}/7)!`);
+        this.showToast(`Buku Bengkel Berhasil Diambil (${this.glitchBooks}/5)! Bonus Rp 5.000 & +15 HP!`);
         this.updateGlitchCourtyardHUD();
 
         setTimeout(() => {
           this.closeBookQuiz();
-        }, 1300);
+        }, 1400);
       }
     } else {
-      // Jawaban Salah: Segel menolak! Wajib benar semua
+      // Jawaban Salah: Segel menolak & kena sengatan energi anomali (-10 HP)
       sound.playGlitchSFX();
+      this.playerHp = Math.max(10, this.playerHp - 10);
+      this.updatePlayerHUD();
+
       chosenBtn.className = 'w-full text-left p-3 rounded-xl bg-red-950/90 border-2 border-red-500 text-red-200 flex items-center justify-between font-bold';
       if (feedbackEl) {
         feedbackEl.className = 'font-mono text-xs p-3 rounded-xl text-center font-bold bg-red-950/90 border-2 border-red-500 text-red-200';
-        feedbackEl.innerHTML = `❌ JAWABAN SALAH! Segel bengkel menolakmu...<br><span class="text-amber-300 text-[11px] font-normal">Syarat mutlak: Anda harus menjawab SEMUA ${total} SOAL DENGAN BENAR (${total}/${total}) untuk mengamankan buku ini!</span>`;
+        feedbackEl.innerHTML = `❌ JAWABAN SALAH! Energi anomali menyengatmu (-10 HP)!<br><span class="text-amber-300 text-[11px] font-normal">Syarat mutlak: Anda harus menjawab SEMUA ${total} SOAL DENGAN BENAR (${total}/${total}) untuk mengamankan buku ini!</span>`;
       }
 
       container.innerHTML = `
@@ -1130,8 +1315,12 @@ class GameEngine {
       if (btnRetry) {
         btnRetry.onclick = () => {
           sound.playClick();
-          this.currentBookQuiz.currentIndex = 0;
-          this.renderBookQuizQuestion();
+          // Acak ulang susunan opsi jawaban saat mencoba lagi
+          if (this.currentBookQuiz) {
+            this.currentBookQuiz.questions = prepareRandomizedBookQuestions(this.currentBookQuiz.quizData.questions);
+            this.currentBookQuiz.currentIndex = 0;
+            this.renderBookQuizQuestion();
+          }
         };
       }
 
@@ -1145,6 +1334,9 @@ class GameEngine {
   }
 
   closeBookQuiz() {
+    // Hentikan lagu khusus kuis buku dimensi dan kembalikan musik sebelumnya
+    sound.stopBookQuizBGM();
+
     const modal = document.getElementById('bookQuizModal');
     if (modal) modal.classList.add('hidden');
     this.currentBookQuiz = null;
@@ -1194,6 +1386,9 @@ class GameEngine {
 
     // Check custom colliders
     for (const box of map.colliders) {
+      if (this.isAfternoon && this.currentMapId === 'courtyard' && box.x === 1210 && box.y === 0) {
+        continue; // Palang gerbang utama dibuka lebar di jam 4 sore!
+      }
       if (
         x < box.x + box.w &&
         x + w > box.x &&
@@ -1532,7 +1727,7 @@ class GameEngine {
 
     // Story Trigger 3: Di Halaman Dimensi Glitch, setelah item terkumpul & pedang dibawa, saat mau ke gerbang muncul Satpam ?
     if (this.currentMapId === 'glitch_courtyard' && this.state === 'PLAYING' && !this.bossBattleStarted) {
-      const allCollected = this.glitchBooks >= 7 && this.glitchKeys >= 3 && this.glitchArtifact >= 1 && this.hasSword;
+      const allCollected = this.glitchBooks >= 5 && this.glitchKeys >= 3 && this.glitchArtifact >= 1 && this.hasSword;
       if (allCollected && this.player.y <= 240 && this.player.x >= 1150 && this.player.x <= 1450) {
         this.bossBattleStarted = true;
         this.player.isMoving = false;
@@ -1552,6 +1747,29 @@ class GameEngine {
         setTimeout(() => {
           this.startDialogue(DIALOGUES.boss_satpam_appear(this.player));
         }, 400);
+        return;
+      }
+    }
+
+    // Story Trigger 4: Setelah boss kalah & portal keluar aktif di gerbang dimensi glitch
+    if (this.escapePortalActive && this.currentMapId === 'glitch_courtyard' && this.state === 'PLAYING') {
+      const distToPortal = Math.hypot((this.player.x + this.player.w / 2) - 1300, (this.player.y + this.player.h / 2) - 100);
+      if (distToPortal <= 75) {
+        this.triggerEscapeToNormalClass();
+        return;
+      }
+    }
+
+    // Story Trigger 5: Sore hari jam 4 sore, player tiba di gerbang utama / mendekati Siti di gerbang
+    if (this.isAfternoon && this.afternoonSitiMovedToGate && this.currentMapId === 'courtyard' && this.state === 'PLAYING') {
+      const distToGateSiti = Math.hypot((this.player.x + this.player.w / 2) - 1290, (this.player.y + this.player.h / 2) - 130);
+      const atGateExit = this.player.y <= 130 && this.player.x >= 1180 && this.player.x <= 1420;
+      if (distToGateSiti <= 80 || atGateExit) {
+        this.player.isMoving = false;
+        this.keys = {};
+        if (this.touchJoystick) this.touchJoystick.active = false;
+        this.state = 'CUTSCENE';
+        this.startDialogue(DIALOGUES.ending_gate_farewell(this.player));
         return;
       }
     }
@@ -1761,6 +1979,8 @@ class GameEngine {
     this.glitchKeys = 0;
     this.glitchArtifact = 0;
     this.hasSword = false;
+    this.isAfternoon = false;
+    this.afternoonSitiMovedToGate = false;
     this.bossBattleStarted = false;
     this.bossDefeated = false;
     this.escapePortalActive = false;
@@ -1804,52 +2024,79 @@ class GameEngine {
     this.bossBattleStarted = false;
     this.bossDefeated = true;
     this.isGlitching = false;
+    this.isAfternoon = true;
+    this.afternoonSitiMovedToGate = false;
+
+    // Pedang dari dimensi lain TIDAK dibawa ke dunia nyata / dihilangkan!
+    this.hasSword = false;
+    this.swordLevel = 0;
+    this.swordDamage = 0;
+    this.inventory = this.inventory.filter(i => i.id !== 'pedang_glitch');
+    this.setAttackButtonVisible(false);
+    this.updatePlayerHUD();
+
     const battleHUD = document.getElementById('battleHUD');
     if (battleHUD) battleHUD.classList.add('hidden');
     const timerHUD = document.getElementById('glitchTimerHUD');
     if (timerHUD) timerHUD.classList.add('hidden');
-    this.setAttackButtonVisible(false);
+    const courtyardHUD = document.getElementById('glitchCourtyardHUD');
+    if (courtyardHUD) courtyardHUD.classList.add('hidden');
 
-    // Blackout
+    // Blackout layar hitam kanvas
+    this.blackout = true;
     const blackoutEl = document.getElementById('glitchBlackoutOverlay');
     if (blackoutEl) {
-      blackoutEl.classList.remove('opacity-0');
-      blackoutEl.classList.add('opacity-100');
+      blackoutEl.classList.remove('opacity-100');
+      blackoutEl.classList.add('opacity-0');
     }
+
+    // Pindahkan player kembali ke ruang kelas tempat semula kita belajar (x: 208, y: 138, duduk di bangku)
+    this.switchMap('classroom', 208, 138);
+    this.player.x = 208;
+    this.player.y = 138;
+    this.player.isSitting = true;
+    this.player.facing = 'down';
+
+    // Posisikan Siti di sebelah bangku pemain
+    const map = MAPS['classroom'];
+    if (map) {
+      const siti = map.npcs.find(n => n.id === 'teman_siti');
+      if (siti) {
+        siti.x = 288;
+        siti.y = 138;
+        siti.facing = 'left';
+      }
+    }
+
+    // Berhenti sejenak dalam layar hitam, lalu Siti memanggil dan membangunkan
+    setTimeout(() => {
+      this.startDialogue(DIALOGUES.wake_up_in_darkness(this.player));
+    }, 600);
+  }
+
+  triggerEndingCreditsScene() {
+    this.state = 'VICTORY';
     sound.playVictory();
 
-    // After 1.8s, wake up in classroom with normal state!
-    setTimeout(() => {
-      this.switchMap('classroom', 208, 138);
-      this.player.x = 208;
-      this.player.y = 138;
-      this.player.isSitting = true;
-      this.player.facing = 'down';
+    const pName = document.getElementById('endPlayerName');
+    if (pName) pName.textContent = this.player.name || 'Player';
+    const pMoney = document.getElementById('endPlayerMoney');
+    if (pMoney) pMoney.textContent = `Rp ${this.playerMoney.toLocaleString('id-ID')}`;
+    const pHp = document.getElementById('endPlayerHp');
+    if (pHp) pHp.textContent = `${Math.max(0, Math.round(this.playerHp))} / 100`;
 
-      // Resume happy BGM
-      sound.playBGM();
-
-      // Fade in
-      if (blackoutEl) {
-        blackoutEl.classList.remove('opacity-100');
-        blackoutEl.classList.add('opacity-0');
-      }
-
-      setTimeout(() => {
-        this.player.isSitting = false;
-        this.startDialogue(DIALOGUES.wake_up_in_class_normal(this.player));
-      }, 700);
-    }, 1800);
+    const endModal = document.getElementById('endingCreditsModal');
+    if (endModal) endModal.classList.remove('hidden');
   }
 
   updateGlitchCourtyardHUD() {
-    const allCollected = this.glitchBooks >= 7 && this.glitchKeys >= 3 && this.glitchArtifact >= 1 && this.hasSword;
+    const allCollected = this.glitchBooks >= 5 && this.glitchKeys >= 3 && this.glitchArtifact >= 1 && this.hasSword;
     if (allCollected) {
       this.updateMissionHUD('Semua Terkumpul! Pergi ke Gerbang Utama Sekolah!');
       this.showToast('Semua item & pedang terkumpul! Lari ke gerbang sekolah!');
     } else {
       const swordTxt = this.hasSword ? '⚔️ Pedang: Siap' : '⚔️ Pedang: Di Semak';
-      this.updateMissionHUD(`Buku (${this.glitchBooks}/7) | Kunci (${this.glitchKeys}/3) | Artefak (${this.glitchArtifact}/1) | ${swordTxt}`);
+      this.updateMissionHUD(`Buku (${this.glitchBooks}/5) | Kunci (${this.glitchKeys}/3) | Artefak (${this.glitchArtifact}/1) | ${swordTxt}`);
     }
   }
 
@@ -2050,6 +2297,11 @@ class GameEngine {
       this.renderGlitchEffect();
     }
 
+    // Screen Space Afternoon (16:00 / Jam 4 Sore) Golden Sunset Glow
+    if (this.isAfternoon && !this.blackout) {
+      this.renderAfternoonLighting();
+    }
+
     // Screen Space Blackout
     if (this.blackout) {
       this.ctx.fillStyle = '#000000';
@@ -2221,64 +2473,331 @@ class GameEngine {
       this.ctx.strokeStyle = '#64748b';
       this.ctx.strokeRect(110, 950, 60, 240);
 
-      // 5. EAST AREA: AREA KANTIN SMKN 1 KATAPANG (x: 1800, y: 320, w: 580, h: 450)
-      this.ctx.fillStyle = isGlitch ? '#281c3b' : '#fef3c7';
-      this.ctx.fillRect(1800, 320, 580, 450);
-      this.ctx.strokeStyle = isGlitch ? '#3b2554' : '#fde68a';
-      this.ctx.lineWidth = 2;
-      for (let tx = 1800; tx < 2380; tx += 45) {
-        this.ctx.beginPath();
-        this.ctx.moveTo(tx, 320);
-        this.ctx.lineTo(tx, 770);
-        this.ctx.stroke();
-      }
-      for (let ty = 320; ty < 770; ty += 45) {
-        this.ctx.beginPath();
-        this.ctx.moveTo(1800, ty);
-        this.ctx.lineTo(2380, ty);
-        this.ctx.stroke();
+      // 5. EAST AREA: AREA KANTIN SEHAT SMKN 1 KATAPANG (x: 1770, y: 310, w: 620, h: 460)
+      // A. Paving & Patio Plaza Lantai Kantin Luar
+      this.ctx.fillStyle = isGlitch ? '#1f132e' : '#fef3c7';
+      this.ctx.fillRect(1780, 310, 600, 460);
+      
+      // Border curb keliling lantai teras kantin
+      this.ctx.fillStyle = isGlitch ? '#3b0764' : '#d97706';
+      this.ctx.fillRect(1775, 305, 610, 8); // Top curb
+      this.ctx.fillRect(1775, 765, 610, 8); // Bottom curb
+      this.ctx.fillRect(1775, 305, 8, 468); // Left curb
+      this.ctx.fillRect(2380, 305, 8, 468); // Right curb
+
+      // Interlocking stone paver pattern dengan variasi warna natural
+      const paverSize = 40;
+      for (let px = 1785; px < 2380; px += paverSize) {
+        for (let py = 315; py < 765; py += paverSize) {
+          const isAlt = ((px / paverSize) + (py / paverSize)) % 2 === 0;
+          if (isGlitch) {
+            this.ctx.fillStyle = isAlt ? '#241437' : '#1a0d2a';
+          } else {
+            this.ctx.fillStyle = isAlt ? '#fde68a' : '#fef08a';
+          }
+          this.ctx.fillRect(px + 1, py + 1, paverSize - 2, paverSize - 2);
+
+          // Subtle grout line
+          this.ctx.strokeStyle = isGlitch ? '#381652' : '#f59e0b';
+          this.ctx.lineWidth = 1;
+          this.ctx.strokeRect(px, py, paverSize, paverSize);
+        }
       }
 
-      // Kantin Stall Building
+      // Pot bunga & planter box pinggir teras kantin (Lush eco-friendly school canteen)
+      const drawPlanterBox = (bx, by) => {
+        if (isGlitch) {
+          this.ctx.fillStyle = '#2e1065';
+          this.ctx.fillRect(bx, by, 32, 22);
+          this.ctx.fillStyle = '#6b21a8';
+          this.ctx.fillRect(bx + 4, by - 6, 24, 10);
+        } else {
+          // Wooden planter box
+          this.ctx.fillStyle = '#78350f';
+          this.ctx.fillRect(bx, by, 32, 22);
+          this.ctx.fillStyle = '#92400e';
+          this.ctx.fillRect(bx + 2, by + 2, 28, 18);
+          // Green bush
+          this.ctx.fillStyle = '#15803d';
+          this.ctx.beginPath();
+          this.ctx.arc(bx + 16, by - 4, 16, 0, Math.PI * 2);
+          this.ctx.fill();
+          this.ctx.fillStyle = '#22c55e';
+          this.ctx.beginPath();
+          this.ctx.arc(bx + 12, by - 6, 9, 0, Math.PI * 2);
+          this.ctx.fill();
+          // Small blooming flowers (Pink, Amber, Blue)
+          this.ctx.fillStyle = '#f43f5e';
+          this.ctx.fillRect(bx + 8, by - 8, 4, 4);
+          this.ctx.fillStyle = '#fbbf24';
+          this.ctx.fillRect(bx + 18, by - 10, 4, 4);
+          this.ctx.fillStyle = '#38bdf8';
+          this.ctx.fillRect(bx + 14, by - 2, 4, 4);
+        }
+      };
+      drawPlanterBox(1785, 450);
+      drawPlanterBox(1785, 650);
+      drawPlanterBox(2345, 650);
+
+      // Wastafel Cuci Tangan Sehat di sudut kiri kantin
+      if (!isGlitch) {
+        this.ctx.fillStyle = '#94a3b8';
+        this.ctx.fillRect(1790, 390, 24, 30);
+        this.ctx.fillStyle = '#f8fafc';
+        this.ctx.fillRect(1793, 396, 18, 14); // Basin
+        this.ctx.fillStyle = '#38bdf8';
+        this.ctx.fillRect(1798, 400, 8, 7); // Water
+        this.ctx.fillStyle = '#64748b';
+        this.ctx.fillRect(1800, 386, 4, 8); // Faucet
+        this.ctx.fillStyle = '#475569';
+        this.ctx.font = 'bold 7px monospace';
+        this.ctx.fillText('Wastafel', 1782, 428);
+      }
+
+      // Tempat Sampah 3 Warna Kantin Sehat (Organik, Anorganik, Daur Ulang) di sudut kanan
+      if (!isGlitch) {
+        // Hijau (Organik)
+        this.ctx.fillStyle = '#16a34a';
+        this.ctx.fillRect(2335, 390, 12, 22);
+        this.ctx.fillStyle = '#15803d';
+        this.ctx.fillRect(2333, 388, 16, 4);
+        // Kuning (Anorganik)
+        this.ctx.fillStyle = '#eab308';
+        this.ctx.fillRect(2350, 390, 12, 22);
+        this.ctx.fillStyle = '#ca8a04';
+        this.ctx.fillRect(2348, 388, 16, 4);
+        // Biru (Kertas / B3)
+        this.ctx.fillStyle = '#2563eb';
+        this.ctx.fillRect(2365, 390, 12, 22);
+        this.ctx.fillStyle = '#1d4ed8';
+        this.ctx.fillRect(2363, 388, 16, 4);
+        this.ctx.fillStyle = '#64748b';
+        this.ctx.font = 'bold 7px monospace';
+        this.ctx.fillText('Sampah', 2342, 422);
+      }
+
+      // B. Bangunan Kios Kantin (Main Kiosk)
+      // Dinding Belakang & Atap Genteng Kayu
       this.ctx.fillStyle = isGlitch ? '#180c2b' : '#334155';
-      this.ctx.fillRect(1800, 320, 580, 115);
-      // Wooden counter
+      this.ctx.fillRect(1800, 315, 580, 120);
+
+      // Atap Genteng Shingle Kayu (Cedar Roof)
+      this.ctx.fillStyle = isGlitch ? '#2e1065' : '#78350f';
+      this.ctx.fillRect(1795, 305, 590, 16);
       this.ctx.fillStyle = isGlitch ? '#4c1d95' : '#92400e';
-      this.ctx.fillRect(1820, 390, 540, 38);
-      // Striped Awning Canopy
-      const awningW = 580 / 12;
-      for (let i = 0; i < 12; i++) {
+      for (let rx = 1800; rx < 2380; rx += 20) {
+        this.ctx.fillRect(rx, 306, 18, 12);
+      }
+
+      // Tenda Awning Kanopi Belang Merah-Putih Ikonik Kantin
+      const awningW = 580 / 14;
+      for (let i = 0; i < 14; i++) {
         this.ctx.fillStyle = isGlitch
           ? (i % 2 === 0 ? '#581c87' : '#1e1b4b')
           : (i % 2 === 0 ? '#dc2626' : '#f8fafc');
-        this.ctx.fillRect(1800 + i * awningW, 308, awningW, 20);
-      }
-      // Kantin Signboard
-      this.ctx.fillStyle = '#0f172a';
-      this.ctx.fillRect(1940, 335, 300, 28);
-      this.ctx.strokeStyle = isGlitch ? '#a855f7' : '#facc15';
-      this.ctx.strokeRect(1940, 335, 300, 28);
-      this.ctx.fillStyle = isGlitch ? '#e879f9' : '#facc15';
-      this.ctx.font = 'bold 12px sans-serif';
-      this.ctx.fillText(isGlitch ? '🍴 KANTIN SEHAT 🍴' : '🍴 KANTIN SEHAT 🍴', 1970, 353);
-
-      // Canteen Tables & Parasols
-      const drawCanteenTable = (tx, ty) => {
-        this.ctx.fillStyle = isGlitch ? '#311042' : '#78350f';
-        this.ctx.fillRect(tx, ty, 140, 50);
-        this.ctx.fillStyle = isGlitch ? '#581c87' : '#a16207';
-        this.ctx.fillRect(tx + 4, ty + 4, 132, 42);
-        // Parasol
-        this.ctx.fillStyle = isGlitch ? '#9333ea' : '#0284c7';
+        this.ctx.fillRect(1800 + i * awningW, 318, awningW, 22);
+        // Scalloped wavy valance fringe
         this.ctx.beginPath();
-        this.ctx.arc(tx + 70, ty + 16, 42, Math.PI, 0, false);
+        this.ctx.arc(1800 + i * awningW + awningW / 2, 340, awningW / 2, 0, Math.PI, false);
         this.ctx.fill();
-        this.ctx.fillStyle = '#ffffff';
-        this.ctx.fillRect(tx + 68, ty + 16, 4, 32);
+      }
+      // Shadow beneath awning
+      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+      this.ctx.fillRect(1800, 342, 580, 6);
+
+      // Papan Nama Utama KANTIN SEHAT SMKN 1 KATAPANG
+      this.ctx.fillStyle = isGlitch ? '#170c26' : '#0f172a';
+      this.ctx.fillRect(1910, 346, 360, 30);
+      this.ctx.strokeStyle = isGlitch ? '#a855f7' : '#f59e0b';
+      this.ctx.lineWidth = 2.5;
+      this.ctx.strokeRect(1910, 346, 360, 30);
+
+      // Golden corner rivets
+      this.ctx.fillStyle = isGlitch ? '#e879f9' : '#fbbf24';
+      this.ctx.fillRect(1912, 348, 4, 4);
+      this.ctx.fillRect(1912, 370, 4, 4);
+      this.ctx.fillRect(2264, 348, 4, 4);
+      this.ctx.fillRect(2264, 370, 4, 4);
+
+      this.ctx.fillStyle = isGlitch ? '#f472b6' : '#fbbf24';
+      this.ctx.font = 'bold 12px monospace';
+      this.ctx.fillText(isGlitch ? '🍴 KANTIN [TERTINGGAL] 🍴' : '🍴 KANTIN SEHAT SMKN 1 KATAPANG 🍴', 1930, 363);
+      this.ctx.fillStyle = isGlitch ? '#c084fc' : '#fef08a';
+      this.ctx.font = '8px monospace';
+      this.ctx.fillText(isGlitch ? 'DIMENSI ANOMALI SEKOLAH' : 'Pusat Jajanan Bersih, Sehat & Higienis', 1980, 373);
+
+      // Papan Tulis Menu Chalkboard di dinding kios
+      if (!isGlitch) {
+        this.ctx.fillStyle = '#064e3b'; // Green chalkboard
+        this.ctx.fillRect(1815, 350, 85, 30);
+        this.ctx.strokeStyle = '#78350f'; // Wooden border
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeRect(1815, 350, 85, 30);
+        this.ctx.fillStyle = '#f8fafc';
+        this.ctx.font = 'bold 6.5px monospace';
+        this.ctx.fillText('📋 4 JAJANAN:', 1818, 359);
+        this.ctx.fillText('• Es Teh  • Roti', 1818, 368);
+        this.ctx.fillText('• Gorengan • Cilok', 1818, 376);
+      }
+
+      // Meja Etalase Kaca & Counter Utama Saji Makanan
+      this.ctx.fillStyle = isGlitch ? '#3b0764' : '#78350f';
+      this.ctx.fillRect(1810, 385, 560, 45); // Counter body
+      this.ctx.fillStyle = isGlitch ? '#581c87' : '#92400e';
+      this.ctx.fillRect(1810, 385, 560, 8); // Counter top edge
+
+      // Etalase Kaca Penghangat Gorengan & Jajanan (Glass display case)
+      if (!isGlitch) {
+        this.ctx.fillStyle = 'rgba(224, 242, 254, 0.55)'; // Glass tint
+        this.ctx.fillRect(1930, 380, 140, 24);
+        this.ctx.strokeStyle = '#94a3b8'; // Stainless frame
+        this.ctx.lineWidth = 1.5;
+        this.ctx.strokeRect(1930, 380, 140, 24);
+
+        // Highlight pantulan kaca etalase
+        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+        this.ctx.beginPath();
+        this.ctx.moveTo(1935, 383);
+        this.ctx.lineTo(1955, 401);
+        this.ctx.stroke();
+
+        // Makanan di dalam etalase (Gorengan garing keemasan)
+        this.ctx.fillStyle = '#d97706';
+        this.ctx.fillRect(1940, 392, 14, 8);
+        this.ctx.fillRect(1960, 392, 16, 8);
+        this.ctx.fillRect(1982, 392, 14, 8);
+        this.ctx.fillRect(2002, 392, 15, 8);
+
+        // Uap hangat lembut yang naik dari gorengan segar
+        const steamShift = (Math.sin(Date.now() / 250) * 3);
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+        this.ctx.beginPath();
+        this.ctx.arc(1950 + steamShift, 376, 2.5, 0, Math.PI * 2);
+        this.ctx.arc(1975 - steamShift, 374, 3, 0, Math.PI * 2);
+        this.ctx.arc(2000 + steamShift, 375, 2.5, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // Dispenser Es Teh Manis Jumbo di samping etalase
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+        this.ctx.fillRect(1870, 374, 20, 24); // Tabung akrilik bening
+        this.ctx.strokeStyle = '#cbd5e1';
+        this.ctx.lineWidth = 1;
+        this.ctx.strokeRect(1870, 374, 20, 24);
+        this.ctx.fillStyle = '#b45309'; // Teh manis amber
+        this.ctx.fillRect(1872, 380, 16, 17);
+        this.ctx.fillStyle = '#fef08a'; // Irisan lemon
+        this.ctx.fillRect(1876, 384, 8, 4);
+        this.ctx.fillStyle = '#64748b'; // Kran dispenser
+        this.ctx.fillRect(1866, 392, 5, 4);
+      }
+
+      // Lampu Gantung Hias Edison Warm di atas area santap
+      if (!isGlitch) {
+        this.ctx.strokeStyle = '#475569';
+        this.ctx.lineWidth = 1;
+        this.ctx.beginPath();
+        this.ctx.moveTo(1810, 480);
+        this.ctx.quadraticCurveTo(2070, 500, 2350, 480);
+        this.ctx.stroke();
+
+        for (let lx = 1860; lx <= 2310; lx += 90) {
+          const ly = 482 + Math.sin((lx - 1860) / 450 * Math.PI) * 14;
+          // Bohlam lampu kuning hangat
+          this.ctx.fillStyle = '#fef08a';
+          this.ctx.beginPath();
+          this.ctx.arc(lx, ly, 4, 0, Math.PI * 2);
+          this.ctx.fill();
+          // Halo glow
+          this.ctx.fillStyle = 'rgba(254, 240, 138, 0.25)';
+          this.ctx.beginPath();
+          this.ctx.arc(lx, ly, 8, 0, Math.PI * 2);
+          this.ctx.fill();
+        }
+      }
+
+      // C. Meja Makan Piknik & Payung Taman (Canteen Tables & Parasols)
+      const drawCanteenTable = (tx, ty, themeColor, parasolAltColor, snackLabel) => {
+        // Shadow meja & bangku
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+        this.ctx.fillRect(tx - 6, ty - 8, 152, 68);
+
+        // Bangku kayu atas
+        this.ctx.fillStyle = isGlitch ? '#24103a' : '#78350f';
+        this.ctx.fillRect(tx, ty - 12, 140, 10);
+
+        // Meja kayu utama
+        this.ctx.fillStyle = isGlitch ? '#311042' : '#92400e';
+        this.ctx.fillRect(tx, ty, 140, 46);
+        this.ctx.fillStyle = isGlitch ? '#581c87' : '#b45309';
+        this.ctx.fillRect(tx + 4, ty + 3, 132, 40);
+
+        // Wood grain lines
+        this.ctx.strokeStyle = isGlitch ? '#4c1d95' : '#78350f';
+        this.ctx.lineWidth = 1;
+        this.ctx.beginPath();
+        this.ctx.moveTo(tx + 8, ty + 15);
+        this.ctx.lineTo(tx + 132, ty + 15);
+        this.ctx.moveTo(tx + 8, ty + 30);
+        this.ctx.lineTo(tx + 132, ty + 30);
+        this.ctx.stroke();
+
+        // Bangku kayu bawah
+        this.ctx.fillStyle = isGlitch ? '#24103a' : '#78350f';
+        this.ctx.fillRect(tx, ty + 48, 140, 10);
+
+        // Detail meja: Botol kecap/sambal & tempat tisu
+        if (!isGlitch) {
+          this.ctx.fillStyle = '#dc2626'; // Botol sambal
+          this.ctx.fillRect(tx + 22, ty + 10, 6, 12);
+          this.ctx.fillStyle = '#1e293b'; // Botol kecap manis
+          this.ctx.fillRect(tx + 30, ty + 10, 6, 12);
+          this.ctx.fillStyle = '#f8fafc'; // Tempat tisu putih
+          this.ctx.fillRect(tx + 110, ty + 10, 10, 12);
+
+          // Piring saji kecil
+          this.ctx.fillStyle = '#e2e8f0';
+          this.ctx.beginPath();
+          this.ctx.arc(tx + 70, ty + 24, 12, 0, Math.PI * 2);
+          this.ctx.fill();
+        }
+
+        // Tiang payung taman
+        this.ctx.fillStyle = isGlitch ? '#581c87' : '#64748b';
+        this.ctx.fillRect(tx + 68, ty - 32, 4, 48);
+
+        // Kubah Payung Taman Kanopi (Parasol)
+        this.ctx.save();
+        this.ctx.fillStyle = isGlitch ? '#9333ea' : themeColor;
+        this.ctx.beginPath();
+        this.ctx.arc(tx + 70, ty - 26, 46, Math.PI, 0, false);
+        this.ctx.fill();
+
+        // Garis segmen warna kontras pada payung
+        if (!isGlitch) {
+          this.ctx.fillStyle = parasolAltColor;
+          this.ctx.beginPath();
+          this.ctx.moveTo(tx + 70, ty - 26);
+          this.ctx.arc(tx + 70, ty - 26, 46, Math.PI + Math.PI / 4, Math.PI + (3 * Math.PI) / 4, false);
+          this.ctx.fill();
+
+          // Rumbai putih tepi payung
+          this.ctx.fillStyle = '#f8fafc';
+          this.ctx.fillRect(tx + 24, ty - 26, 92, 4);
+        }
+        this.ctx.restore();
+
+        // Label meja halus
+        if (!isGlitch) {
+          this.ctx.fillStyle = '#451a03';
+          this.ctx.font = 'bold 8px monospace';
+          this.ctx.fillText(snackLabel, tx + 40, ty + 42);
+        }
       };
-      drawCanteenTable(1820, 520);
-      drawCanteenTable(2060, 520);
-      drawCanteenTable(2280, 520);
+
+      // 3 Set Meja Piknik Utama dengan tema payung warna-warni yang cerah
+      drawCanteenTable(1820, 520, '#0284c7', '#38bdf8', 'MEJA 1 (ES TEH)');
+      drawCanteenTable(2060, 520, '#f59e0b', '#fde047', 'MEJA 2 (ROTI BAKAR)');
+      drawCanteenTable(2280, 520, '#16a34a', '#4ade80', 'MEJA 3 (CILOK)');
 
       // 6. SOUTHEAST AREA: GUDANG ARSIP & BENGKEL SEKOLAH (x: 1920, y: 1160, w: 380, h: 140)
       this.ctx.fillStyle = isGlitch ? '#1f132e' : '#475569';
@@ -2393,23 +2912,51 @@ class GameEngine {
       this.ctx.font = 'bold 12px monospace';
       this.ctx.fillText(isGlitch ? 'S̶M̶K̶N̶ ̶1̶ ̶K̶A̶T̶A̶P̶A̶N̶G̶ [ANOMALI]' : 'SMKN 1 KATAPANG', 1215, 31);
 
-      // Steel Gate Bars
-      this.ctx.fillStyle = '#334155';
-      this.ctx.fillRect(1220, 40, 160, 50);
-      this.ctx.strokeStyle = '#94a3b8';
-      this.ctx.lineWidth = 3;
-      for (let gx = 1225; gx < 1380; gx += 16) {
-        this.ctx.beginPath();
-        this.ctx.moveTo(gx, 40);
-        this.ctx.lineTo(gx, 90);
-        this.ctx.stroke();
-      }
+      if (!this.isAfternoon) {
+        // Steel Gate Bars (Terkunci saat jam belajar & istirahat)
+        this.ctx.fillStyle = '#334155';
+        this.ctx.fillRect(1220, 40, 160, 50);
+        this.ctx.strokeStyle = '#94a3b8';
+        this.ctx.lineWidth = 3;
+        for (let gx = 1225; gx < 1380; gx += 16) {
+          this.ctx.beginPath();
+          this.ctx.moveTo(gx, 40);
+          this.ctx.lineTo(gx, 90);
+          this.ctx.stroke();
+        }
 
-      // Big Padlock
-      this.ctx.fillStyle = '#f59e0b';
-      this.ctx.beginPath();
-      this.ctx.arc(1300, 65, 10, 0, Math.PI * 2);
-      this.ctx.fill();
+        // Big Padlock
+        this.ctx.fillStyle = '#f59e0b';
+        this.ctx.beginPath();
+        this.ctx.arc(1300, 65, 10, 0, Math.PI * 2);
+        this.ctx.fill();
+      } else {
+        // Gerbang Dibuka Lebar di Jam 4 Sore (Waktu Pulang Sekolah)
+        this.ctx.save();
+        // Daun gerbang kiri terbuka
+        this.ctx.fillStyle = '#334155';
+        this.ctx.fillRect(1185, 35, 35, 55);
+        this.ctx.strokeStyle = '#94a3b8';
+        this.ctx.lineWidth = 2.5;
+        this.ctx.strokeRect(1185, 35, 35, 55);
+
+        // Daun gerbang kanan terbuka
+        this.ctx.fillStyle = '#334155';
+        this.ctx.fillRect(1380, 35, 35, 55);
+        this.ctx.strokeRect(1380, 35, 35, 55);
+
+        // Cahaya keemasan jalan pulang
+        this.ctx.fillStyle = 'rgba(251, 191, 36, 0.22)';
+        this.ctx.fillRect(1220, 25, 160, 75);
+
+        // Label Gerbang Terbuka
+        this.ctx.fillStyle = '#fef08a';
+        this.ctx.font = 'bold 9.5px monospace';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('🌅 GERBANG DIBUKA (WAKTU PULANG)', 1300, 22);
+        this.ctx.textAlign = 'start';
+        this.ctx.restore();
+      }
 
       // Pos Satpam Building next to Gate (x: 1440, y: 80, w: 160, h: 95)
       this.ctx.fillStyle = isGlitch ? '#2e1065' : '#334155';
@@ -2604,10 +3151,22 @@ class GameEngine {
           this.ctx.font = 'bold 9px monospace';
           if (isBook) {
             this.ctx.fillStyle = '#e9d5ff';
-            this.ctx.fillText('[E] Buka Soal (5/5)', item.x - 24, item.y - 6);
+            this.ctx.fillText('[E] Buka Soal Bengkel (5/5)', item.x - 38, item.y - 6);
           } else if (isSword) {
             this.ctx.fillStyle = '#bae6fd';
             this.ctx.fillText('[E] Ambil Pedang', item.x - 20, item.y - 6);
+          } else if (item.id === 'es_teh') {
+            this.ctx.fillStyle = '#38bdf8';
+            this.ctx.fillText('[E] Beli Es Teh (Rp 3.000)', item.x - 36, item.y - 6);
+          } else if (item.id === 'roti_bakar') {
+            this.ctx.fillStyle = '#fde047';
+            this.ctx.fillText('[E] Beli Roti Bakar (Rp 5.000)', item.x - 42, item.y - 6);
+          } else if (item.id === 'gorengan') {
+            this.ctx.fillStyle = '#fb923c';
+            this.ctx.fillText('[E] Beli Gorengan (Rp 2.000)', item.x - 40, item.y - 6);
+          } else if (item.id === 'cilok_kuah') {
+            this.ctx.fillStyle = '#4ade80';
+            this.ctx.fillText('[E] Beli Cilok (Rp 5.000)', item.x - 34, item.y - 6);
           } else {
             this.ctx.fillText('[E] Ambil', item.x - 8, item.y - 6);
           }
@@ -2618,6 +3177,7 @@ class GameEngine {
 
   renderNpcs(map) {
     for (const npc of map.npcs) {
+      if (!this.isNpcAvailable(npc)) continue;
       // Re-created ground contact shadow specifically for NPCs:
       // Positioned properly lower down directly under the soles of feet / ground plane
       const npcCenterX = npc.x + npc.w / 2;
@@ -3028,6 +3588,22 @@ class GameEngine {
       this.ctx.fillStyle = 'rgba(239, 68, 68, 0.25)';
       this.ctx.fillRect(0, tearY, this.viewWidth, tearH);
     }
+    this.ctx.restore();
+  }
+
+  renderAfternoonLighting() {
+    this.ctx.save();
+    // Warm ambient sunset filter (Jam 4 Sore / 16:00 WIB)
+    this.ctx.fillStyle = 'rgba(251, 146, 60, 0.12)';
+    this.ctx.fillRect(0, 0, this.viewWidth, this.viewHeight);
+
+    // Subtle atmospheric top-down golden glow
+    const grad = this.ctx.createLinearGradient(0, 0, 0, this.viewHeight);
+    grad.addColorStop(0, 'rgba(249, 115, 22, 0.10)');
+    grad.addColorStop(0.6, 'rgba(217, 119, 6, 0.08)');
+    grad.addColorStop(1, 'rgba(180, 83, 9, 0.18)');
+    this.ctx.fillStyle = grad;
+    this.ctx.fillRect(0, 0, this.viewWidth, this.viewHeight);
     this.ctx.restore();
   }
 

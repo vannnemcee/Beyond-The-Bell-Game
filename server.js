@@ -6,8 +6,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const port = 3000;
-const host = '0.0.0.0';
+const port = parseInt(process.env.PORT || '3000', 10);
+const host = process.env.HOST || '0.0.0.0';
 
 const staticOptions = {
   setHeaders: (res, filePath) => {
