@@ -154,14 +154,8 @@
           </div>
         </div>
 
-        <!-- Player Bar & Instructions -->
-        <div class="flex items-center justify-between pt-1 border-t border-slate-800/80">
-          <div class="flex items-center gap-2">
-            <span class="text-[10px] font-mono font-bold text-amber-400">MC HP:</span>
-            <div class="w-24 sm:w-36 h-2 bg-slate-900 rounded-full border border-amber-500/50 overflow-hidden">
-              <div id="playerHpBar" class="h-full bg-gradient-to-r from-emerald-500 to-amber-400 rounded-full transition-all duration-150" style="width: 100%;"></div>
-            </div>
-          </div>
+        <!-- Instructions -->
+        <div class="flex items-center justify-center pt-1 border-t border-slate-800/80">
           <span class="text-[10px] font-mono text-amber-300 font-bold animate-pulse">[SPASI / KLIK] ⚔️ Tebas Pedang!</span>
         </div>
       </div>
@@ -1576,7 +1570,11 @@
     if (btnRetryGlitchClassroom) {
       btnRetryGlitchClassroom.onclick = () => {
         sound.playClick();
-        game.retryClassroomGlitch();
+        if (game.bossBattleStarted && !game.bossDefeated) {
+          game.retryBossBattle();
+        } else {
+          game.retryClassroomGlitch();
+        }
       };
     }
     if (btnGiveUpGlitchClassroom) {

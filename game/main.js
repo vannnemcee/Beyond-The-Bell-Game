@@ -96,6 +96,8 @@ class GameEngine {
     this.attackCooldown = 0;
     this.isAttacking = false;
     this.attackAnimTimer = 0;
+    this.playerInvulnTimer = 0;
+    this.bossPlayerDead = false;
     this.boss = {
       name: 'Satpam ?',
       hp: 200,
@@ -106,7 +108,14 @@ class GameEngine {
       h: 100,
       facing: 'down',
       attackTimer: 1.5,
-      flashTimer: 0
+      flashTimer: 0,
+      meleeTimer: 0.8,
+      meleeAnimTimer: 0,
+      dashTimer: 3.5,
+      isDashing: false,
+      dashDuration: 0,
+      animFrame: 0,
+      animTimer: 0
     };
     this.bossProjectiles = [];
     this.damagePopups = [];
@@ -423,6 +432,16 @@ class GameEngine {
       return;
     }
 
+    // Prioritaskan masuk ke Portal Keluar Dimensi Glitch jika portal aktif dan dekat gerbang
+    if (this.escapePortalActive && this.currentMapId === 'glitch_courtyard') {
+      const distToPortal = Math.hypot((this.player.x + this.player.w / 2) - 1300, (this.player.y + this.player.h / 2) - 100);
+      const atGate = this.player.y <= 220 && this.player.x >= 1150 && this.player.x <= 1450;
+      if (distToPortal <= 160 || atGate) {
+        this.triggerEscapeToNormalClass();
+        return;
+      }
+    }
+
     if (this.state === 'CUTSCENE') {
       return;
     }
@@ -593,6 +612,16 @@ class GameEngine {
   checkInteractions() {
     const map = MAPS[this.currentMapId];
     if (!map) return;
+
+    // Prioritaskan Portal Keluar Dimensi Glitch jika sudah aktif
+    if (this.escapePortalActive && this.currentMapId === 'glitch_courtyard') {
+      const distToPortal = Math.hypot((this.player.x + this.player.w / 2) - 1300, (this.player.y + this.player.h / 2) - 100);
+      const atGate = this.player.y <= 220 && this.player.x >= 1150 && this.player.x <= 1450;
+      if (distToPortal <= 160 || atGate) {
+        this.triggerEscapeToNormalClass();
+        return;
+      }
+    }
 
     // 1. Check NPC
     for (const npc of map.npcs) {
@@ -957,10 +986,20 @@ class GameEngine {
       this.updateGlitchCourtyardHUD();
       this.showToast('Pedang Siap! Gunakan [Spasi / Tombol Pedang / Klik] untuk Menyerang.');
     } else if (action === 'start_boss_battle') {
+      this.dialogue.active = false;
+      this.dialogue.currentLine = null;
       this.state = 'BATTLE';
+      this.bossBattleStarted = true;
+      this.bossDefeated = false;
       this.playerHp = 100;
+      this.playerInvulnTimer = 0;
       this.boss.hp = 200;
       this.boss.maxHp = 200;
+      this.boss.attackTimer = 1.5;
+      this.boss.meleeTimer = 0.8;
+      this.boss.dashTimer = 3.5;
+      this.boss.isDashing = false;
+      this.bossProjectiles = [];
       // Tetap pertahankan posisi Satpam ? di depan gerbang utama (1250, 120) - TIDAK berteleportasi!
       if (!this.boss.x || this.boss.x < 1000) {
         this.boss.x = 1250;
@@ -976,10 +1015,16 @@ class GameEngine {
       this.setAttackButtonVisible(true);
       this.updateBattleUI();
       sound.playGlitchRoar();
+      this.updateMissionHUD('⚔️ TARUNG BOS: Kalahkan Satpam ? dengan Pedang!');
       this.showToast('TARUNG BOS: LAWAN SATPAM ? DENGAN TEBASAN PEDANG!');
+      return;
     } else if (action === 'escape_portal_spawn') {
       this.state = 'PLAYING';
+      this.bossBattleStarted = false;
+      this.bossDefeated = true;
       this.escapePortalActive = true;
+      const battleHUD = document.getElementById('battleHUD');
+      if (battleHUD) battleHUD.classList.add('hidden');
       this.updateMissionHUD('DIMENSI RUNTUH! Masuk ke Portal Cahaya di Gerbang!');
       this.showToast('Lari ke portal di gerbang secepat mungkin!');
     } else if (action === 'reveal_afternoon_classroom') {
@@ -1038,12 +1083,15 @@ class GameEngine {
       this.dialogue.alpha = 0;
     } else {
       // Dialogue ended
-      this.state = 'PLAYING';
+      if (this.state !== 'BATTLE') {
+        this.state = 'PLAYING';
+      }
       this.dialogue.active = false;
     }
   }
 
   startQuiz() {
+    sound.playBookQuizBGM(); // Putar lagu saat masuk soal kuis
     QUIZ_QUESTIONS.forEach(q => { delete q.shuffledOptions; });
     this.quiz.currentQuestion = 0;
     this.quiz.score = 0;
@@ -1135,7 +1183,8 @@ class GameEngine {
     if (this.quiz.currentQuestion < QUIZ_QUESTIONS.length) {
       this.renderQuizUI();
     } else {
-      // Quiz Complete!
+      // Quiz Complete! Hentikan lagu agar tidak ada lagu lagi
+      sound.stopBookQuizBGM();
       const modal = document.getElementById('quizModal');
       if (modal) modal.classList.add('hidden');
 
@@ -1266,6 +1315,7 @@ class GameEngine {
       } else {
         // Semua 5 soal bervariasi bengkel dijawab dengan benar! (5/5)
         sound.playVictory();
+        sound.stopBookQuizBGM(); // Hentikan lagu kuis saat sudah selesai menjawab
         this.spawnParticles(item.x + 12, item.y + 12, '#a855f7', 40);
         if (feedbackEl) {
           feedbackEl.className = 'font-mono text-xs p-3 rounded-xl text-center font-bold bg-gradient-to-r from-purple-900 to-emerald-900 border-2 border-amber-400 text-amber-200 animate-pulse';
@@ -1752,9 +1802,10 @@ class GameEngine {
     }
 
     // Story Trigger 4: Setelah boss kalah & portal keluar aktif di gerbang dimensi glitch
-    if (this.escapePortalActive && this.currentMapId === 'glitch_courtyard' && this.state === 'PLAYING') {
+    if (this.escapePortalActive && this.currentMapId === 'glitch_courtyard') {
       const distToPortal = Math.hypot((this.player.x + this.player.w / 2) - 1300, (this.player.y + this.player.h / 2) - 100);
-      if (distToPortal <= 75) {
+      const atGate = this.player.y <= 190 && this.player.x >= 1180 && this.player.x <= 1420;
+      if (distToPortal <= 130 || atGate) {
         this.triggerEscapeToNormalClass();
         return;
       }
@@ -1819,8 +1870,27 @@ class GameEngine {
       }
     }
 
-    // Battle Update
-    if (this.state === 'BATTLE') {
+    if (this.playerInvulnTimer > 0) {
+      this.playerInvulnTimer -= dt;
+    }
+
+    // Safety check: jika boss sudah kalah atau hp <= 0, pastikan battleHUD selalu disembunyikan dan state bukan BATTLE
+    if (this.bossDefeated || (this.boss && this.boss.hp <= 0)) {
+      const battleHUD = document.getElementById('battleHUD');
+      if (battleHUD && !battleHUD.classList.contains('hidden')) {
+        battleHUD.classList.add('hidden');
+      }
+      if (this.state === 'BATTLE') {
+        this.state = 'PLAYING';
+      }
+    }
+
+    // Battle Update: jalankan hanya jika state BATTLE dan boss belum kalah
+    if (this.state === 'BATTLE' && !this.bossDefeated && this.boss && this.boss.hp > 0 && this.currentMapId === 'glitch_courtyard' && this.state !== 'CUTSCENE' && !this.dialogue.active) {
+      const battleHUD = document.getElementById('battleHUD');
+      if (battleHUD && battleHUD.classList.contains('hidden')) {
+        battleHUD.classList.remove('hidden');
+      }
       this.updateBattle(dt);
     }
 
@@ -1910,8 +1980,70 @@ class GameEngine {
       }
       this.blackout = false;
       const modal = document.getElementById('gameOverModal');
-      if (modal) modal.classList.remove('hidden');
+      if (modal) {
+        modal.classList.remove('hidden');
+        const titleEl = modal.querySelector('h2');
+        if (titleEl) titleEl.textContent = 'TERTANGKAP OLEH ???';
+        const descEl = modal.querySelector('p');
+        if (descEl) descEl.textContent = 'Waktu 60 detik habis! Sosok glitch misterius berhasil mengejar dan menangkapmu di dalam kelas.';
+      }
     }, 700);
+  }
+
+  handlePlayerBossDeath() {
+    if (this.bossPlayerDead) return;
+    this.bossPlayerDead = true;
+    this.state = 'CUTSCENE';
+    this.player.isMoving = false;
+    this.keys = {};
+    if (this.touchJoystick) this.touchJoystick.active = false;
+
+    sound.playGlitchRoar();
+    this.spawnParticles(this.player.x + 50, this.player.y + 50, '#ef4444', 35);
+    this.spawnDamagePopup(this.player.x + 50, this.player.y + 10, 'TUMBANG!', '#ef4444');
+
+    setTimeout(() => {
+      this.bossPlayerDead = false;
+      const modal = document.getElementById('gameOverModal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        const titleEl = modal.querySelector('h2');
+        if (titleEl) titleEl.textContent = 'DIKALAHKAN OLEH SATPAM ?';
+        const descEl = modal.querySelector('p');
+        if (descEl) descEl.textContent = 'Serangan Satpam ? terlalu kuat! Hindari hantaman & bola glitch ungu, lalu tebas dengan Pedang Pusaka [Spasi / Klik]!';
+      }
+    }, 700);
+  }
+
+  retryBossBattle() {
+    const modal = document.getElementById('gameOverModal');
+    if (modal) modal.classList.add('hidden');
+
+    this.playerHp = 100;
+    this.playerInvulnTimer = 0;
+    this.boss.hp = 200;
+    this.boss.maxHp = 200;
+    this.boss.x = 1250;
+    this.boss.y = 120;
+    this.boss.attackTimer = 1.6;
+    this.boss.meleeTimer = 0.8;
+    this.boss.dashTimer = 3.5;
+    this.boss.isDashing = false;
+    this.bossProjectiles = [];
+
+    this.player.x = 1250;
+    this.player.y = 420;
+    this.player.facing = 'up';
+    this.player.isMoving = false;
+    this.keys = {};
+    if (this.touchJoystick) this.touchJoystick.active = false;
+
+    this.state = 'BATTLE';
+    this.updateBattleUI();
+    const battleHUD = document.getElementById('battleHUD');
+    if (battleHUD) battleHUD.classList.remove('hidden');
+
+    this.showToast('⚔️ TARUNG BOS: Ayo coba lagi! Hindari serangan Satpam ?');
   }
 
   retryClassroomGlitch() {
@@ -1985,7 +2117,16 @@ class GameEngine {
     this.bossDefeated = false;
     this.escapePortalActive = false;
     this.playerHp = 100;
+    this.playerInvulnTimer = 0;
     this.boss.hp = 200;
+    this.boss.maxHp = 200;
+    this.boss.x = 1250;
+    this.boss.y = 120;
+    this.boss.isDashing = false;
+    this.boss.dashDuration = 0;
+    this.boss.attackTimer = 1.5;
+    this.boss.meleeTimer = 0.8;
+    this.bossProjectiles = [];
     this.inventory = [];
 
     // Reset all collected items in all maps
@@ -2127,6 +2268,9 @@ class GameEngine {
 
         if (this.boss.hp <= 0) {
           // Boss defeated!
+          this.boss.hp = 0;
+          this.bossBattleStarted = false;
+          this.bossDefeated = true;
           this.state = 'CUTSCENE';
           const battleHUD = document.getElementById('battleHUD');
           if (battleHUD) battleHUD.classList.add('hidden');
@@ -2141,36 +2285,124 @@ class GameEngine {
   }
 
   updateBattle(dt) {
-    if (this.boss.hp <= 0) return;
+    if (!this.boss || this.boss.hp <= 0) return;
     if (this.boss.flashTimer > 0) this.boss.flashTimer -= dt;
+    if (this.boss.meleeAnimTimer > 0) this.boss.meleeAnimTimer -= dt;
 
-    // Boss smooth tracking towards player
-    const dx = this.player.x - this.boss.x;
-    const dy = this.player.y - this.boss.y;
+    // Center positions
+    const targetX = this.player.x + this.player.w / 2;
+    const targetY = this.player.y + this.player.h / 2;
+    const bossCenterX = this.boss.x + this.boss.w / 2;
+    const bossCenterY = this.boss.y + this.boss.h / 2;
+
+    const dx = targetX - bossCenterX;
+    const dy = targetY - bossCenterY;
     const dist = Math.hypot(dx, dy);
 
-    if (dist > 85) {
-      const speed = 75;
-      this.boss.x += (dx / dist) * speed * dt;
-      this.boss.y += (dy / dist) * speed * dt;
-      this.boss.facing = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
+    // Update facing direction
+    this.boss.facing = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
+
+    // Walking / moving animation
+    this.boss.animTimer = (this.boss.animTimer || 0) + dt * 7;
+    if (this.boss.animTimer >= 1) {
+      this.boss.animTimer = 0;
+      this.boss.animFrame = ((this.boss.animFrame || 0) + 1) % 8;
     }
 
-    // Boss attack timer (shoots glitch orb)
-    this.boss.attackTimer -= dt;
+    // Dash / Lunge mechanic
+    this.boss.dashTimer = (this.boss.dashTimer || 3.5) - dt;
+    if (this.boss.isDashing) {
+      this.boss.dashDuration -= dt;
+      const dashSpeed = 230;
+      if (dist > 30) {
+        this.boss.x += (dx / dist) * dashSpeed * dt;
+        this.boss.y += (dy / dist) * dashSpeed * dt;
+      }
+      if (Math.random() < 0.5) {
+        this.spawnParticles(bossCenterX, bossCenterY, '#c084fc', 2);
+      }
+      if (this.boss.dashDuration <= 0) {
+        this.boss.isDashing = false;
+      }
+    } else {
+      if (this.boss.dashTimer <= 0 && dist > 140 && dist < 480) {
+        this.boss.isDashing = true;
+        this.boss.dashDuration = 0.42;
+        this.boss.dashTimer = 4.2;
+        sound.playGlitchSFX();
+        this.spawnParticles(bossCenterX, bossCenterY, '#a855f7', 15);
+      } else if (dist > 55) {
+        // Normal pursuit speed (accelerates when HP < 100)
+        const speed = this.boss.hp < 100 ? 105 : 85;
+        this.boss.x += (dx / dist) * speed * dt;
+        this.boss.y += (dy / dist) * speed * dt;
+      }
+    }
+
+    // 1. Melee attack when close
+    this.boss.meleeTimer = (this.boss.meleeTimer || 0.8) - dt;
+    if (dist <= 78 && this.boss.meleeTimer <= 0) {
+      this.boss.meleeTimer = 0.85;
+      this.boss.meleeAnimTimer = 0.25;
+      sound.playMonsterHit();
+
+      const strikeX = bossCenterX + (dist > 0 ? (dx / dist) * 45 : 0);
+      const strikeY = bossCenterY + (dist > 0 ? (dy / dist) * 45 : 0);
+      this.spawnParticles(strikeX, strikeY, '#e879f9', 16);
+
+      if (this.playerInvulnTimer <= 0) {
+        const dmg = 12;
+        this.playerHp = Math.max(0, this.playerHp - dmg);
+        this.playerInvulnTimer = 0.55;
+        this.spawnDamagePopup(this.player.x + 50, this.player.y + 10, `-${dmg}`, '#ef4444');
+        this.spawnParticles(this.player.x + 50, this.player.y + 50, '#ef4444', 15);
+        sound.playWrong();
+        this.updateBattleUI();
+
+        // Pushback player slightly
+        if (dist > 0) {
+          this.player.x += (dx / dist) * 28;
+          this.player.y += (dy / dist) * 28;
+        }
+
+        if (this.playerHp <= 0) {
+          this.handlePlayerBossDeath();
+          return;
+        }
+      }
+    }
+
+    // 2. Ranged Glitch Projectile Attack
+    this.boss.attackTimer = (this.boss.attackTimer || 1.8) - dt;
     if (this.boss.attackTimer <= 0) {
-      this.boss.attackTimer = 1.35;
+      this.boss.attackTimer = this.boss.hp < 100 ? 1.3 : 1.75;
       sound.playGlitchSFX();
-      const dirX = dist > 0 ? dx / dist : 0;
-      const dirY = dist > 0 ? dy / dist : 1;
-      this.bossProjectiles.push({
-        x: this.boss.x + this.boss.w / 2,
-        y: this.boss.y + this.boss.h / 2,
-        vx: dirX * 190,
-        vy: dirY * 190,
-        life: 3.0,
-        r: 10
-      });
+
+      const baseAngle = Math.atan2(dy, dx);
+      if (this.boss.hp < 100) {
+        // Enraged: 3 spread orbs
+        [-0.25, 0, 0.25].forEach(offset => {
+          const ang = baseAngle + offset;
+          this.bossProjectiles.push({
+            x: bossCenterX,
+            y: bossCenterY,
+            vx: Math.cos(ang) * 210,
+            vy: Math.sin(ang) * 210,
+            life: 3.2,
+            r: 9
+          });
+        });
+      } else {
+        // Standard: 1 targeted orb
+        this.bossProjectiles.push({
+          x: bossCenterX,
+          y: bossCenterY,
+          vx: Math.cos(baseAngle) * 200,
+          vy: Math.sin(baseAngle) * 200,
+          life: 3.2,
+          r: 10
+        });
+      }
     }
 
     // Update projectiles
@@ -2180,14 +2412,29 @@ class GameEngine {
       p.y += p.vy * dt;
       p.life -= dt;
 
+      // Trail particle
+      if (Math.random() < 0.25) {
+        this.spawnParticles(p.x, p.y, '#d946ef', 1);
+      }
+
       // Hit player
-      const hitDist = Math.hypot(p.x - (this.player.x + this.player.w / 2), p.y - (this.player.y + this.player.h / 2));
-      if (hitDist <= 35) {
-        this.playerHp = Math.max(10, this.playerHp - 10);
-        this.spawnDamagePopup(this.player.x + 50, this.player.y + 10, '-10', '#ef4444');
-        this.spawnParticles(this.player.x + 50, this.player.y + 50, '#ef4444', 12);
-        sound.playWrong();
-        this.updateBattleUI();
+      const hitDist = Math.hypot(p.x - targetX, p.y - targetY);
+      if (hitDist <= 38) {
+        if (this.playerInvulnTimer <= 0) {
+          const dmg = 10;
+          this.playerHp = Math.max(0, this.playerHp - dmg);
+          this.playerInvulnTimer = 0.5;
+          this.spawnDamagePopup(this.player.x + 50, this.player.y + 10, `-${dmg}`, '#ef4444');
+          this.spawnParticles(this.player.x + 50, this.player.y + 50, '#ef4444', 12);
+          sound.playWrong();
+          this.updateBattleUI();
+
+          if (this.playerHp <= 0) {
+            this.bossProjectiles.splice(i, 1);
+            this.handlePlayerBossDeath();
+            return;
+          }
+        }
         this.bossProjectiles.splice(i, 1);
         continue;
       }
@@ -2201,7 +2448,6 @@ class GameEngine {
   updateBattleUI() {
     const bossBar = document.getElementById('bossHpBar');
     const bossTxt = document.getElementById('bossHpText');
-    const playerBar = document.getElementById('playerHpBar');
 
     if (bossBar) {
       const pct = Math.max(0, (this.boss.hp / this.boss.maxHp) * 100);
@@ -2210,10 +2456,8 @@ class GameEngine {
     if (bossTxt) {
       bossTxt.textContent = `${Math.max(0, Math.round(this.boss.hp))} / ${this.boss.maxHp} HP`;
     }
-    if (playerBar) {
-      const pct = Math.max(0, (this.playerHp / this.playerMaxHp) * 100);
-      playerBar.style.width = `${pct}%`;
-    }
+    // Update darah player di kartu status kiri atas langsung
+    this.updatePlayerHUD();
   }
 
   spawnDamagePopup(x, y, text, color = '#ef4444') {
@@ -3291,6 +3535,11 @@ class GameEngine {
   renderPlayer() {
     const p = this.player;
 
+    this.ctx.save();
+    if (this.playerInvulnTimer > 0 && Math.floor(Date.now() / 80) % 2 === 0) {
+      this.ctx.globalAlpha = 0.45;
+    }
+
     // Grounded shadow snugly aligned beneath feet
     const shadowY = (p.gender === 'boy' && (p.facing === 'left' || p.facing === 'right'))
       ? p.y + p.h * 0.86
@@ -3421,6 +3670,7 @@ class GameEngine {
     this.ctx.textAlign = 'center';
     this.ctx.fillText(p.name, p.x + p.w / 2, p.y - 6);
     this.ctx.textAlign = 'start';
+    this.ctx.restore();
   }
 
   renderBoss() {
@@ -3433,40 +3683,80 @@ class GameEngine {
     this.ctx.ellipse(b.x + b.w / 2, b.y + b.h * 0.85, 24, 8, 0, 0, Math.PI * 2);
     this.ctx.fill();
 
+    // Afterimage if dashing
+    if (b.isDashing) {
+      this.ctx.save();
+      this.ctx.globalAlpha = 0.35;
+      this.ctx.filter = 'drop-shadow(0 0 10px #c084fc) hue-rotate(240deg)';
+      const prevFrame = ((b.animFrame || 0) + 1) % 8;
+      const ghostSprite = sprites.get(`satpam_${prevFrame}`) || sprites.get('satpam_0');
+      if (ghostSprite) {
+        this.ctx.drawImage(ghostSprite, b.x - (b.facing === 'right' ? 14 : (b.facing === 'left' ? -14 : 0)), b.y - (b.facing === 'down' ? 14 : (b.facing === 'up' ? -14 : 0)), b.w, b.h);
+      }
+      this.ctx.restore();
+    }
+
     // Glitch jitter offset
-    const jitterX = (Math.random() - 0.5) * 6;
-    const jitterY = (Math.random() - 0.5) * 4;
+    const jitterX = (Math.random() - 0.5) * (b.hp < 100 ? 10 : 6);
+    const jitterY = (Math.random() - 0.5) * (b.hp < 100 ? 6 : 4);
 
     // Boss Sprite (Satpam with glitching purple aura)
-    const frame = Math.floor(Date.now() / 200) % 8;
+    const frame = b.animFrame !== undefined ? b.animFrame : (Math.floor(Date.now() / 150) % 8);
     const sprite = sprites.get(`satpam_${frame}`) || sprites.get('satpam_0');
     if (sprite && ((sprite.naturalWidth && sprite.naturalWidth > 0) || (sprite.width && sprite.width > 0))) {
       this.ctx.save();
       if (b.flashTimer > 0) {
-        this.ctx.filter = 'brightness(2) drop-shadow(0 0 10px #f43f5e)';
+        this.ctx.filter = 'brightness(2) drop-shadow(0 0 12px #f43f5e)';
       } else {
-        this.ctx.filter = 'drop-shadow(0 0 12px rgba(168, 85, 247, 0.85)) hue-rotate(240deg)';
+        this.ctx.filter = 'drop-shadow(0 0 14px rgba(168, 85, 247, 0.95)) hue-rotate(240deg)';
       }
-      this.ctx.drawImage(sprite, b.x + jitterX, b.y + jitterY, b.w, b.h);
+      if (b.facing === 'left') {
+        this.ctx.save();
+        this.ctx.translate(b.x + b.w + jitterX, b.y + jitterY);
+        this.ctx.scale(-1, 1);
+        this.ctx.drawImage(sprite, 0, 0, b.w, b.h);
+        this.ctx.restore();
+      } else {
+        this.ctx.drawImage(sprite, b.x + jitterX, b.y + jitterY, b.w, b.h);
+      }
       this.ctx.restore();
     } else {
       this.ctx.fillStyle = '#9333ea';
       this.ctx.fillRect(b.x, b.y, b.w, b.h);
     }
 
+    // Melee attack claw / slash effect
+    if (b.meleeAnimTimer > 0) {
+      this.ctx.save();
+      this.ctx.strokeStyle = '#e879f9';
+      this.ctx.shadowColor = '#d946ef';
+      this.ctx.shadowBlur = 12;
+      this.ctx.lineWidth = 4;
+      this.ctx.beginPath();
+      const centerX = b.x + b.w / 2;
+      const centerY = b.y + b.h / 2;
+      const angle = b.facing === 'right' ? 0 : (b.facing === 'left' ? Math.PI : (b.facing === 'down' ? Math.PI / 2 : -Math.PI / 2));
+      this.ctx.arc(centerX + Math.cos(angle) * 35, centerY + Math.sin(angle) * 35, 22, angle - Math.PI / 2.5, angle + Math.PI / 2.5);
+      this.ctx.stroke();
+      this.ctx.restore();
+    }
+
     // Overhead Boss Name & Mini Bar
     this.ctx.fillStyle = '#e879f9';
     this.ctx.font = 'bold 11px monospace';
     this.ctx.textAlign = 'center';
-    this.ctx.fillText('⚡ Satpam ? [GLITCH] ⚡', b.x + b.w / 2, b.y - 12);
+    this.ctx.fillText('⚡ Satpam ? [GLITCH] ⚡', b.x + b.w / 2, b.y - 14);
 
     // Mini HP bar
-    const barW = 60;
-    const barH = 5;
-    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-    this.ctx.fillRect(b.x + b.w / 2 - barW / 2, b.y - 8, barW, barH);
-    this.ctx.fillStyle = '#a855f7';
-    this.ctx.fillRect(b.x + b.w / 2 - barW / 2, b.y - 8, barW * (Math.max(0, b.hp) / b.maxHp), barH);
+    const barW = 64;
+    const barH = 6;
+    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    this.ctx.fillRect(b.x + b.w / 2 - barW / 2, b.y - 10, barW, barH);
+    this.ctx.fillStyle = b.hp < 70 ? '#ef4444' : '#a855f7';
+    this.ctx.fillRect(b.x + b.w / 2 - barW / 2, b.y - 10, barW * (Math.max(0, b.hp) / b.maxHp), barH);
+    this.ctx.strokeStyle = '#c084fc';
+    this.ctx.lineWidth = 1;
+    this.ctx.strokeRect(b.x + b.w / 2 - barW / 2, b.y - 10, barW, barH);
     this.ctx.textAlign = 'start';
 
     // Render Boss Projectiles
@@ -3474,13 +3764,13 @@ class GameEngine {
       this.ctx.save();
       this.ctx.fillStyle = '#d946ef';
       this.ctx.shadowColor = '#a855f7';
-      this.ctx.shadowBlur = 10;
+      this.ctx.shadowBlur = 12;
       this.ctx.beginPath();
       this.ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
       this.ctx.fill();
       this.ctx.fillStyle = '#ffffff';
       this.ctx.beginPath();
-      this.ctx.arc(p.x, p.y, p.r * 0.4, 0, Math.PI * 2);
+      this.ctx.arc(p.x, p.y, p.r * 0.45, 0, Math.PI * 2);
       this.ctx.fill();
       this.ctx.restore();
     }

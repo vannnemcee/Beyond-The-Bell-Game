@@ -47,15 +47,13 @@ class SoundEngine {
     }
   }
 
-  // Khusus saat membuka kuis buku anomali di dimensi lain
+  // Khusus saat membuka kuis buku anomali di dimensi lain atau kuis soal
   playBookQuizBGM() {
     this.init();
     if (!this.audioElement) return;
-    if (this.isQuizBgmActive) return; // Sudah memainkan lagu kuis
     this.isQuizBgmActive = true;
-    this.previousBgmSrc = this.audioElement.src;
-    this.previousBgmTime = this.audioElement.currentTime || 0;
     this.audioElement.src = 'assets/audio/Theme 4.aac';
+    this.audioElement.currentTime = 0;
     this.audioElement.loop = true;
     this.audioElement.volume = this.muted ? 0 : this.musicVolume;
     this.audioElement.play().catch(() => {});
@@ -63,15 +61,9 @@ class SoundEngine {
 
   stopBookQuizBGM() {
     if (!this.audioElement) return;
-    if (!this.isQuizBgmActive) return;
     this.isQuizBgmActive = false;
-    if (this.previousBgmSrc) {
-      this.audioElement.src = this.previousBgmSrc;
-      this.audioElement.currentTime = this.previousBgmTime || 0;
-      this.audioElement.loop = true;
-      this.audioElement.volume = this.muted ? 0 : this.musicVolume;
-      this.audioElement.play().catch(() => {});
-    }
+    this.audioElement.pause();
+    this.audioElement.currentTime = 0;
   }
 
   // Khusus suasana sore hari jam pulang sekolah (jam 4 sore santai dan damai)
